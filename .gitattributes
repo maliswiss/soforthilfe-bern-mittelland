@@ -1,0 +1,26 @@
+# Zeilenenden vereinheitlichen
+* text=auto eol=lf
+
+# Quelltext
+*.cs text diff=csharp
+*.md text diff=markdown
+*.json text
+*.yml text
+*.yaml text
+*.vue text
+*.js text
+*.mjs text
+*.ts text
+*.css text
+*.html text
+*.sql text
+*.sh text eol=lf
+
+# Binärdateien
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary

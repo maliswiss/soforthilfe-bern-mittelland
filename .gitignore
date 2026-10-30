@@ -1,0 +1,53 @@
+# Build-Ausgaben
+bin/
+obj/
+dist/
+out/
+publish/
+coverage/
+test-results/
+playwright-report/
+*.log
+
+# Abhängigkeiten
+node_modules/
+
+# Zugangsdaten und Schlüssel
+.env
+.env.*
+!.env.example
+appsettings.Local.json
+appsettings.*.Local.json
+secrets.json
+*.pfx
+*.pem
+*.key
+*.crt
+*.p12
+
+# Datenbank-Abzüge und Sicherungen
+*.dump
+*.sql.gz
+*.bak
+
+# Sicherheitsprüfung: vollständige Berichte bleiben lokal
+zap-berichte/
+
+# Office- und PDF-Dateien
+*.doc
+*.docx
+*.ppt
+*.pptx
+*.xls
+*.xlsx
+*.pdf
+
+# Editor und Betriebssystem
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+desktop.ini
+Thumbs.db
+.DS_Store
