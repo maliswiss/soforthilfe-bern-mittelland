@@ -1,0 +1,23 @@
+#!/bin/sh
+# Prüfung vor jedem Commit
+# 1. Hygieneprüfung der gestagten Dateien (Build-Ausgaben, Zugangsdaten, Schlüssel, Abzüge)
+# 2. Geheimnisprüfung der gestagten Änderungen mit Gitleaks
+#
+# Einrichtung einmal pro Klon: git config core.hooksPath .githooks
+
+if ! command -v node >/dev/null 2>&1; then
+  echo "Pre-Commit: Node.js wurde nicht gefunden. Der Commit wird abgebrochen." >&2
+  exit 1
+fi
+
+node scripts/hygiene/pruefe-dateien.mjs || exit 1
+
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "Pre-Commit: Gitleaks ist nicht installiert. Installation unter Windows: winget install --id Gitleaks.Gitleaks -e" >&2
+  exit 1
+fi
+
+gitleaks git --pre-commit --staged --redact --no-banner --config .gitleaks.toml || {
+  echo "Pre-Commit: Gitleaks hat ein mögliches Geheimnis gefunden. Der Commit wird abgebrochen." >&2
+  exit 1
+}

@@ -1,0 +1,12 @@
+# Konfiguration der Geheimnisprüfung mit Gitleaks
+# Verwendet die Standardregeln von Gitleaks und lässt nur Platzhalter in spitzen Klammern zu,
+# wie sie in der Vorlage .env.example stehen.
+
+title = "Soforthilfe Bern/Mittelland"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Platzhalter in Vorlagen, zum Beispiel <starkes-passwort-setzen>"
+regexes = ['''^<[a-z0-9-]+>$''']

@@ -7,6 +7,7 @@ publish/
 coverage/
 test-results/
 playwright-report/
+.vite/
 *.log
 
 # Abhängigkeiten
@@ -24,14 +25,20 @@ secrets.json
 *.key
 *.crt
 *.p12
+acme.json
 
 # Datenbank-Abzüge und Sicherungen
 *.dump
+*.dump.json
 *.sql.gz
 *.bak
+*.backup
+sicherungen/
+backup/
 
 # Sicherheitsprüfung: vollständige Berichte bleiben lokal
 zap-berichte/
+tests/sicherheit/ergebnisse/
 
 # Office- und PDF-Dateien
 *.doc
