@@ -3,6 +3,8 @@
 Hyperlokale Vermittlungsplattform für zeitkritische Alltagshilfe in Bern und Mittelland.
 HF Informatik, gibb Bern.
 
+[![CI](https://github.com/maliswiss/soforthilfe-bern-mittelland/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/maliswiss/soforthilfe-bern-mittelland/actions/workflows/ci.yml)
+
 Hilfesuchende beschreiben ihre Lage in eigenen Worten. Die Plattform erkennt den Bedarf, stoppt bei gesundheitlichen Notfällen mit dem Hinweis «144 anrufen» und schlägt verifizierte Helfende aus der Nähe vor.
 
 ## Stand

@@ -1,0 +1,100 @@
+# CI: Geheimnisprüfung, Hygieneprüfung, Build und Tests
+# Läuft bei jedem Push auf main und bei jedem Pull Request.
+# Die Schritte für Backend und Frontend greifen, sobald der jeweilige Code vorhanden ist.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  geheimnisse:
+    name: Geheimnisprüfung (Gitleaks)
+    runs-on: ubuntu-latest
+    env:
+      GITLEAKS_VERSION: 8.30.1
+    steps:
+      - name: Repository mit gesamter Historie auschecken
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Gitleaks installieren und Prüfsumme kontrollieren
+        run: |
+          cd "$RUNNER_TEMP"
+          basis="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
+          curl -sSfL -o "gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" "${basis}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -sSfL -o pruefsummen.txt "${basis}/gitleaks_${GITLEAKS_VERSION}_checksums.txt"
+          sha256sum --check --ignore-missing pruefsummen.txt
+          tar -xzf "gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" gitleaks
+          sudo install -m 0755 gitleaks /usr/local/bin/gitleaks
+          gitleaks version
+
+      - name: Gesamte Historie auf Geheimnisse prüfen
+        run: gitleaks git --redact --verbose --no-banner --config .gitleaks.toml
+
+  hygiene:
+    name: Hygieneprüfung
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v7
+
+      - name: Node.js einrichten
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Alle versionierten Dateien prüfen
+        run: node scripts/hygiene/pruefe-dateien.mjs --alle
+
+      - name: Tests der Hygieneprüfung
+        run: node --test "tests/hygiene/*.test.mjs"
+
+  backend:
+    name: Backend bauen und testen
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v7
+
+      - name: Vorhandensein des Backends prüfen
+        id: backend
+        run: |
+          if [ -f backend/Soforthilfe.slnx ]; then
+            echo "vorhanden=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "vorhanden=false" >> "$GITHUB_OUTPUT"
+            echo "Noch kein Backend vorhanden, Build und Tests werden übersprungen."
+          fi
+
+      - name: .NET einrichten
+        if: steps.backend.outputs.vorhanden == 'true'
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Abhängigkeiten wiederherstellen
+        if: steps.backend.outputs.vorhanden == 'true'
+        working-directory: backend
+        run: dotnet restore Soforthilfe.slnx
+
+      - name: Bauen
+        if: steps.backend.outputs.vorhanden == 'true'
+        working-directory: backend
+        run: dotnet build Soforthilfe.slnx --configuration Release --no-restore
+
+      - name: Tests
+        if: steps.backend.outputs.vorhanden == 'true' && hashFiles('backend/tests/**/*.csproj') != ''
+        working-directory: backend
+        run: dotnet test Soforthilfe.slnx --configuration Release --no-build

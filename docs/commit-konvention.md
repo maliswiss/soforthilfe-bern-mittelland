@@ -36,6 +36,8 @@ git config core.hooksPath .githooks
 
 Gitleaks und Node.js müssen installiert sein. Schlägt eine Prüfung fehl, entsteht kein Commit; die betroffene Datei wird mit `git restore --staged <datei>` aus dem Index genommen.
 
+Dieselben Prüfungen laufen in der CI (`.github/workflows/ci.yml`) bei jedem Push und Pull Request: die Hygieneprüfung über alle versionierten Dateien, Gitleaks über die gesamte Historie. Dazu kommen Build und Tests, sobald der jeweilige Code vorhanden ist. Dependabot prüft die Abhängigkeiten wöchentlich.
+
 Die Tests der Hygieneprüfung laufen mit:
 
 ```
