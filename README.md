@@ -1,80 +1,102 @@
 # Soforthilfe Bern/Mittelland
 
-Hyperlokale Vermittlungsplattform für zeitkritische Alltagshilfe in Bern und Mittelland.
-HF Informatik, gibb Bern.
-
 [![CI](https://github.com/maliswiss/soforthilfe-bern-mittelland/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/maliswiss/soforthilfe-bern-mittelland/actions/workflows/ci.yml)
+[![Lizenz: MIT](https://img.shields.io/badge/Lizenz-MIT-blue.svg)](LICENSE)
+
+Hyperlokale Vermittlungsplattform für zeitkritische Alltagshilfe in Bern und Mittelland. HF Informatik, gibb Bern.
 
 Hilfesuchende beschreiben ihre Lage in eigenen Worten. Die Plattform erkennt den Bedarf, stoppt bei gesundheitlichen Notfällen mit dem Hinweis «144 anrufen» und schlägt verifizierte Helfende aus der Nähe vor.
 
-## Stand
+**Ziel:** Hilfesuchende erhalten in kurzer Zeit einen passenden, begründeten Vorschlag. Gesundheitliche Notfälle werden nie vermittelt, Standort- und Personendaten bleiben geschützt.
 
-**Im Aufbau.** Die Plattform ist noch nicht lauffähig.
+## Inhalt
 
-| Release | Zeitraum | Inhalt | Stand |
-|---|---|---|---|
-| R1 Fundament | 19.10. bis 06.11.2026 | Repository, CI, Backend-Grundlage, Mandanten, Anmeldung, Anfrage, Containerplattform | in Arbeit |
-| R2 Matching | 09.11. bis 27.11.2026 | Notfallregeln, Verständniskette, Orte, Helferprofile, Preise, Mehrsprachigkeit, Matching, Messprotokoll | geplant |
-| R3 Prototyp | 30.11. bis 18.12.2026 | Auswahl und Zusage, Echtzeit, Abschluss, Datenschutz, Redundanz, Sicherung, Überwachung, Lasttest, Sicherheitsprüfung | geplant |
+- [Funktionen](#funktionen)
+- [Architektur](#architektur)
+- [Technische Basis](#technische-basis)
+- [Schnellstart](#schnellstart)
+- [Entwicklung](#entwicklung)
+- [Abgrenzung](#abgrenzung)
+- [Drittkomponenten und Lizenz](#drittkomponenten-und-lizenz)
 
-Die einzelnen Aufgaben stehen als Issues im Repository und sind nach Release und Zieltermin geordnet.
+## Funktionen
 
-## Geplante Funktionen
+| Funktion | Release | Stand |
+|---|---|---|
+| Hygiene- und Geheimnisprüfung vor jedem Commit und in der CI | R1 | umgesetzt |
+| CI mit Build und Tests, Dependabot | R1 | umgesetzt |
+| Backend in drei Schichten mit Info-Endpunkt | R1 | umgesetzt |
+| Mandantenfähigkeit: Regionen mit strikter Datentrennung | R1 | geplant |
+| Anmeldung mit JWT, Rollen und Berechtigungen | R1 | geplant |
+| Anfrage per Kategorie oder Freitext | R1 | geplant |
+| Containerplattform mit Docker Compose und Traefik | R1 | geplant |
+| Notfall-Stopp mit Hinweis «144 anrufen» | R2 | geplant |
+| Orte über das Ortschaftenverzeichnis von swisstopo, Standortfreigabe | R2 | geplant |
+| Helferprofile mit Verifizierung und Preisangaben | R2 | geplant |
+| Verständniskette: Kategorie, Regeln, TF-IDF-Klassifikator, Sprachmodell | R2 | geplant |
+| Mehrsprachigkeit Deutsch und Französisch, Sprachimport ohne Deployment | R2 | geplant |
+| Smart-Matching mit nachvollziehbarer Begründung | R2 | geplant |
+| Auswahl, Zusage, Eskalation und Echtzeit-Hinweise | R3 | geplant |
+| Chat je Anfrage | R3 | geplant |
+| Abschluss, Vermittlungsgebühr, Bewertung und Auswertung | R3 | geplant |
+| Datenschutz: gestaffelte Preisgabe, Auskunft, Löschung, Aufbewahrungsfristen | R3 | geplant |
+| Redundanz mit zwei API-Instanzen, Sicherung, Überwachung, Alarmierung per Telegram | R3 | geplant |
+| Sicherheitsprüfung nach OWASP Top 10 (Ausgabe 2025) | R3 | geplant |
 
-- Anfrage per Kategorie oder Freitext, mit automatischer Erkennung des Bedarfs
-- Notfall-Stopp bei gesundheitlichen Notfällen
-- Ortsangabe über das amtliche Ortschaftenverzeichnis (swisstopo) oder per Standortfreigabe
-- Helferprofile mit Verifizierung, Preisangaben und Verfügbarkeit
-- Smart-Matching mit nachvollziehbarer Begründung
-- Mehrsprachigkeit (Deutsch und Französisch), weitere Sprachen ohne Deployment
-- Echtzeit-Hinweise zwischen Hilfesuchenden und Helfenden
-- Mandantenfähigkeit: Regionen sind strikt getrennt
-- Datenschutz, Redundanz mit zwei API-Instanzen, Sicherung, Überwachung
+## Architektur
 
-## Aufbau des Repositories
+Das Backend ist eine ASP.NET Core Web API in drei Schichten. Jede Schicht ist ein eigenes Projekt und kennt nur die Schicht darunter.
 
-| Verzeichnis | Inhalt |
+```mermaid
+flowchart LR
+  Client["HTTP-Client"] --> Api["Soforthilfe.Api<br/>Controller"]
+  Api --> Dienste["Soforthilfe.Dienste<br/>Fachlogik"]
+  Dienste --> Daten["Soforthilfe.Datenzugriff<br/>Datenzugriff"]
+```
+
+Der vollständige Architektur- und Codeplan steht in [docs/architektur.md](docs/architektur.md).
+
+## Technische Basis
+
+| Bereich | Technik |
 |---|---|
-| `backend/` | ASP.NET Core Web API |
-| `frontend/` | Vue 3 Web-App (PWA) |
-| `deploy/` | Docker Compose, Traefik, Sicherung, Überwachung |
-| `tests/` | Schnittstellen-, Oberflächen-, Last- und Sicherheitstests |
-| `docs/` | Architektur, Konventionen, Drittkomponenten, Protokolle |
-| `.github/` | Issue-Vorlage und CI |
+| Backend | ASP.NET Core 10 (.NET 10), C# |
+| Repository-Schutz | Gitleaks, Hygieneprüfung mit Node.js 22 und node:test |
+| CI | GitHub Actions, Dependabot |
 
-## Technik
+## Schnellstart
 
-ASP.NET Core 10, Entity Framework Core, PostgreSQL 16 mit PostGIS, JWT, SignalR, Vue 3 mit Vite, Tailwind CSS und vue-i18n, Docker Compose mit Traefik, Prometheus und Alertmanager, Playwright. Details stehen in [docs/architektur.md](docs/architektur.md).
+Voraussetzungen: .NET SDK 10, Node.js 22, Git und Gitleaks.
 
-## Start
+```
+git clone https://github.com/maliswiss/soforthilfe-bern-mittelland.git
+cd soforthilfe-bern-mittelland
+git config core.hooksPath .githooks
+dotnet run --project backend/src/Soforthilfe.Api
+```
 
-Die Startanleitung folgt mit Release 1, sobald die Containerplattform steht.
-Zugangsdaten und Schlüssel gehören nie in das Repository: Vorlage ist die Datei [`.env.example`](.env.example), die echte `.env` bleibt lokal.
+Die Schnittstelle antwortet unter `http://localhost:5000/api/info` mit Name und Version. Zugangsdaten gehören nie ins Repository; Vorlage für die lokale Konfiguration ist [`.env.example`](.env.example).
 
-## Nummerierung
+## Entwicklung
 
-Im Repository und in den Issues kommen zwei Nummerierungen vor, die nichts miteinander zu tun haben:
+- **Kanban:** [Soforthilfe Bern/Mittelland Kanban](https://github.com/users/maliswiss/projects/3)
+- **Aufgaben:** Jede Aufgabe ist ein Issue, jede Aufgabe ein Commit.
+- **Commits:** `<Release>: <Kurzbeschreibung> (Refs #<Issue>)`, zum Beispiel `R1: Backend-Projektstruktur mit Schichten angelegt (Refs #4)`.
+- **Prüfung vor dem Commit:** Hygieneprüfung und Gitleaks, Einrichtung mit `git config core.hooksPath .githooks`.
+- **Releases und Tags:** R1 (19.10. bis 06.11.2026), R2 (09.11. bis 27.11.2026), R3 (30.11. bis 18.12.2026); jede Abnahme erhält den Tag `r1-abnahme`, `r2-abnahme` oder `r3-abnahme`.
 
-- **«Anforderung A…»** (zum Beispiel «Anforderung A18») bezeichnet einen Punkt aus dem Anforderungskatalog des Projekts.
-- **A01 bis A10** sind die Kategorien der [OWASP Top 10](https://owasp.org/Top10/) in der Ausgabe 2025. Die Sicherheitsprüfungen sind danach geordnet.
+Alle Regeln stehen in [docs/commit-konvention.md](docs/commit-konvention.md).
 
-| Kennung | Kategorie |
-|---|---|
-| A01 | Zugriffskontrolle (Broken Access Control) |
-| A02 | Fehlkonfiguration (Security Misconfiguration) |
-| A03 | Software-Lieferkette (Software Supply Chain Failures) |
-| A04 | Kryptografie (Cryptographic Failures) |
-| A05 | Injection |
-| A06 | Unsicherer Entwurf (Insecure Design) |
-| A07 | Authentifizierung (Authentication Failures) |
-| A08 | Software- und Datenintegrität (Software or Data Integrity Failures) |
-| A09 | Protokollierung und Alarmierung (Security Logging and Alerting Failures) |
-| A10 | Fehlerhafter Umgang mit Ausnahmesituationen (Mishandling of Exceptional Conditions) |
+**Nummerierung:** «Anforderung A…» (zum Beispiel «Anforderung A18») bezeichnet einen Punkt aus dem Anforderungskatalog. A01 bis A10 sind die Kategorien der [OWASP Top 10](https://owasp.org/Top10/) in der Ausgabe 2025. Die beiden Nummerierungen haben nichts miteinander zu tun.
 
-## Commits und Issues
+## Abgrenzung
 
-Jede Aufgabe ist ein Issue, jeder Commit nennt sein Issue und trägt das Präfix seines Releases, zum Beispiel `R1: Kurzbeschreibung (Refs #5)`. Die Regeln stehen in [docs/commit-konvention.md](docs/commit-konvention.md).
+- Die Plattform ersetzt keinen Notruf und berät nicht medizinisch. Erkennt sie einen gesundheitlichen Notfall, verweist sie auf 144 und vermittelt nicht.
+- Feuerwehr (118) und Polizei (117) sind bewusst nicht Teil der Notfallprüfung, weil Betroffene dort direkt anrufen.
+- Für die Verifizierung werden keine Ausweisdokumente hochgeladen oder gespeichert.
+- Die Plattform ist test- und pilotfähig; ein produktiver Betrieb ist nicht Teil des Projekts.
+- Der Betrieb läuft lokal und containerbasiert. Eine Cloud ist eine Option für später, keine Zusage.
 
-## Lizenz
+## Drittkomponenten und Lizenz
 
-[MIT](LICENSE). Die verwendeten Drittkomponenten mit Lizenz und Quelle stehen in [docs/drittkomponenten.md](docs/drittkomponenten.md).
+Der Quelltext steht unter der [MIT-Lizenz](LICENSE). Verwendete Drittkomponenten mit Zweck, Lizenz und Quelle stehen in [docs/drittkomponenten.md](docs/drittkomponenten.md).

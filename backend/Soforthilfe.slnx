@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Soforthilfe.Api/Soforthilfe.Api.csproj" />
+    <Project Path="src/Soforthilfe.Dienste/Soforthilfe.Dienste.csproj" />
+    <Project Path="src/Soforthilfe.Datenzugriff/Soforthilfe.Datenzugriff.csproj" />
+  </Folder>
+</Solution>

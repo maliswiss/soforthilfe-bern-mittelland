@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Schicht Dienste: Fachlogik wie Verständniskette, Matching, Preise und Verifizierung -->
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Soforthilfe.Datenzugriff\Soforthilfe.Datenzugriff.csproj" />
+  </ItemGroup>
+
+</Project>

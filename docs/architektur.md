@@ -39,6 +39,16 @@ ASP.NET Core 10 in drei Schichten:
 | Dienste | Fachlogik: Verständniskette, Matching, Preise, Verifizierung |
 | Datenzugriff | Entity Framework Core mit Npgsql, Migrationen, Mandantenfilter |
 
+Die Lösung `backend/Soforthilfe.slnx` bildet die Schichten als eigene Projekte ab. Gemeinsame Einstellungen stehen in `backend/Directory.Build.props`, die SDK-Version in `backend/global.json`.
+
+| Projekt | Schicht | Verweist auf |
+|---|---|---|
+| `Soforthilfe.Api` | Controller | `Soforthilfe.Dienste` |
+| `Soforthilfe.Dienste` | Dienste | `Soforthilfe.Datenzugriff` |
+| `Soforthilfe.Datenzugriff` | Datenzugriff | keine eigenen Projekte |
+
+Die Schnittstelle registriert die Fachdienste über `AddDienste()`; diese binden den Datenzugriff mit `AddDatenzugriff()` ein. Controller verwenden nur Dienste und greifen nie direkt auf den Datenzugriff zu.
+
 Querschnitt: Konfiguration aus der Umgebung, Zustandsprüfung, zentrale Fehlerbehandlung, Protokollierung ohne Personendaten.
 
 ## Daten
