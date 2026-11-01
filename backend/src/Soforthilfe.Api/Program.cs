@@ -33,7 +33,7 @@ builder.Services.AddExceptionHandler<ZentraleFehlerbehandlung>();
 builder.Services.AddHealthChecks();
 
 // Fachdienste inklusive Datenzugriff. Die Schnittstelle kennt nur die Dienstschicht.
-builder.Services.AddDienste();
+builder.Services.AddDienste(builder.Configuration);
 
 var app = builder.Build();
 

@@ -9,7 +9,9 @@ Verwendete oder geplante Fremdkomponenten mit Zweck, Lizenz und Quelle. Die gena
 | ASP.NET Core (inklusive SignalR) | Web-API und Echtzeit | MIT | https://github.com/dotnet/aspnetcore |
 | .NET | Laufzeit und Bibliotheken | MIT | https://github.com/dotnet/runtime |
 | Entity Framework Core | Datenzugriff | MIT | https://github.com/dotnet/efcore |
-| Npgsql und Npgsql EF Core Provider | PostgreSQL-Treiber | PostgreSQL License | https://github.com/npgsql/efcore.pg |
+| Npgsql und Npgsql EF Core Provider (inklusive NetTopologySuite-Erweiterung) | PostgreSQL-Treiber und PostGIS-Typen | PostgreSQL License | https://github.com/npgsql/efcore.pg |
+| NetTopologySuite | Geometrien für PostGIS | BSD-3-Clause | https://github.com/NetTopologySuite/NetTopologySuite |
+| Entity Framework Core Tools (dotnet-ef) | Migrationen erstellen und anwenden | MIT | https://github.com/dotnet/efcore |
 
 ## Frontend
 
@@ -27,6 +29,7 @@ Verwendete oder geplante Fremdkomponenten mit Zweck, Lizenz und Quelle. Die gena
 |---|---|---|---|
 | PostgreSQL | Datenbank | PostgreSQL License | https://www.postgresql.org |
 | PostGIS | Räumliche Abfragen | GPL-2.0-or-later | https://postgis.net |
+| Container-Image postgis/postgis | Datenbank mit PostGIS als Container | MIT (Image-Definition) | https://github.com/postgis/docker-postgis |
 | Traefik | Lastverteiler | MIT | https://github.com/traefik/traefik |
 | Docker Compose | Containerplattform | Apache-2.0 | https://github.com/docker/compose |
 | Prometheus | Kennzahlen | Apache-2.0 | https://github.com/prometheus/prometheus |

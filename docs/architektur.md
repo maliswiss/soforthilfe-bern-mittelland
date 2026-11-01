@@ -62,6 +62,10 @@ Die Schnittstelle registriert die Fachdienste über `AddDienste()`; diese binden
 ## Daten
 
 - PostgreSQL 16 mit PostGIS für Orte, Entfernungen und Suchradius.
+- Lokal läuft die Datenbank als Container (`docker-compose.yml`, Dienst `datenbank`), nur auf `127.0.0.1` erreichbar.
+- Die Verbindung entsteht aus den Umgebungswerten `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER` und `POSTGRES_PASSWORD`.
+- Das Schema entsteht ausschliesslich über Migrationen von Entity Framework Core (`backend/src/Soforthilfe.Datenzugriff/Migrations`); die erste Migration aktiviert PostGIS.
+- `GET /health/ready` meldet erst `Healthy`, wenn die Datenbank erreichbar ist.
 - Jede Zeile gehört zu einer Region (Mandant). Der Datenzugriff filtert immer nach Region.
 - Das Ortschaftenverzeichnis von swisstopo wird importiert und beim Start geladen.
 - Testdaten enthalten ausschliesslich fiktive Personen.

@@ -67,6 +67,29 @@ jobs:
     defaults:
       run:
         working-directory: backend
+
+    services:
+      datenbank:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_DB: soforthilfe
+          POSTGRES_USER: soforthilfe
+          # Nur im kurzlebigen CI-Container: Anmeldung ohne Kennwort, damit kein Geheimnis im Workflow steht.
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U soforthilfe -d soforthilfe"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    env:
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: soforthilfe
+      POSTGRES_USER: soforthilfe
+
     steps:
       - name: Repository auschecken
         uses: actions/checkout@v7
@@ -85,6 +108,17 @@ jobs:
       - name: Tests
         if: hashFiles('backend/tests/**/*.csproj') != ''
         run: dotnet test Soforthilfe.slnx --configuration Release --no-build
+
+      - name: Werkzeuge wiederherstellen (dotnet ef)
+        run: dotnet tool restore
+
+      - name: Datenbank mit den Migrationen aufbauen
+        run: >-
+          dotnet ef database update
+          --project src/Soforthilfe.Datenzugriff
+          --startup-project src/Soforthilfe.Api
+          --configuration Release
+          --no-build
 
       - name: Schnittstelle starten
         env:

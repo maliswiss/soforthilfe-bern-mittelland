@@ -51,6 +51,7 @@ flowchart LR
   Client["HTTP-Client"] --> Api["Soforthilfe.Api<br/>Controller"]
   Api --> Dienste["Soforthilfe.Dienste<br/>Fachlogik"]
   Dienste --> Daten["Soforthilfe.Datenzugriff<br/>Datenzugriff"]
+  Daten --> Db[("PostgreSQL<br/>mit PostGIS")]
 ```
 
 Der vollständige Architektur- und Codeplan steht in [docs/architektur.md](docs/architektur.md).
@@ -60,17 +61,22 @@ Der vollständige Architektur- und Codeplan steht in [docs/architektur.md](docs/
 | Bereich | Technik |
 |---|---|
 | Backend | ASP.NET Core 10 (.NET 10), C# |
+| Datenbank | PostgreSQL 16 mit PostGIS als Container, Entity Framework Core mit Npgsql |
 | Repository-Schutz | Gitleaks, Hygieneprüfung mit Node.js 22 und node:test |
 | CI | GitHub Actions, Dependabot |
 
 ## Schnellstart
 
-Voraussetzungen: .NET SDK 10, Node.js 22, Git und Gitleaks.
+Voraussetzungen: Docker, .NET SDK 10, Node.js 22, Git und Gitleaks.
 
 ```
 git clone https://github.com/maliswiss/soforthilfe-bern-mittelland.git
 cd soforthilfe-bern-mittelland
 git config core.hooksPath .githooks
+cp .env.example .env    # danach die Platzhalter in .env ersetzen
+docker compose up -d datenbank
+dotnet tool restore
+dotnet ef database update --project backend/src/Soforthilfe.Datenzugriff --startup-project backend/src/Soforthilfe.Api
 dotnet run --project backend/src/Soforthilfe.Api
 ```
 
@@ -78,7 +84,7 @@ dotnet run --project backend/src/Soforthilfe.Api
 |---|---|
 | `http://localhost:5000/api/info` | Name und Version |
 | `http://localhost:5000/health/live` | `Healthy`, solange der Prozess läuft |
-| `http://localhost:5000/health/ready` | `Healthy`, wenn die Anwendung bereit ist |
+| `http://localhost:5000/health/ready` | `Healthy`, wenn auch die Datenbank erreichbar ist |
 
 Zugangsdaten gehören nie ins Repository; Vorlage für die lokale Konfiguration ist [`.env.example`](.env.example).
 

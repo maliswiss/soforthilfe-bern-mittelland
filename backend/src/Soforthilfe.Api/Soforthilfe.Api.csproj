@@ -6,4 +6,12 @@
     <ProjectReference Include="..\Soforthilfe.Dienste\Soforthilfe.Dienste.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Nur für die Werkzeuge (dotnet ef), wird nicht mit der Anwendung ausgeliefert. -->
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.12">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
 </Project>
