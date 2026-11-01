@@ -48,4 +48,10 @@ app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => fa
 // Ist die Anwendung bereit? Führt alle Prüfungen mit dem Tag «bereit» aus.
 app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = eintrag => eintrag.Tags.Contains("bereit") });
 
+// Testdaten mit fiktiven Personen nur auf ausdrücklichen Wunsch laden (Testdaten__Laden=true).
+if (app.Configuration.GetValue<bool>("Testdaten:Laden"))
+{
+    await app.Services.LadeTestdatenAsync();
+}
+
 await app.RunAsync();

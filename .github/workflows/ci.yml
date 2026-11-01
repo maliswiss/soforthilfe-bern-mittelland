@@ -120,9 +120,10 @@ jobs:
           --configuration Release
           --no-build
 
-      - name: Schnittstelle starten
+      - name: Schnittstelle mit Testdaten starten
         env:
           ASPNETCORE_URLS: http://localhost:5000
+          Testdaten__Laden: "true"
         run: |
           # Ohne Startprofil, damit die CI wie ein Container in der Umgebung «Production» läuft.
           nohup dotnet run --project src/Soforthilfe.Api --configuration Release --no-build --no-launch-profile > api.log 2>&1 &
@@ -146,6 +147,24 @@ jobs:
           cat antwort.json; echo
           test "$status" = "404"
           grep -q '"status":404' antwort.json
+
+      - name: Stammdaten und Testdaten prüfen
+        run: |
+          zaehle() { psql -h localhost -U soforthilfe -d soforthilfe -tAc "SELECT COUNT(*) FROM \"$1\""; }
+          pruefe() {
+            anzahl=$(zaehle "$1")
+            echo "$1: $anzahl (erwartet $2)"
+            test "$anzahl" = "$2"
+          }
+          pruefe Regionen 2
+          pruefe Kategorien 6
+          pruefe Skills 11
+          pruefe Konten 8
+          pruefe Helferprofile 3
+          pruefe Anfragen 2
+          # Alle Testpersonen sind fiktiv: Ihre Adressen enden auf «.invalid».
+          pruefe_fiktiv=$(psql -h localhost -U soforthilfe -d soforthilfe -tAc "SELECT COUNT(*) FROM \"Konten\" WHERE \"EMail\" NOT LIKE '%@beispiel.invalid'")
+          test "$pruefe_fiktiv" = "0"
 
       - name: Protokoll der Schnittstelle
         if: always()

@@ -13,6 +13,7 @@ Hilfesuchende beschreiben ihre Lage in eigenen Worten. Die Plattform erkennt den
 
 - [Funktionen](#funktionen)
 - [Architektur](#architektur)
+- [Datenmodell](#datenmodell)
 - [Technische Basis](#technische-basis)
 - [Schnellstart](#schnellstart)
 - [Entwicklung](#entwicklung)
@@ -56,6 +57,22 @@ flowchart LR
 
 Der vollständige Architektur- und Codeplan steht in [docs/architektur.md](docs/architektur.md).
 
+## Datenmodell
+
+```mermaid
+erDiagram
+  REGION |o--o{ KONTO : "gehört zu"
+  REGION ||--o{ HELFERPROFIL : "gehört zu"
+  REGION ||--o{ ANFRAGE : "gehört zu"
+  KONTO ||--o| HELFERPROFIL : hat
+  KONTO ||--o{ ANFRAGE : stellt
+  KATEGORIE ||--o{ SKILL : umfasst
+  KATEGORIE |o--o{ ANFRAGE : ordnet
+  HELFERPROFIL }o--o{ SKILL : bietet
+```
+
+Jede Region ist ein Mandant; Konten, Helferprofile und Anfragen gehören zu genau einer Region, nur der Plattformbetrieb arbeitet regionsübergreifend. Regionen, Kategorien und Fähigkeiten kommen als Stammdaten mit den Migrationen. Kategorien sind entweder kostenlos oder kostenpflichtig.
+
 ## Technische Basis
 
 | Bereich | Technik |
@@ -85,6 +102,8 @@ dotnet run --project backend/src/Soforthilfe.Api
 | `http://localhost:5000/api/info` | Name und Version |
 | `http://localhost:5000/health/live` | `Healthy`, solange der Prozess läuft |
 | `http://localhost:5000/health/ready` | `Healthy`, wenn auch die Datenbank erreichbar ist |
+
+Mit `Testdaten__Laden=true` in der `.env` lädt die Schnittstelle beim Start Testdaten mit ausschliesslich fiktiven Personen, sofern die Datenbank noch keine Konten enthält.
 
 Zugangsdaten gehören nie ins Repository; Vorlage für die lokale Konfiguration ist [`.env.example`](.env.example).
 

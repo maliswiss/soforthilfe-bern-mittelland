@@ -68,7 +68,9 @@ Die Schnittstelle registriert die Fachdienste über `AddDienste()`; diese binden
 - `GET /health/ready` meldet erst `Healthy`, wenn die Datenbank erreichbar ist.
 - Jede Zeile gehört zu einer Region (Mandant). Der Datenzugriff filtert immer nach Region.
 - Das Ortschaftenverzeichnis von swisstopo wird importiert und beim Start geladen.
-- Testdaten enthalten ausschliesslich fiktive Personen.
+- Stammdaten (Regionen, Kategorien, Fähigkeiten) kommen mit festen Kennungen über die Migrationen in jede Datenbank.
+- Testdaten enthalten ausschliesslich fiktive Personen mit Adressen auf `beispiel.invalid`. Sie werden nur mit `Testdaten__Laden=true` und nur in eine Datenbank ohne Konten geladen.
+- Rollen und Status werden als Text gespeichert, damit die Daten auch ohne Code lesbar bleiben.
 
 ## Rollen
 
