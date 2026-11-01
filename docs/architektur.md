@@ -49,7 +49,15 @@ Die Lösung `backend/Soforthilfe.slnx` bildet die Schichten als eigene Projekte 
 
 Die Schnittstelle registriert die Fachdienste über `AddDienste()`; diese binden den Datenzugriff mit `AddDatenzugriff()` ein. Controller verwenden nur Dienste und greifen nie direkt auf den Datenzugriff zu.
 
-Querschnitt: Konfiguration aus der Umgebung, Zustandsprüfung, zentrale Fehlerbehandlung, Protokollierung ohne Personendaten.
+### Querschnitt
+
+| Thema | Umsetzung |
+|---|---|
+| Konfiguration | Werte aus Umgebungsvariablen; in der Entwicklung zusätzlich aus der lokalen `.env` (Vorlage `.env.example`), ohne gesetzte Variablen zu überschreiben |
+| Zustandsprüfung | `GET /health/live` meldet, ob der Prozess läuft; `GET /health/ready` führt alle Prüfungen mit dem Tag «bereit» aus |
+| Fehlerbehandlung | Unbehandelte Ausnahmen und Statuscodes ohne Inhalt werden als `application/problem+json` beantwortet, ohne technische Details, mit Verfolgungsnummer |
+| Protokollierung | Konsole, ausserhalb der Entwicklung als JSON; protokolliert werden Methode, Pfad und Verfolgungsnummer, keine Eingaben und keine Personendaten |
+| Antwortköpfe | Kein `Server`-Kopf mit Produktname und Version |
 
 ## Daten
 

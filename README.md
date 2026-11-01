@@ -23,9 +23,6 @@ Hilfesuchende beschreiben ihre Lage in eigenen Worten. Die Plattform erkennt den
 
 | Funktion | Release | Stand |
 |---|---|---|
-| Hygiene- und Geheimnisprüfung vor jedem Commit und in der CI | R1 | umgesetzt |
-| CI mit Build und Tests, Dependabot | R1 | umgesetzt |
-| Backend in drei Schichten mit Info-Endpunkt | R1 | umgesetzt |
 | Mandantenfähigkeit: Regionen mit strikter Datentrennung | R1 | geplant |
 | Anmeldung mit JWT, Rollen und Berechtigungen | R1 | geplant |
 | Anfrage per Kategorie oder Freitext | R1 | geplant |
@@ -42,6 +39,8 @@ Hilfesuchende beschreiben ihre Lage in eigenen Worten. Die Plattform erkennt den
 | Datenschutz: gestaffelte Preisgabe, Auskunft, Löschung, Aufbewahrungsfristen | R3 | geplant |
 | Redundanz mit zwei API-Instanzen, Sicherung, Überwachung, Alarmierung per Telegram | R3 | geplant |
 | Sicherheitsprüfung nach OWASP Top 10 (Ausgabe 2025) | R3 | geplant |
+
+Der Stand der einzelnen Aufgaben steht im [Kanban](https://github.com/users/maliswiss/projects/3).
 
 ## Architektur
 
@@ -75,7 +74,13 @@ git config core.hooksPath .githooks
 dotnet run --project backend/src/Soforthilfe.Api
 ```
 
-Die Schnittstelle antwortet unter `http://localhost:5000/api/info` mit Name und Version. Zugangsdaten gehören nie ins Repository; Vorlage für die lokale Konfiguration ist [`.env.example`](.env.example).
+| Adresse | Antwort |
+|---|---|
+| `http://localhost:5000/api/info` | Name und Version |
+| `http://localhost:5000/health/live` | `Healthy`, solange der Prozess läuft |
+| `http://localhost:5000/health/ready` | `Healthy`, wenn die Anwendung bereit ist |
+
+Zugangsdaten gehören nie ins Repository; Vorlage für die lokale Konfiguration ist [`.env.example`](.env.example).
 
 ## Entwicklung
 

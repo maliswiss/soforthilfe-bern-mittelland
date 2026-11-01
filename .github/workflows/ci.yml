@@ -64,37 +64,55 @@ jobs:
   backend:
     name: Backend bauen und testen
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
     steps:
       - name: Repository auschecken
         uses: actions/checkout@v7
 
-      - name: Vorhandensein des Backends prüfen
-        id: backend
-        run: |
-          if [ -f backend/Soforthilfe.slnx ]; then
-            echo "vorhanden=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "vorhanden=false" >> "$GITHUB_OUTPUT"
-            echo "Noch kein Backend vorhanden, Build und Tests werden übersprungen."
-          fi
-
       - name: .NET einrichten
-        if: steps.backend.outputs.vorhanden == 'true'
         uses: actions/setup-dotnet@v6
         with:
           dotnet-version: "10.0.x"
 
       - name: Abhängigkeiten wiederherstellen
-        if: steps.backend.outputs.vorhanden == 'true'
-        working-directory: backend
         run: dotnet restore Soforthilfe.slnx
 
       - name: Bauen
-        if: steps.backend.outputs.vorhanden == 'true'
-        working-directory: backend
         run: dotnet build Soforthilfe.slnx --configuration Release --no-restore
 
       - name: Tests
-        if: steps.backend.outputs.vorhanden == 'true' && hashFiles('backend/tests/**/*.csproj') != ''
-        working-directory: backend
+        if: hashFiles('backend/tests/**/*.csproj') != ''
         run: dotnet test Soforthilfe.slnx --configuration Release --no-build
+
+      - name: Schnittstelle starten
+        env:
+          ASPNETCORE_URLS: http://localhost:5000
+        run: |
+          # Ohne Startprofil, damit die CI wie ein Container in der Umgebung «Production» läuft.
+          nohup dotnet run --project src/Soforthilfe.Api --configuration Release --no-build --no-launch-profile > api.log 2>&1 &
+          for versuch in $(seq 1 30); do
+            if curl -fsS http://localhost:5000/health/live > /dev/null 2>&1; then
+              echo "Schnittstelle ist gestartet."
+              exit 0
+            fi
+            sleep 2
+          done
+          echo "Schnittstelle startet nicht."
+          exit 1
+
+      - name: Zustandsprüfung und Fehlerbehandlung prüfen
+        run: |
+          curl -fsS http://localhost:5000/health/live; echo
+          curl -fsS http://localhost:5000/health/ready; echo
+          curl -fsS http://localhost:5000/api/info; echo
+          # Unbekannte Adresse: Die zentrale Fehlerbehandlung antwortet mit einem Problem-Dokument.
+          status=$(curl -s -o antwort.json -w '%{http_code}' -H 'Accept: application/json' http://localhost:5000/gibt-es-nicht)
+          cat antwort.json; echo
+          test "$status" = "404"
+          grep -q '"status":404' antwort.json
+
+      - name: Protokoll der Schnittstelle
+        if: always()
+        run: cat api.log || true
