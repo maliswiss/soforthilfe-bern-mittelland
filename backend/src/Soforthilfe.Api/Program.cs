@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.IdentityModel.Tokens;
+using Soforthilfe.Api.Anmeldung;
 using Soforthilfe.Api.Fehlerbehandlung;
 using Soforthilfe.Api.Konfiguration;
 using Soforthilfe.Api.Mandanten;
@@ -26,6 +29,32 @@ if (!builder.Environment.IsDevelopment())
 
 builder.Services.AddControllers();
 
+// Anmeldung mit JWT: Schlüssel, Herausgeber und Zielgruppe stammen aus der Umgebung.
+var jwt = JwtEinstellungen.Lesen(builder.Configuration);
+builder.Services.AddSingleton(jwt);
+builder.Services.AddSingleton<TokenDienst>();
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(optionen =>
+    {
+        // Kurze Namen («sub», «role», «region») unverändert übernehmen.
+        optionen.MapInboundClaims = false;
+        optionen.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidIssuer = jwt.Herausgeber,
+            ValidateAudience = true,
+            ValidAudience = jwt.Zielgruppe,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = jwt.Schluessel,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.FromMinutes(1),
+            NameClaimType = "sub",
+            RoleClaimType = "role",
+        };
+    });
+builder.Services.AddAuthorization();
+
 // Zentrale Fehlerbehandlung: Fehler werden einheitlich als «application/problem+json» beantwortet.
 builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<ZentraleFehlerbehandlung>();
@@ -41,8 +70,10 @@ var app = builder.Build();
 app.UseExceptionHandler();
 app.UseStatusCodePages();
 
-// Region (Mandant) der Anfrage festlegen, bevor ein Controller Daten liest.
+// Reihenfolge: zuerst das Token prüfen, dann die Region festlegen, dann die Berechtigungen.
+app.UseAuthentication();
 app.UseMiddleware<MandantenMiddleware>();
+app.UseAuthorization();
 
 app.MapControllers();
 

@@ -82,6 +82,7 @@ Jede Region ist ein Mandant; Konten, Helferprofile und Anfragen gehören zu gena
 |---|---|
 | Backend | ASP.NET Core 10 (.NET 10), C# |
 | Datenbank | PostgreSQL 16 mit PostGIS als Container, Entity Framework Core mit Npgsql |
+| Anmeldung | JWT (HS256), Passwort-Hash mit PBKDF2 aus ASP.NET Core Identity |
 | Repository-Schutz | Gitleaks, Hygieneprüfung mit Node.js 22 und node:test |
 | CI | GitHub Actions, Dependabot |
 
@@ -93,7 +94,7 @@ Voraussetzungen: Docker, .NET SDK 10, Node.js 22, Git und Gitleaks.
 git clone https://github.com/maliswiss/soforthilfe-bern-mittelland.git
 cd soforthilfe-bern-mittelland
 git config core.hooksPath .githooks
-cp .env.example .env    # danach die Platzhalter in .env ersetzen
+cp .env.example .env    # danach die Platzhalter ersetzen, JWT_KEY mit mindestens 32 Zeichen
 docker compose up -d datenbank
 dotnet tool restore
 dotnet ef database update --project backend/src/Soforthilfe.Datenzugriff --startup-project backend/src/Soforthilfe.Api
@@ -107,6 +108,8 @@ dotnet run --project backend/src/Soforthilfe.Api
 | `http://localhost:5000/health/ready` | `Healthy`, wenn auch die Datenbank erreichbar ist |
 
 Mit `Testdaten__Laden=true` in der `.env` lädt die Schnittstelle beim Start Testdaten mit ausschliesslich fiktiven Personen, sofern die Datenbank noch keine Konten enthält.
+
+Registrierung, Anmeldung und Token: [docs/anmeldung-und-rollen.md](docs/anmeldung-und-rollen.md).
 
 Zugangsdaten gehören nie ins Repository; Vorlage für die lokale Konfiguration ist [`.env.example`](.env.example).
 

@@ -94,6 +94,13 @@ jobs:
       - name: Repository auschecken
         uses: actions/checkout@v7
 
+      - name: Schlüssel nur für diesen Lauf erzeugen
+        run: |
+          # Zufällig je Lauf und in den Protokollen maskiert; es steht nie ein Schlüssel im Repository.
+          schluessel="$(openssl rand -base64 48)"
+          echo "::add-mask::${schluessel}"
+          echo "JWT_KEY=${schluessel}" >> "$GITHUB_ENV"
+
       - name: .NET einrichten
         uses: actions/setup-dotnet@v6
         with:

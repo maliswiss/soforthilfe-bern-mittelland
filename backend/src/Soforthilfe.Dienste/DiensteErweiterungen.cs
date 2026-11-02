@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Soforthilfe.Datenzugriff;
 using Soforthilfe.Dienste.Info;
+using Soforthilfe.Dienste.Konten;
 using Soforthilfe.Dienste.Regionen;
 
 namespace Soforthilfe.Dienste;
@@ -22,6 +23,10 @@ public static class DiensteErweiterungen
 
         // Je Anfrage, weil der Dienst die Region der laufenden Anfrage hält.
         dienste.AddScoped<IRegionDienst, RegionDienst>();
+
+        // Passwort-Hashing ist zustandslos; Konten werden je Anfrage gelesen.
+        dienste.AddSingleton<PasswortDienst>();
+        dienste.AddScoped<IKontoDienst, KontoDienst>();
 
         return dienste;
     }

@@ -75,6 +75,7 @@ Die Schnittstelle registriert die Fachdienste über `AddDienste()`; diese binden
 ## Rollen
 
 Hilfesuchende, Helfende, Koordination, Mandantenadministration, Plattformbetrieb. Anmeldung mit JWT, Passwörter nur als Hash.
+Details: [anmeldung-und-rollen.md](anmeldung-und-rollen.md).
 
 ## Verständniskette
 

@@ -9,6 +9,7 @@ Verwendete oder geplante Fremdkomponenten mit Zweck, Lizenz und Quelle. Die gena
 | ASP.NET Core (inklusive SignalR) | Web-API und Echtzeit | MIT | https://github.com/dotnet/aspnetcore |
 | .NET | Laufzeit und Bibliotheken | MIT | https://github.com/dotnet/runtime |
 | Entity Framework Core | Datenzugriff | MIT | https://github.com/dotnet/efcore |
+| ASP.NET Core Authentication JwtBearer (mit Microsoft.IdentityModel) | Prüfung und Ausstellung der Tokens | MIT | https://github.com/dotnet/aspnetcore, https://github.com/AzureAD/azure-activedirectory-identitymodel-extensions-for-dotnet |
 | Npgsql und Npgsql EF Core Provider (inklusive NetTopologySuite-Erweiterung) | PostgreSQL-Treiber und PostGIS-Typen | PostgreSQL License | https://github.com/npgsql/efcore.pg |
 | NetTopologySuite | Geometrien für PostGIS | BSD-3-Clause | https://github.com/NetTopologySuite/NetTopologySuite |
 | Entity Framework Core Tools (dotnet-ef) | Migrationen erstellen und anwenden | MIT | https://github.com/dotnet/efcore |
