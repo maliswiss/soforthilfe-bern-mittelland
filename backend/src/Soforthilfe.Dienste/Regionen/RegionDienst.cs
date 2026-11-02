@@ -40,6 +40,8 @@ public sealed class RegionDienst(SoforthilfeDbContext datenbank, IMandantenKonte
         return Aktuelle;
     }
 
+    public void SetzeUebergreifend() => mandant.SetzeUebergreifend();
+
     public async Task<RegionInfo?> AnlegenAsync(string kennung, string name, CancellationToken abbruch)
     {
         var normiert = Normiere(kennung);

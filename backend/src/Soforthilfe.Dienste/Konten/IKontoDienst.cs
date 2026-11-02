@@ -12,4 +12,9 @@ public interface IKontoDienst
 
     // Liest ein Konto der aktuellen Region.
     Task<KontoInfo?> LiesAsync(Guid id, CancellationToken abbruch);
+
+    // Konten der aktuellen Region; für den Plattformbetrieb alle Konten.
+    Task<IReadOnlyList<KontoInfo>> ListeAsync(CancellationToken abbruch);
+
+    Task<RollenErgebnis> RolleSetzenAsync(Guid id, string rolle, CancellationToken abbruch);
 }

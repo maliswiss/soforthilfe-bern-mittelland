@@ -17,3 +17,8 @@ public sealed record RegistrierungAnfrage(
 public sealed record AnmeldungAnfrage(
     [Required, StringLength(254)] string EMail,
     [Required, StringLength(128)] string Passwort);
+
+/// <summary>
+/// Neue Rolle für ein Konto.
+/// </summary>
+public sealed record RolleAnfrage([Required] string Rolle);

@@ -57,6 +57,44 @@ erwarte "Region des Kontos" bern "$(jq -r '.region' "$ANTWORT")"
 erwarte "Fremde Region im Kopf" 403 "$(status -H "Authorization: Bearer $token" -H 'X-Region: mittelland' "$BASIS/api/konto/ich")"
 erwarte "Manipuliertes Token" 401 "$(status -H "Authorization: Bearer ${token}x" "$BASIS/api/konto/ich")"
 
+echo "== Rollen und Berechtigungen"
+if [ -z "${TESTDATEN_PASSWORT:-}" ]; then
+  echo "übersprungen: TESTDATEN_PASSWORT ist nicht gesetzt"
+else
+  # Meldet ein fiktives Testkonto an und gibt das Token aus.
+  anmelden() {
+    status "${json[@]}" -d "$(jq -n --arg e "$1" --arg p "$TESTDATEN_PASSWORT" '{eMail: $e, passwort: $p}')" \
+      "$BASIS/api/konto/anmelden" > /dev/null
+    jq -r '.token' "$ANTWORT"
+  }
+  hilfesuchende="$token"
+  betrieb="$(anmelden hans.betrieb@beispiel.invalid)"
+  koordination_bern="$(anmelden dora.probe@beispiel.invalid)"
+  admin_mittelland="$(anmelden greta.muster@beispiel.invalid)"
+
+  neue_region="rauchtest-$(date +%s)"
+  region_json="$(jq -n --arg k "$neue_region" '{kennung: $k, name: "Rauchtest"}')"
+  erwarte "Region anlegen ohne Anmeldung" 401 "$(status "${json[@]}" -d "$region_json" "$BASIS/api/regionen")"
+  erwarte "Region anlegen als Hilfesuchende" 403 "$(status "${json[@]}" -H "Authorization: Bearer $hilfesuchende" -d "$region_json" "$BASIS/api/regionen")"
+  erwarte "Region anlegen als Plattformbetrieb" 201 "$(status "${json[@]}" -H "Authorization: Bearer $betrieb" -d "$region_json" "$BASIS/api/regionen")"
+  erwarte "Gleiche Region ein zweites Mal" 409 "$(status "${json[@]}" -H "Authorization: Bearer $betrieb" -d "$region_json" "$BASIS/api/regionen")"
+  erwarte "Neue Region ohne Neustart nutzbar" 200 "$(status -H "X-Region: $neue_region" "$BASIS/api/regionen/aktuell")"
+
+  erwarte "Konten als Hilfesuchende" 403 "$(status -H "Authorization: Bearer $hilfesuchende" "$BASIS/api/konten")"
+  erwarte "Konten als Koordination Bern" 200 "$(status -H "Authorization: Bearer $koordination_bern" "$BASIS/api/konten")"
+  erwarte "Nur Konten aus Bern sichtbar" true "$(jq 'length > 0 and all(.region == "bern")' "$ANTWORT")"
+  erwarte "Konten als Plattformbetrieb" 200 "$(status -H "Authorization: Bearer $betrieb" "$BASIS/api/konten")"
+  erwarte "Plattformbetrieb sieht beide Regionen" true "$(jq 'map(.region) | (index("bern") != null) and (index("mittelland") != null)' "$ANTWORT")"
+  bruno="$(jq -r '.[] | select(.eMail == "bruno.muster@beispiel.invalid") | .id' "$ANTWORT")"
+  fritz="$(jq -r '.[] | select(.eMail == "fritz.platzhalter@beispiel.invalid") | .id' "$ANTWORT")"
+
+  rolle='{"rolle": "Koordination"}'
+  erwarte "Rolle setzen als Koordination" 403 "$(status -X PUT "${json[@]}" -H "Authorization: Bearer $koordination_bern" -d "$rolle" "$BASIS/api/konten/$bruno/rolle")"
+  erwarte "Rolle in fremder Region setzen" 404 "$(status -X PUT "${json[@]}" -H "Authorization: Bearer $admin_mittelland" -d "$rolle" "$BASIS/api/konten/$bruno/rolle")"
+  erwarte "Rolle in eigener Region setzen" 204 "$(status -X PUT "${json[@]}" -H "Authorization: Bearer $admin_mittelland" -d "$rolle" "$BASIS/api/konten/$fritz/rolle")"
+  erwarte "Plattformbetrieb vergeben" 400 "$(status -X PUT "${json[@]}" -H "Authorization: Bearer $admin_mittelland" -d '{"rolle": "Plattformbetrieb"}' "$BASIS/api/konten/$fritz/rolle")"
+fi
+
 if [ "$fehler" -ne 0 ]; then
   echo "Rauchtest fehlgeschlagen."
   exit 1

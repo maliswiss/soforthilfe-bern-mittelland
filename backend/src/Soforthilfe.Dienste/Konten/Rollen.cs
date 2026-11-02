@@ -10,4 +10,12 @@ public static class Rollen
     public const string Koordination = "Koordination";
     public const string Mandantenadministration = "Mandantenadministration";
     public const string Plattformbetrieb = "Plattformbetrieb";
+
+    // Rollengruppen für die Berechtigungsprüfung an den Schnittstellen (durch Komma getrennt).
+    public const string KontenEinsehen = Koordination + "," + Mandantenadministration + "," + Plattformbetrieb;
+    public const string RollenVergeben = Mandantenadministration + "," + Plattformbetrieb;
+
+    // Über die Schnittstelle vergebbar. Der Plattformbetrieb ist an keine Region gebunden und wird nicht vergeben.
+    public static readonly IReadOnlySet<string> Vergebbar =
+        new HashSet<string> { Hilfesuchende, Helfende, Koordination, Mandantenadministration };
 }

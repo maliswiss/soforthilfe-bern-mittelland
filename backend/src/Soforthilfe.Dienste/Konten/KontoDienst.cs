@@ -90,5 +90,44 @@ public sealed class KontoDienst(
             : new KontoInfo(konto.Id, konto.EMail, konto.Anzeigename, konto.Rolle.ToString(), konto.Region?.Kennung);
     }
 
+    public async Task<IReadOnlyList<KontoInfo>> ListeAsync(CancellationToken abbruch)
+    {
+        // Der Regionsfilter sorgt dafür, dass nur Konten der eigenen Region erscheinen.
+        var liste = await datenbank.Konten
+            .Include(k => k.Region)
+            .AsNoTracking()
+            .OrderBy(k => k.Anzeigename)
+            .ToListAsync(abbruch);
+
+        return liste
+            .Select(k => new KontoInfo(k.Id, k.EMail, k.Anzeigename, k.Rolle.ToString(), k.Region?.Kennung))
+            .ToList();
+    }
+
+    public async Task<RollenErgebnis> RolleSetzenAsync(Guid id, string rolle, CancellationToken abbruch)
+    {
+        if (!Rollen.Vergebbar.Contains(rolle))
+        {
+            return RollenErgebnis.NichtErlaubt;
+        }
+
+        // Mit Regionsfilter: Konten einer fremden Region gelten als nicht vorhanden.
+        var konto = await datenbank.Konten.FirstOrDefaultAsync(k => k.Id == id, abbruch);
+        if (konto is null)
+        {
+            return RollenErgebnis.NichtGefunden;
+        }
+
+        // Konten ohne Region (Plattformbetrieb) werden über die Schnittstelle nicht verändert.
+        if (konto.RegionId is null)
+        {
+            return RollenErgebnis.NichtErlaubt;
+        }
+
+        konto.Rolle = Enum.Parse<Rolle>(rolle);
+        await datenbank.SaveChangesAsync(abbruch);
+        return RollenErgebnis.Gesetzt;
+    }
+
     private static string Normiere(string eMail) => eMail.Trim().ToLowerInvariant();
 }

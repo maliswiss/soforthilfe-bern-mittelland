@@ -1,10 +1,11 @@
+using Soforthilfe.Dienste.Konten;
 using Soforthilfe.Dienste.Regionen;
 
 namespace Soforthilfe.Api.Mandanten;
 
 /// <summary>
 /// Legt zu Beginn jeder Anfrage die Region (Mandant) fest.
-/// Angemeldet: aus dem Token. Ohne Anmeldung: aus dem Kopf «X-Region».
+/// Angemeldet: aus dem Token, für den Plattformbetrieb alle Regionen. Ohne Anmeldung: aus dem Kopf «X-Region».
 /// Ohne Region liefert der Datenzugriff keine regionsbezogenen Daten.
 /// </summary>
 public sealed class MandantenMiddleware(RequestDelegate weiter)
@@ -18,6 +19,14 @@ public sealed class MandantenMiddleware(RequestDelegate weiter)
 
         if (kontext.User.Identity?.IsAuthenticated == true)
         {
+            // Der Plattformbetrieb arbeitet regionsübergreifend; ein Kopf X-Region wird dann nicht ausgewertet.
+            if (kontext.User.IsInRole(Rollen.Plattformbetrieb))
+            {
+                regionen.SetzeUebergreifend();
+                await weiter(kontext);
+                return;
+            }
+
             var ausToken = kontext.User.FindFirst("region")?.Value;
 
             // Angemeldete Personen arbeiten nur in der Region ihres Kontos.

@@ -26,7 +26,7 @@ Hilfesuchende beschreiben ihre Lage in eigenen Worten. Die Plattform erkennt den
 | Funktion | Release | Stand |
 |---|---|---|
 | Mandantenfähigkeit: Regionen mit strikter Datentrennung | R1 | umgesetzt |
-| Anmeldung mit JWT, Rollen und Berechtigungen | R1 | geplant |
+| Anmeldung mit JWT, Rollen und Berechtigungen | R1 | umgesetzt |
 | Anfrage per Kategorie oder Freitext | R1 | geplant |
 | Containerplattform mit Docker Compose und Traefik | R1 | geplant |
 | Notfall-Stopp mit Hinweis «144 anrufen» | R2 | geplant |
@@ -107,9 +107,11 @@ dotnet run --project backend/src/Soforthilfe.Api
 | `http://localhost:5000/health/live` | `Healthy`, solange der Prozess läuft |
 | `http://localhost:5000/health/ready` | `Healthy`, wenn auch die Datenbank erreichbar ist |
 
-Mit `Testdaten__Laden=true` in der `.env` lädt die Schnittstelle beim Start Testdaten mit ausschliesslich fiktiven Personen, sofern die Datenbank noch keine Konten enthält.
+Mit `Testdaten__Laden=true` in der `.env` lädt die Schnittstelle beim Start Testdaten mit ausschliesslich fiktiven Personen, sofern die Datenbank noch keine Konten enthält. Mit `TESTDATEN_PASSWORT` können sich die Testkonten anmelden.
 
-Registrierung, Anmeldung und Token: [docs/anmeldung-und-rollen.md](docs/anmeldung-und-rollen.md).
+**Neue Region einrichten** (ohne Deployment): Der Plattformbetrieb sendet `POST /api/regionen` mit Kennung und Name, zum Beispiel `{ "kennung": "thun", "name": "Thun" }`. Die Region ist sofort nutzbar. Details: [docs/mandanten.md](docs/mandanten.md).
+
+Registrierung, Anmeldung, Rollen und Berechtigungen: [docs/anmeldung-und-rollen.md](docs/anmeldung-und-rollen.md).
 
 Zugangsdaten gehören nie ins Repository; Vorlage für die lokale Konfiguration ist [`.env.example`](.env.example).
 

@@ -24,3 +24,13 @@ public enum KontoFehler
 /// Ergebnis einer Registrierung: entweder ein Konto oder ein Fehler.
 /// </summary>
 public sealed record KontoErgebnis(KontoInfo? Konto, KontoFehler? Fehler);
+
+/// <summary>
+/// Ergebnis beim Setzen einer Rolle.
+/// </summary>
+public enum RollenErgebnis
+{
+    Gesetzt,
+    NichtGefunden,
+    NichtErlaubt,
+}

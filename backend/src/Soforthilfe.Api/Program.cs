@@ -86,7 +86,7 @@ app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = eintra
 // Testdaten mit fiktiven Personen nur auf ausdrücklichen Wunsch laden (Testdaten__Laden=true).
 if (app.Configuration.GetValue<bool>("Testdaten:Laden"))
 {
-    await app.Services.LadeTestdatenAsync();
+    await app.Services.LadeTestdatenAsync(app.Configuration["TESTDATEN_PASSWORT"]);
 }
 
 await app.RunAsync();
