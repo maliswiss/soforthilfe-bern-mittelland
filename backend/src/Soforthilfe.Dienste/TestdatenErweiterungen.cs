@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Soforthilfe.Datenzugriff;
+using Soforthilfe.Datenzugriff.Mandanten;
 using Soforthilfe.Datenzugriff.Testdaten;
 
 namespace Soforthilfe.Dienste;
@@ -13,6 +14,10 @@ public static class TestdatenErweiterungen
     {
         // Eigener Gültigkeitsbereich, weil der Datenbankkontext pro Anfrage lebt.
         await using var bereich = dienste.CreateAsyncScope();
+
+        // Testdaten betreffen alle Regionen, darum regionsübergreifend schreiben.
+        bereich.ServiceProvider.GetRequiredService<IMandantenKontext>().SetzeUebergreifend();
+
         var datenbank = bereich.ServiceProvider.GetRequiredService<SoforthilfeDbContext>();
         await TestdatenLader.LadenAsync(datenbank);
     }

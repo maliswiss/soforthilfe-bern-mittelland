@@ -166,6 +166,12 @@ jobs:
           pruefe_fiktiv=$(psql -h localhost -U soforthilfe -d soforthilfe -tAc "SELECT COUNT(*) FROM \"Konten\" WHERE \"EMail\" NOT LIKE '%@beispiel.invalid'")
           test "$pruefe_fiktiv" = "0"
 
+      - name: Rauchtest der Schnittstelle
+        working-directory: .
+        env:
+          API_URL: http://localhost:5000
+        run: bash tests/rauchtest/schnittstelle.sh
+
       - name: Protokoll der Schnittstelle
         if: always()
         run: cat api.log || true

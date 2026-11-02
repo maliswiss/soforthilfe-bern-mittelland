@@ -1,13 +1,23 @@
 using Microsoft.EntityFrameworkCore;
+using Soforthilfe.Datenzugriff.Mandanten;
 using Soforthilfe.Datenzugriff.Modell;
 
 namespace Soforthilfe.Datenzugriff;
 
 /// <summary>
 /// Datenbankkontext der Plattform (PostgreSQL mit PostGIS).
+/// Konten, Helferprofile und Anfragen sind strikt nach Region (Mandant) getrennt.
 /// </summary>
-public sealed class SoforthilfeDbContext(DbContextOptions<SoforthilfeDbContext> optionen) : DbContext(optionen)
+public sealed class SoforthilfeDbContext : DbContext
 {
+    private readonly IMandantenKontext _mandant;
+
+    public SoforthilfeDbContext(DbContextOptions<SoforthilfeDbContext> optionen, IMandantenKontext mandant)
+        : base(optionen)
+    {
+        _mandant = mandant;
+    }
+
     public DbSet<Region> Regionen => Set<Region>();
 
     public DbSet<Konto> Konten => Set<Konto>();
@@ -49,6 +59,9 @@ public sealed class SoforthilfeDbContext(DbContextOptions<SoforthilfeDbContext> 
 
             // Regionen mit Konten dürfen nicht gelöscht werden.
             konto.HasOne(k => k.Region).WithMany().HasForeignKey(k => k.RegionId).OnDelete(DeleteBehavior.Restrict);
+
+            // Mandantenfilter: Gelesen wird nur die Region der laufenden Anfrage.
+            konto.HasQueryFilter(k => _mandant.Uebergreifend || k.RegionId == _mandant.RegionId);
         });
 
         modell.Entity<Kategorie>(kategorie =>
@@ -82,6 +95,8 @@ public sealed class SoforthilfeDbContext(DbContextOptions<SoforthilfeDbContext> 
 
             // Zuordnung Profil zu Fähigkeiten in einer eigenen Tabelle.
             profil.HasMany(h => h.Skills).WithMany().UsingEntity(zuordnung => zuordnung.ToTable("HelferprofilSkills"));
+
+            profil.HasQueryFilter(h => _mandant.Uebergreifend || h.RegionId == _mandant.RegionId);
         });
 
         modell.Entity<Anfrage>(anfrage =>
@@ -97,6 +112,58 @@ public sealed class SoforthilfeDbContext(DbContextOptions<SoforthilfeDbContext> 
             anfrage.HasOne(a => a.Region).WithMany().HasForeignKey(a => a.RegionId).OnDelete(DeleteBehavior.Restrict);
             anfrage.HasOne(a => a.Konto).WithMany().HasForeignKey(a => a.KontoId).OnDelete(DeleteBehavior.Restrict);
             anfrage.HasOne(a => a.Kategorie).WithMany().HasForeignKey(a => a.KategorieId).OnDelete(DeleteBehavior.Restrict);
+
+            anfrage.HasQueryFilter(a => _mandant.Uebergreifend || a.RegionId == _mandant.RegionId);
         });
+    }
+
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        KontrolliereMandant();
+        return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+
+    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    {
+        KontrolliereMandant();
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    // Schreiben ist nur innerhalb der Region der laufenden Anfrage erlaubt; der Filter allein schützt nur das Lesen.
+    private void KontrolliereMandant()
+    {
+        if (_mandant.Uebergreifend)
+        {
+            return;
+        }
+
+        foreach (var eintrag in ChangeTracker.Entries())
+        {
+            if (eintrag.State is not (EntityState.Added or EntityState.Modified or EntityState.Deleted))
+            {
+                continue;
+            }
+
+            Guid? region;
+            switch (eintrag.Entity)
+            {
+                case Konto konto:
+                    region = konto.RegionId;
+                    break;
+                case Helferprofil profil:
+                    region = profil.RegionId;
+                    break;
+                case Anfrage anfrage:
+                    region = anfrage.RegionId;
+                    break;
+                default:
+                    continue;
+            }
+
+            if (region is null || region != _mandant.RegionId)
+            {
+                throw new MandantenVerletzung("Schreibzugriff ausserhalb der Region der Anfrage.");
+            }
+        }
     }
 }

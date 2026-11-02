@@ -2,6 +2,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Soforthilfe.Datenzugriff;
 using Soforthilfe.Dienste.Info;
+using Soforthilfe.Dienste.Regionen;
 
 namespace Soforthilfe.Dienste;
 
@@ -18,6 +19,9 @@ public static class DiensteErweiterungen
 
         // Zustandslos, darum eine einzige Instanz für die ganze Laufzeit.
         dienste.AddSingleton<IInfoDienst, InfoDienst>();
+
+        // Je Anfrage, weil der Dienst die Region der laufenden Anfrage hält.
+        dienste.AddScoped<IRegionDienst, RegionDienst>();
 
         return dienste;
     }

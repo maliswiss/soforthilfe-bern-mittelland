@@ -66,7 +66,7 @@ Die Schnittstelle registriert die Fachdienste über `AddDienste()`; diese binden
 - Die Verbindung entsteht aus den Umgebungswerten `POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_DB`, `POSTGRES_USER` und `POSTGRES_PASSWORD`.
 - Das Schema entsteht ausschliesslich über Migrationen von Entity Framework Core (`backend/src/Soforthilfe.Datenzugriff/Migrations`); die erste Migration aktiviert PostGIS.
 - `GET /health/ready` meldet erst `Healthy`, wenn die Datenbank erreichbar ist.
-- Jede Zeile gehört zu einer Region (Mandant). Der Datenzugriff filtert immer nach Region.
+- Jede regionsbezogene Zeile gehört zu einer Region (Mandant). Der Datenzugriff filtert beim Lesen nach Region und prüft beim Schreiben, dass keine fremde Region betroffen ist. Details: [mandanten.md](mandanten.md).
 - Das Ortschaftenverzeichnis von swisstopo wird importiert und beim Start geladen.
 - Stammdaten (Regionen, Kategorien, Fähigkeiten) kommen mit festen Kennungen über die Migrationen in jede Datenbank.
 - Testdaten enthalten ausschliesslich fiktive Personen mit Adressen auf `beispiel.invalid`. Sie werden nur mit `Testdaten__Laden=true` und nur in eine Datenbank ohne Konten geladen.

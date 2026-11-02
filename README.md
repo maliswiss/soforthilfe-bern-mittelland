@@ -19,12 +19,13 @@ Hilfesuchende beschreiben ihre Lage in eigenen Worten. Die Plattform erkennt den
 - [Entwicklung](#entwicklung)
 - [Abgrenzung](#abgrenzung)
 - [Drittkomponenten und Lizenz](#drittkomponenten-und-lizenz)
+- [Autor](#-autor)
 
 ## Funktionen
 
 | Funktion | Release | Stand |
 |---|---|---|
-| Mandantenfähigkeit: Regionen mit strikter Datentrennung | R1 | geplant |
+| Mandantenfähigkeit: Regionen mit strikter Datentrennung | R1 | umgesetzt |
 | Anmeldung mit JWT, Rollen und Berechtigungen | R1 | geplant |
 | Anfrage per Kategorie oder Freitext | R1 | geplant |
 | Containerplattform mit Docker Compose und Traefik | R1 | geplant |
@@ -54,6 +55,8 @@ flowchart LR
   Dienste --> Daten["Soforthilfe.Datenzugriff<br/>Datenzugriff"]
   Daten --> Db[("PostgreSQL<br/>mit PostGIS")]
 ```
+
+Jede Region ist ein Mandant: Der Datenzugriff liest und schreibt nur Daten der Region der laufenden Anfrage. Details: [docs/mandanten.md](docs/mandanten.md).
 
 Der vollständige Architektur- und Codeplan steht in [docs/architektur.md](docs/architektur.md).
 
@@ -130,3 +133,7 @@ Alle Regeln stehen in [docs/commit-konvention.md](docs/commit-konvention.md).
 ## Drittkomponenten und Lizenz
 
 Der Quelltext steht unter der [MIT-Lizenz](LICENSE). Verwendete Drittkomponenten mit Zweck, Lizenz und Quelle stehen in [docs/drittkomponenten.md](docs/drittkomponenten.md).
+
+## 👤 Autor
+
+Mehmet Ali Gür, HF Informatik, gibb Bern

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Soforthilfe.Api.Fehlerbehandlung;
 using Soforthilfe.Api.Konfiguration;
+using Soforthilfe.Api.Mandanten;
 using Soforthilfe.Dienste;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -39,6 +40,9 @@ var app = builder.Build();
 
 app.UseExceptionHandler();
 app.UseStatusCodePages();
+
+// Region (Mandant) der Anfrage festlegen, bevor ein Controller Daten liest.
+app.UseMiddleware<MandantenMiddleware>();
 
 app.MapControllers();
 

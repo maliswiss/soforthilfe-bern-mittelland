@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Soforthilfe.Datenzugriff.Mandanten;
 using Soforthilfe.Datenzugriff.Zustand;
 
 namespace Soforthilfe.Datenzugriff;
@@ -12,6 +13,9 @@ public static class DatenzugriffErweiterungen
 {
     public static IServiceCollection AddDatenzugriff(this IServiceCollection dienste, IConfiguration konfiguration)
     {
+        // Region der laufenden Anfrage; eine Instanz je Anfrage.
+        dienste.AddScoped<IMandantenKontext, MandantenKontext>();
+
         // Npgsql mit NetTopologySuite, damit PostGIS-Typen (Punkte, Flächen) abgebildet werden können.
         dienste.AddDbContext<SoforthilfeDbContext>(optionen =>
             optionen.UseNpgsql(
