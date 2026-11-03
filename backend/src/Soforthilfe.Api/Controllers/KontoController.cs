@@ -19,7 +19,7 @@ public sealed class KontoController(IKontoDienst konten, TokenDienst tokens) : C
     public async Task<IActionResult> Registrieren(RegistrierungAnfrage anfrage, CancellationToken abbruch)
     {
         var ergebnis = await konten.RegistrierenAsync(
-            new RegistrierungsDaten(anfrage.EMail, anfrage.Passwort, anfrage.Anzeigename, anfrage.Rolle),
+            new RegistrierungsDaten(anfrage.EMail, anfrage.Passwort, anfrage.Anzeigename, anfrage.Rolle, anfrage.Telefon),
             abbruch);
 
         return ergebnis.Fehler switch
@@ -29,6 +29,10 @@ public sealed class KontoController(IKontoDienst konten, TokenDienst tokens) : C
                 statusCode: StatusCodes.Status400BadRequest,
                 title: "Keine Region gewählt",
                 detail: "Bitte die Kennung der Region im Kopf X-Region mitsenden."),
+            KontoFehler.KostenpflichtigeNummer => Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Kostenpflichtige Telefonnummer nicht erlaubt",
+                detail: "0900-, 0901- und 0906-Nummern können nicht verwendet werden."),
             KontoFehler.RolleNichtErlaubt => Problem(
                 statusCode: StatusCodes.Status400BadRequest,
                 title: "Rolle nicht erlaubt",

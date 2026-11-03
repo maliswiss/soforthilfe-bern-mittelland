@@ -9,7 +9,8 @@ public sealed record RegistrierungAnfrage(
     [Required, EmailAddress, StringLength(254)] string EMail,
     [Required, StringLength(128, MinimumLength = 10)] string Passwort,
     [Required, StringLength(100, MinimumLength = 2)] string Anzeigename,
-    [Required] string Rolle);
+    [Required] string Rolle,
+    [StringLength(30)] string? Telefon = null);
 
 /// <summary>
 /// Eingabe für die Anmeldung.

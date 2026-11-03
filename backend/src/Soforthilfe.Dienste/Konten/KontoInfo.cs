@@ -8,7 +8,7 @@ public sealed record KontoInfo(Guid Id, string EMail, string Anzeigename, string
 /// <summary>
 /// Daten für eine Registrierung.
 /// </summary>
-public sealed record RegistrierungsDaten(string EMail, string Passwort, string Anzeigename, string Rolle);
+public sealed record RegistrierungsDaten(string EMail, string Passwort, string Anzeigename, string Rolle, string? Telefon);
 
 /// <summary>
 /// Gründe, warum eine Registrierung abgelehnt wird.
@@ -18,6 +18,7 @@ public enum KontoFehler
     RegionFehlt,
     RolleNichtErlaubt,
     EMailVergeben,
+    KostenpflichtigeNummer,
 }
 
 /// <summary>

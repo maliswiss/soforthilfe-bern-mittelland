@@ -23,6 +23,11 @@ public sealed class KontoDienst(
             return new KontoErgebnis(null, KontoFehler.RegionFehlt);
         }
 
+        if (daten.Telefon is not null && Mehrwertnummer.Pruefen(daten.Telefon))
+        {
+            return new KontoErgebnis(null, KontoFehler.KostenpflichtigeNummer);
+        }
+
         if (daten.Rolle is not (Rollen.Hilfesuchende or Rollen.Helfende))
         {
             return new KontoErgebnis(null, KontoFehler.RolleNichtErlaubt);
@@ -42,6 +47,7 @@ public sealed class KontoDienst(
             RegionId = region,
             EMail = eMail,
             Anzeigename = daten.Anzeigename.Trim(),
+            Telefon = daten.Telefon?.Trim(),
             Rolle = Enum.Parse<Rolle>(daten.Rolle),
             PasswortHash = passwortDienst.Hash(daten.Passwort),
             ErstelltAm = DateTimeOffset.UtcNow,
