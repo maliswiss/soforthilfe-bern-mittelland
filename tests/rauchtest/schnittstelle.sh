@@ -76,8 +76,8 @@ anfrage="$(jq -n --arg k "$freie_kategorie" '{kategorieId: $k, postleitzahl: "30
 erwarte "Anfrage ohne Anmeldung" 401 "$(status "${json[@]}" -d "$anfrage" "$BASIS/api/anfragen")"
 erwarte "Anfrage erfassen" 201 "$(status "${json[@]}" -H "Authorization: Bearer $token" -d "$anfrage" "$BASIS/api/anfragen")"
 erwarte "Anfrage mit kostenloser Kategorie" false "$(jq -r '.kostenpflichtig' "$ANTWORT")"
-erwarte "Anfrage mit fremder Region ablehnen" 403 "$(status "${json[@]}" -H "Authorization: Bearer $token" -H 'X-Region: mittelland' -d "$anfrage" "$BASIS/api/anfragen")"
 erwarte "Erfasste Anfrage ist offen" Offen "$(jq -r '.status' "$ANTWORT")"
+erwarte "Anfrage mit fremder Region ablehnen" 403 "$(status "${json[@]}" -H "Authorization: Bearer $token" -H 'X-Region: mittelland' -d "$anfrage" "$BASIS/api/anfragen")"
 freitext_anfrage='{"freitext":"Unterstützung beim Einkauf benötigt","postleitzahl":"3000"}'
 erwarte "Anfrage per Freitext" 201 "$(status "${json[@]}" -H "Authorization: Bearer $token" -d "$freitext_anfrage" "$BASIS/api/anfragen")"
 ungueltig='{"freitext":"Text","kategorieId":"00000000-0000-0000-0000-000000000001","postleitzahl":"3000"}'
