@@ -33,6 +33,10 @@ public sealed class KontoController(IKontoDienst konten, TokenDienst tokens) : C
                 statusCode: StatusCodes.Status400BadRequest,
                 title: "Kostenpflichtige Telefonnummer nicht erlaubt",
                 detail: "0900-, 0901- und 0906-Nummern können nicht verwendet werden."),
+            KontoFehler.TelefonUngueltig => Problem(
+                statusCode: StatusCodes.Status400BadRequest,
+                title: "Telefonnummer ungültig",
+                detail: "Bitte eine Schweizer Telefonnummer angeben, zum Beispiel 031 123 45 67 oder +41 31 123 45 67."),
             KontoFehler.RolleNichtErlaubt => Problem(
                 statusCode: StatusCodes.Status400BadRequest,
                 title: "Rolle nicht erlaubt",

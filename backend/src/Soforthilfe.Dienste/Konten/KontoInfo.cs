@@ -19,6 +19,7 @@ public enum KontoFehler
     RolleNichtErlaubt,
     EMailVergeben,
     KostenpflichtigeNummer,
+    TelefonUngueltig,
 }
 
 /// <summary>

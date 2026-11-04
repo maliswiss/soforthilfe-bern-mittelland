@@ -23,9 +23,20 @@ public sealed class KontoDienst(
             return new KontoErgebnis(null, KontoFehler.RegionFehlt);
         }
 
-        if (daten.Telefon is not null && Mehrwertnummer.Pruefen(daten.Telefon))
+        // Telefonnummer ist freiwillig; wenn angegeben, muss sie eine Schweizer Nummer und darf keine Mehrwertnummer sein.
+        string? telefon = null;
+        if (!string.IsNullOrWhiteSpace(daten.Telefon))
         {
-            return new KontoErgebnis(null, KontoFehler.KostenpflichtigeNummer);
+            telefon = Telefonnummer.Normieren(daten.Telefon);
+            if (telefon is null)
+            {
+                return new KontoErgebnis(null, KontoFehler.TelefonUngueltig);
+            }
+
+            if (Telefonnummer.IstMehrwertnummer(telefon))
+            {
+                return new KontoErgebnis(null, KontoFehler.KostenpflichtigeNummer);
+            }
         }
 
         if (daten.Rolle is not (Rollen.Hilfesuchende or Rollen.Helfende))
@@ -47,7 +58,7 @@ public sealed class KontoDienst(
             RegionId = region,
             EMail = eMail,
             Anzeigename = daten.Anzeigename.Trim(),
-            Telefon = daten.Telefon?.Trim(),
+            Telefon = telefon,
             Rolle = Enum.Parse<Rolle>(daten.Rolle),
             PasswortHash = passwortDienst.Hash(daten.Passwort),
             ErstelltAm = DateTimeOffset.UtcNow,

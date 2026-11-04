@@ -10,6 +10,7 @@
 
 | Thema | Umsetzung |
 |---|---|
+| Telefonnummer | Freiwillig; nur Schweizer Nummern, gespeichert in der Form 0XXXXXXXXX; Mehrwertnummern (0900, 0901, 0906) werden abgewiesen, siehe [anfragen.md](anfragen.md) |
 | Passwörter | Nur als Hash gespeichert: PBKDF2 mit HMAC-SHA512 und Salz je Passwort (Verfahren von ASP.NET Core Identity); mindestens 10 Zeichen |
 | Token | JWT mit HS256, gültig 60 Minuten; Schlüssel, Herausgeber und Zielgruppe aus `JWT_KEY`, `JWT_ISSUER` und `JWT_AUDIENCE` |
 | Inhalt des Tokens | Nur Kontokennung (`sub`), Rolle (`role`) und Region (`region`), keine Namen und keine Adressen |

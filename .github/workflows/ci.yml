@@ -182,6 +182,17 @@ jobs:
           API_URL: http://localhost:5000
         run: bash tests/rauchtest/schnittstelle.sh
 
+      - name: Node.js einrichten
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Schnittstellentests
+        working-directory: .
+        env:
+          API_URL: http://localhost:5000
+        run: node --test "tests/api/*.test.mjs"
+
       - name: Protokoll der Schnittstelle
         if: always()
         run: cat api.log || true

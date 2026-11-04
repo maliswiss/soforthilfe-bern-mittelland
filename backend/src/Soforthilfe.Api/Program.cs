@@ -64,7 +64,6 @@ builder.Services.AddHealthChecks();
 
 // Fachdienste inklusive Datenzugriff. Die Schnittstelle kennt nur die Dienstschicht.
 builder.Services.AddDienste(builder.Configuration);
-builder.Services.AddScoped<Soforthilfe.Dienste.Anfragen.KategorienDienst>();
 
 var app = builder.Build();
 

@@ -27,7 +27,8 @@ Hilfesuchende beschreiben ihre Lage in eigenen Worten. Die Plattform erkennt den
 |---|---|---|
 | Mandantenfähigkeit: Regionen mit strikter Datentrennung | R1 | umgesetzt |
 | Anmeldung mit JWT, Rollen und Berechtigungen | R1 | umgesetzt |
-| Anfrage per Kategorie oder Freitext | R1 | geplant |
+| Anfrage per Kategorie, Freitext oder beidem | R1 | umgesetzt |
+| Ablehnung von Mehrwertnummern, Trennung kostenlos und kostenpflichtig | R1 | umgesetzt |
 | Containerplattform mit Docker Compose und Traefik | R1 | geplant |
 | Notfall-Stopp mit Hinweis «144 anrufen» | R2 | geplant |
 | Orte über das Ortschaftenverzeichnis von swisstopo, Standortfreigabe | R2 | geplant |
@@ -84,6 +85,7 @@ Jede Region ist ein Mandant; Konten, Helferprofile und Anfragen gehören zu gena
 | Datenbank | PostgreSQL 16 mit PostGIS als Container, Entity Framework Core mit Npgsql |
 | Anmeldung | JWT (HS256), Passwort-Hash mit PBKDF2 aus ASP.NET Core Identity |
 | Repository-Schutz | Gitleaks, Hygieneprüfung mit Node.js 22 und node:test |
+| Tests | Schnittstellentests mit node:test, Rauchtest mit curl und jq |
 | CI | GitHub Actions, Dependabot |
 
 ## Schnellstart
@@ -113,6 +115,8 @@ Mit `Testdaten__Laden=true` in der `.env` lädt die Schnittstelle beim Start Tes
 
 Registrierung, Anmeldung, Rollen und Berechtigungen: [docs/anmeldung-und-rollen.md](docs/anmeldung-und-rollen.md).
 
+Anfragen und Kategorien: [docs/anfragen.md](docs/anfragen.md).
+
 Zugangsdaten gehören nie ins Repository; Vorlage für die lokale Konfiguration ist [`.env.example`](.env.example).
 
 ## Entwicklung
@@ -120,6 +124,7 @@ Zugangsdaten gehören nie ins Repository; Vorlage für die lokale Konfiguration 
 - **Kanban:** [Soforthilfe Bern/Mittelland Kanban](https://github.com/users/maliswiss/projects/3)
 - **Aufgaben:** Jede Aufgabe ist ein Issue, jede Aufgabe ein Commit.
 - **Commits:** `<Release>: <Kurzbeschreibung> (Refs #<Issue>)`, zum Beispiel `R1: Backend-Projektstruktur mit Schichten angelegt (Refs #4)`.
+- **Tests:** `node --test "tests/api/*.test.mjs"` gegen die laufende Schnittstelle (`API_URL`, Testkonten mit `TESTDATEN_PASSWORT`); die CI führt sie bei jedem Push aus.
 - **Prüfung vor dem Commit:** Hygieneprüfung und Gitleaks, Einrichtung mit `git config core.hooksPath .githooks`.
 - **Releases und Tags:** R1 (19.10. bis 06.11.2026), R2 (09.11. bis 27.11.2026), R3 (30.11. bis 18.12.2026); jede Abnahme erhält den Tag `r1-abnahme`, `r2-abnahme` oder `r3-abnahme`.
 

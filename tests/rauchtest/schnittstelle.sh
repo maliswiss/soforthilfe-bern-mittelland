@@ -49,13 +49,6 @@ erwarte "Registrierung in Bern" 201 "$(status "${json[@]}" -H 'X-Region: bern' -
 erwarte "Antwort ohne Passwort-Hash" false "$(jq 'has("passwortHash")' "$ANTWORT")"
 erwarte "Gleiche Adresse ein zweites Mal" 409 "$(status "${json[@]}" -H 'X-Region: bern' -d "$registrierung" "$BASIS/api/konto/registrieren")"
 
-# Mehrwertnummern sind unabhängig von Landesvorwahl und Trennzeichen gesperrt.
-for nummer in '+41 900 123 456' '0041-901-123-456' '0906/123456'; do
-  adresse_nummer="nummer.$(date +%s%N)@beispiel.invalid"
-  daten_nummer="$(jq -n --arg e "$adresse_nummer" --arg p "$kennwort" --arg t "$nummer" \
-    '{eMail: $e, passwort: $p, anzeigename: "Rauchtest Nummer", rolle: "Hilfesuchende", telefon: $t}')"
-  erwarte "Mehrwertnummer $nummer ablehnen" 400 "$(status "${json[@]}" -H 'X-Region: bern' -d "$daten_nummer" "$BASIS/api/konto/registrieren")"
-done
 erwarte "Anmeldung mit falschem Passwort" 401 "$(status "${json[@]}" -d "$falsch" "$BASIS/api/konto/anmelden")"
 erwarte "Anmeldung" 200 "$(status "${json[@]}" -d "$anmeldung" "$BASIS/api/konto/anmelden")"
 token="$(jq -r '.token' "$ANTWORT")"
@@ -65,23 +58,13 @@ erwarte "Region des Kontos" bern "$(jq -r '.region' "$ANTWORT")"
 erwarte "Fremde Region im Kopf" 403 "$(status -H "Authorization: Bearer $token" -H 'X-Region: mittelland' "$BASIS/api/konto/ich")"
 erwarte "Manipuliertes Token" 401 "$(status -H "Authorization: Bearer ${token}x" "$BASIS/api/konto/ich")"
 
-# Kostenlose und kostenpflichtige Kategorien sind getrennt abrufbar.
-erwarte "Kostenlose Kategorien" 200 "$(status "$BASIS/api/kategorien?kostenpflichtig=false")"
-erwarte "Nur kostenlose Kategorien" true "$(jq 'length > 0 and all(.kostenpflichtig == false)' "$ANTWORT")"
-erwarte "Kostenpflichtige Kategorien" 200 "$(status "$BASIS/api/kategorien?kostenpflichtig=true")"
-erwarte "Nur kostenpflichtige Kategorien" true "$(jq 'length > 0 and all(.kostenpflichtig == true)' "$ANTWORT")"
-
-freie_kategorie="$(status "$BASIS/api/kategorien?kostenpflichtig=false" >/dev/null; jq -r '.[0].id' "$ANTWORT")"
-anfrage="$(jq -n --arg k "$freie_kategorie" '{kategorieId: $k, postleitzahl: "3000"}')"
+echo "== Kategorien und Anfrage"
+erwarte "Kategorien auflisten" 200 "$(status "$BASIS/api/kategorien")"
+anfrage='{"freitext":"Unterstützung beim Einkauf benötigt","postleitzahl":"3011"}'
 erwarte "Anfrage ohne Anmeldung" 401 "$(status "${json[@]}" -d "$anfrage" "$BASIS/api/anfragen")"
 erwarte "Anfrage erfassen" 201 "$(status "${json[@]}" -H "Authorization: Bearer $token" -d "$anfrage" "$BASIS/api/anfragen")"
-erwarte "Anfrage mit kostenloser Kategorie" false "$(jq -r '.kostenpflichtig' "$ANTWORT")"
 erwarte "Erfasste Anfrage ist offen" Offen "$(jq -r '.status' "$ANTWORT")"
-erwarte "Anfrage mit fremder Region ablehnen" 403 "$(status "${json[@]}" -H "Authorization: Bearer $token" -H 'X-Region: mittelland' -d "$anfrage" "$BASIS/api/anfragen")"
-freitext_anfrage='{"freitext":"Unterstützung beim Einkauf benötigt","postleitzahl":"3000"}'
-erwarte "Anfrage per Freitext" 201 "$(status "${json[@]}" -H "Authorization: Bearer $token" -d "$freitext_anfrage" "$BASIS/api/anfragen")"
-ungueltig='{"freitext":"Text","kategorieId":"00000000-0000-0000-0000-000000000001","postleitzahl":"3000"}'
-erwarte "Kategorie und Freitext zugleich ablehnen" 400 "$(status "${json[@]}" -H "Authorization: Bearer $token" -d "$ungueltig" "$BASIS/api/anfragen")"
+erwarte "Eigene Anfragen auflisten" 200 "$(status -H "Authorization: Bearer $token" "$BASIS/api/anfragen")"
 
 echo "== Rollen und Berechtigungen"
 if [ -z "${TESTDATEN_PASSWORT:-}" ]; then

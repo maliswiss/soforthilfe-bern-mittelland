@@ -1,3 +1,11 @@
 using System.ComponentModel.DataAnnotations;
+
 namespace Soforthilfe.Api.Modelle;
-public sealed record NeueAnfrage([StringLength(2000, MinimumLength = 3)] string? Freitext, Guid? KategorieId, [Required, RegularExpression("^[0-9]{4}$")] string Postleitzahl);
+
+/// <summary>
+/// Eingabe für eine neue Anfrage: Kategorie, Freitext oder beides, dazu die Postleitzahl des Einsatzorts.
+/// </summary>
+public sealed record NeueAnfrage(
+    Guid? KategorieId,
+    [StringLength(2000)] string? Freitext,
+    [Required, StringLength(4, MinimumLength = 4)] string Postleitzahl);
