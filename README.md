@@ -29,6 +29,7 @@ Hilfesuchende beschreiben ihre Lage in eigenen Worten. Die Plattform erkennt den
 | Anmeldung mit JWT, Rollen und Berechtigungen | R1 | umgesetzt |
 | Anfrage per Kategorie, Freitext oder beidem | R1 | umgesetzt |
 | Ablehnung von Mehrwertnummern, Trennung kostenlos und kostenpflichtig | R1 | umgesetzt |
+| Oberfläche: Regionswahl, Registrierung, Anmeldung und Anfrageformular | R1 | umgesetzt |
 | Containerplattform mit Docker Compose und Traefik | R1 | geplant |
 | Notfall-Stopp mit Hinweis «144 anrufen» | R2 | geplant |
 | Orte über das Ortschaftenverzeichnis von swisstopo, Standortfreigabe | R2 | geplant |
@@ -47,11 +48,11 @@ Der Stand der einzelnen Aufgaben steht im [Kanban](https://github.com/users/mali
 
 ## Architektur
 
-Das Backend ist eine ASP.NET Core Web API in drei Schichten. Jede Schicht ist ein eigenes Projekt und kennt nur die Schicht darunter.
+Die Oberfläche ist eine Progressive Web App mit Vue 3 und ruft die Schnittstelle unter `/api` auf. Das Backend ist eine ASP.NET Core Web API in drei Schichten; jede Schicht ist ein eigenes Projekt und kennt nur die Schicht darunter.
 
 ```mermaid
 flowchart LR
-  Client["HTTP-Client"] --> Api["Soforthilfe.Api<br/>Controller"]
+  Ui["Oberfläche<br/>Vue 3, PWA"] -- "/api" --> Api["Soforthilfe.Api<br/>Controller"]
   Api --> Dienste["Soforthilfe.Dienste<br/>Fachlogik"]
   Dienste --> Daten["Soforthilfe.Datenzugriff<br/>Datenzugriff"]
   Daten --> Db[("PostgreSQL<br/>mit PostGIS")]
