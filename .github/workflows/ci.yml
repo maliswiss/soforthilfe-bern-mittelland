@@ -61,6 +61,29 @@ jobs:
       - name: Tests der Hygieneprüfung
         run: node --test "tests/hygiene/*.test.mjs"
 
+  frontend:
+    name: Frontend bauen
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v7
+
+      - name: Node.js einrichten
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Abhängigkeiten genau nach Sperrdatei installieren
+        run: npm ci
+
+      - name: Bauen
+        run: npm run build
+
   backend:
     name: Backend bauen und testen
     runs-on: ubuntu-latest

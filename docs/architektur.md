@@ -103,6 +103,17 @@ SignalR für Hinweise und Chat. Bei mehreren API-Instanzen verteilt PostgreSQL d
 
 Vue 3 mit Vite, Tailwind CSS und PWA. Texte liegen als Sprachdateien vor (Deutsch, Französisch) und lassen sich ohne Deployment ergänzen.
 
+| Ordner | Inhalt |
+|---|---|
+| `frontend/src/seiten` | Eine Komponente je Seite, angebunden über `src/router.js` |
+| `frontend/src/komponenten` | Wiederverwendbare Teile wie Kopfzeile und Notfallband |
+| `frontend/src/texte` | Alle Oberflächentexte; Zugriff nur über `t('bereich.schluessel')` |
+| `frontend/public/icons` | Symbole für Browser und installierte App |
+
+- In der Entwicklung leitet Vite `/api` und `/health` an die Schnittstelle weiter; die Oberfläche läuft damit wie im Betrieb unter demselben Ursprung.
+- Die PWA speichert nur die Oberfläche zwischen, nie Antworten der Schnittstelle.
+- Das Notfallband mit der Nummer 144 steht auf jeder Seite.
+
 ## Betrieb
 
 - Docker Compose mit Profilen, Traefik als Lastverteiler mit Zustandsprüfung und Wiederholung

@@ -84,13 +84,14 @@ Jede Region ist ein Mandant; Konten, Helferprofile und Anfragen gehören zu gena
 | Backend | ASP.NET Core 10 (.NET 10), C# |
 | Datenbank | PostgreSQL 16 mit PostGIS als Container, Entity Framework Core mit Npgsql |
 | Anmeldung | JWT (HS256), Passwort-Hash mit PBKDF2 aus ASP.NET Core Identity |
+| Frontend | Vue 3 mit Vue Router, Vite, Tailwind CSS, Progressive Web App mit vite-plugin-pwa |
 | Repository-Schutz | Gitleaks, Hygieneprüfung mit Node.js 22 und node:test |
 | Tests | Schnittstellentests mit node:test, Rauchtest mit curl und jq |
 | CI | GitHub Actions, Dependabot |
 
 ## Schnellstart
 
-Voraussetzungen: Docker, .NET SDK 10, Node.js 22, Git und Gitleaks.
+Voraussetzungen: Docker, .NET SDK 10, Node.js 22 (ab 22.12), Git und Gitleaks.
 
 ```
 git clone https://github.com/maliswiss/soforthilfe-bern-mittelland.git
@@ -108,6 +109,16 @@ dotnet run --project backend/src/Soforthilfe.Api
 | `http://localhost:5000/api/info` | Name und Version |
 | `http://localhost:5000/health/live` | `Healthy`, solange der Prozess läuft |
 | `http://localhost:5000/health/ready` | `Healthy`, wenn auch die Datenbank erreichbar ist |
+
+Oberfläche in einem zweiten Terminal starten; sie leitet `/api` an die Schnittstelle weiter:
+
+```
+cd frontend
+npm ci
+npm run dev
+```
+
+Die Oberfläche läuft unter `http://localhost:5173`.
 
 Mit `Testdaten__Laden=true` in der `.env` lädt die Schnittstelle beim Start Testdaten mit ausschliesslich fiktiven Personen, sofern die Datenbank noch keine Konten enthält. Mit `TESTDATEN_PASSWORT` können sich die Testkonten anmelden.
 

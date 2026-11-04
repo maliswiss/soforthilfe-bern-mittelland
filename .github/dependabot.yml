@@ -1,10 +1,21 @@
 # Dependabot: wöchentliche Prüfung der Abhängigkeiten
-# Weitere Ökosysteme (npm, Docker) kommen hinzu, sobald Frontend und Container vorhanden sind.
 
 version: 2
 updates:
   - package-ecosystem: "nuget"
     directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/Zurich"
+    open-pull-requests-limit: 5
+    labels: []
+    commit-message:
+      prefix: "Abhängigkeiten"
+
+  - package-ecosystem: "npm"
+    directory: "/frontend"
     schedule:
       interval: "weekly"
       day: "monday"

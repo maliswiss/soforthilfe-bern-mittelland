@@ -19,10 +19,11 @@ Verwendete oder geplante Fremdkomponenten mit Zweck, Lizenz und Quelle. Die gena
 | Komponente | Zweck | Lizenz | Quelle |
 |---|---|---|---|
 | Vue 3 | Oberfläche | MIT | https://github.com/vuejs/core |
+| Vue Router | Seiten und Navigation | MIT | https://github.com/vuejs/router |
 | Vite | Build und Entwicklungsserver | MIT | https://github.com/vitejs/vite |
 | vue-i18n | Mehrsprachigkeit | MIT | https://github.com/intlify/vue-i18n |
 | Tailwind CSS | Gestaltung | MIT | https://github.com/tailwindlabs/tailwindcss |
-| vite-plugin-pwa | Progressive Web App | MIT | https://github.com/vite-pwa/vite-plugin-pwa |
+| vite-plugin-pwa (mit Workbox) | Progressive Web App und Service Worker | MIT | https://github.com/vite-pwa/vite-plugin-pwa, https://github.com/GoogleChrome/workbox |
 
 ## Betrieb
 

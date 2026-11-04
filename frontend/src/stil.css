@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+/* Farben und Schrift der Plattform; Farbe trägt nie allein eine Bedeutung, immer auch ein Wort. */
+@theme {
+  --color-tanne: #133B33;
+  --color-linie: #1F5A4D;
+  --color-papier: #F4F5F1;
+  --color-karte: #FCFCFA;
+  --color-rand: #C3CDC6;
+  --color-hell: #DDE9E1;
+  --color-rost: #A6471A;
+  --color-text: #33403B;
+  --color-gedaempft: #5A6762;
+  --color-notfall: #8E1B27;
+  --color-notfall-hell: #FBEDEE;
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+/* Grössere Grundschrift, weil auch ältere Personen die Plattform nutzen. */
+html {
+  font-size: 18px;
+}
+
+body {
+  background-color: var(--color-papier);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+/* Sichtbarer Fokus für die Bedienung mit der Tastatur. */
+:focus-visible {
+  outline: 3px solid var(--color-rost);
+  outline-offset: 2px;
+}
