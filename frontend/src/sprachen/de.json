@@ -1,0 +1,164 @@
+{
+  "allgemein": {
+    "fehlerAnfrage": "Die Anfrage konnte nicht verarbeitet werden.",
+    "fehlerVerbindung": "Die Plattform ist gerade nicht erreichbar. Bitte später erneut versuchen.",
+    "laden": "Wird geladen …",
+    "kostenlos": "kostenlos",
+    "unbekannt": "unbekannt"
+  },
+  "prioritaet": {
+    "0": "tief",
+    "1": "mittel",
+    "2": "hoch",
+    "marke": "Dringlichkeit {stufe}"
+  },
+  "status": {
+    "0": "Entwurf",
+    "1": "offen",
+    "2": "Vorschläge vorhanden",
+    "3": "angenommen",
+    "4": "unterwegs",
+    "5": "erledigt",
+    "6": "abgebrochen",
+    "7": "wegen Notfall gestoppt"
+  },
+  "kopf": {
+    "zumInhalt": "Zum Inhalt springen",
+    "notfall": "Medizinischer Notfall?",
+    "notfallText": "Diese Plattform vermittelt keine medizinischen Leistungen.",
+    "notfallAnrufen": "Jetzt 144 anrufen",
+    "marke": "Soforthilfe",
+    "ablauf": "So funktioniert es",
+    "meineAnfragen": "Meine Anfragen",
+    "abmelden": "Abmelden",
+    "fuerHelfende": "Für Helfende",
+    "anmelden": "Anmelden"
+  },
+  "fuss": {
+    "problem": "Problem mit der Anwendung?",
+    "servicezeiten": "Servicezeiten Montag bis Freitag, 09 bis 17 Uhr",
+    "rechtliches": "Rechtliches",
+    "impressum": "Impressum",
+    "datenschutz": "Datenschutzerklärung nach revDSG",
+    "agb": "Allgemeine Geschäftsbedingungen",
+    "region": "Region",
+    "sprache": "Sprache: {sprache}"
+  },
+  "sprache": {
+    "de": "Deutsch"
+  },
+  "region": {
+    "titel": "Region",
+    "hinweis": "Konten, Anfragen und Helfende sind pro Region getrennt."
+  },
+  "hinweis": {
+    "anfrage": "Anfrage",
+    "anfrageOeffnen": "Anfrage öffnen"
+  },
+  "ort": {
+    "plz": "Postleitzahl",
+    "plzTitel": "Vierstellige Postleitzahl",
+    "ort": "Ort"
+  },
+  "telefon": {
+    "kostenpflichtig": "Nummern mit 0900 (sowie 0901 und 0906) sind kostenpflichtig und werden nicht akzeptiert."
+  },
+  "start": {
+    "fehlerKategorien": "Die Kategorien konnten nicht geladen werden. Bitte später erneut versuchen.",
+    "fehlerKategorie": "Bitte wählen Sie eine Kategorie.",
+    "fehlerFreitext": "Bitte beschreiben Sie Ihr Anliegen in einem kurzen Satz.",
+    "titel1": "Nicht mehr suchen.",
+    "titel2": "Passende Hilfe finden.",
+    "einleitung": "In kleinen, zeitkritischen Alltagssituationen verbindet Sie diese Plattform mit verifizierten Helfenden und lokalen Betrieben in der Region {region}.",
+    "schrittAnfrage": "Anfrage",
+    "schrittAnfrageText": "Kategorie wählen oder das Anliegen frei beschreiben.",
+    "schrittVerstaendnis": "Verständnis",
+    "schrittVerstaendnisText": "Die Plattform schlägt Kategorie und Dringlichkeit vor, Sie bestätigen.",
+    "schrittVorschlaege": "Vorschläge",
+    "schrittVorschlaegeText": "Drei geeignete Helfende, jede Empfehlung mit Begründung und Preisangaben.",
+    "schrittAbschluss": "Abschluss",
+    "schrittAbschlussText": "Status, Kontakt und Bewertung laufen über die Plattform.",
+    "frage": "Was brauchen Sie?",
+    "kategorieWaehlen": "Kategorie wählen",
+    "freiBeschreiben": "Frei beschreiben",
+    "freitextEtikett": "Beschreiben Sie Ihr Anliegen in eigenen Worten",
+    "freitextBeispiel": "Zum Beispiel: Mein Schlüssel ist im Schloss abgebrochen und ich komme nicht in die Wohnung.",
+    "hilfeFinden": "Hilfe finden",
+    "ohneKonto": "Sie können ohne Konto beginnen. Für das Absenden der Anfrage ist eine Anmeldung nötig.",
+    "helfenTitel": "Sie möchten helfen?",
+    "helfenText": "Privatpersonen und lokale Betriebe hinterlegen ihre Fähigkeiten, ihr Einsatzgebiet, ihre Verfügbarkeit und ihre Preise. Nach der Prüfung durch die Koordination erhalten Sie passende Anfragen aus Ihrer Umgebung.",
+    "alsHelfendeRegistrieren": "Als Helfende registrieren",
+    "vertrauenTitel": "Vertrauen und Schutz",
+    "vertrauen1": "Helfende werden vor der Vermittlung überprüft und freigegeben.",
+    "vertrauen2": "Ihre genaue Adresse und Telefonnummer sehen Helfende erst nach der Zusage.",
+    "vertrauen3": "Bei akuten gesundheitlichen Hinweisen stoppt die Vermittlung und verweist auf 144.",
+    "vertrauen4": "Für die Verifizierung werden keine Ausweisdokumente gespeichert."
+  },
+  "ablauf": {
+    "titel": "So funktioniert es",
+    "schritt1": "Anliegen beschreiben",
+    "schritt1Text": "Wählen Sie eine Kategorie oder schreiben Sie in eigenen Worten, was passiert ist, auf Deutsch oder Französisch. Beides führt zum selben Ablauf.",
+    "schritt2": "Vorschlag prüfen",
+    "schritt2Text": "Die Plattform schlägt Kategorie und Dringlichkeit vor und zeigt, wie sie darauf gekommen ist. Sie bestätigen oder korrigieren.",
+    "schritt3": "Passende Helfende erhalten",
+    "schritt3Text": "Distanz, Fähigkeit, Bewertung, Verfügbarkeit und Erfahrung werden gemeinsam gewichtet. Sie sehen drei Vorschläge, jeder mit Begründung und Preisangaben.",
+    "schritt4": "Koordinieren und abschliessen",
+    "schritt4Text": "Nach der Zusage tauschen Sie Kontaktdaten aus, verfolgen den Status und bewerten den Einsatz. Bleibt eine Zusage aus, erweitert sich der Suchradius und die Koordination übernimmt.",
+    "abgrenzungTitel": "Was diese Plattform nicht ist",
+    "abgrenzungText": "Sie vermittelt keine medizinischen Leistungen. Bei akuten gesundheitlichen Hinweisen stoppt die Vermittlung und verweist auf die Notrufnummer 144. Gesundheitliche Anliegen sind auf Orientierung, Transport und Begleitung begrenzt."
+  },
+  "anmeldung": {
+    "titel": "Anmelden",
+    "email": "E-Mail-Adresse",
+    "passwort": "Passwort",
+    "pruefen": "Wird geprüft …",
+    "knopf": "Anmelden",
+    "keinKonto": "Noch kein Konto?",
+    "registrieren": "Jetzt registrieren",
+    "regionPruefen": "Prüfen Sie auch die gewählte Region.",
+    "sitzungAbgelaufen": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
+  },
+  "registrierung": {
+    "titel": "Konto erstellen",
+    "einleitung": "Ein Konto genügt, um Hilfe zu suchen und später selbst zu helfen.",
+    "ichMoechte": "Ich möchte",
+    "hilfeSuchen": "Hilfe suchen",
+    "hilfeSuchenText": "Anfragen stellen",
+    "hilfeAnbieten": "Hilfe anbieten",
+    "hilfeAnbietenText": "als Privatperson oder Betrieb",
+    "name": "Name",
+    "telefon": "Telefonnummer",
+    "telefonHinweis": "Wird erst nach einer Zusage an die andere Seite weitergegeben.",
+    "passwort": "Passwort, mindestens zehn Zeichen",
+    "erstellen": "Wird erstellt …",
+    "bereitsRegistriert": "Bereits registriert?"
+  },
+  "erfassen": {
+    "titel": "Wo und wann?",
+    "einleitung": "Die genaue Adresse und Ihre Telefonnummer werden erst sichtbar, wenn eine helfende Person zugesagt hat.",
+    "anliegen": "Anliegen: {kategorie}",
+    "anliegenFreitext": "Anliegen in eigenen Worten",
+    "fehlerPlz": "Bitte eine vierstellige Postleitzahl eingeben.",
+    "fehlerOrt": "Bitte den Ort eingeben.",
+    "adresse": "Strasse und Nummer",
+    "zeitfenster": "Wann passt es Ihnen?",
+    "zeitfensterBeispiel": "Zum Beispiel: heute zwischen 17 und 19 Uhr",
+    "senden": "Anfrage senden",
+    "sendet": "Wird gesendet …"
+  },
+  "meineAnfragen": {
+    "titel": "Meine Anfragen",
+    "neu": "Neue Anfrage",
+    "leer": "Hier erscheinen Ihre Anfragen, sobald Sie die erste gestellt haben.",
+    "ohneKategorie": "Ohne Kategorie"
+  },
+  "anfrage": {
+    "erfasst": "Ihre Anfrage ist erfasst und offen.",
+    "erfasstAm": "Erfasst am {datum}",
+    "adresse": "Adresse",
+    "zeitfenster": "Zeitfenster",
+    "kostenpflichtig": "Kostenpflichtige Kategorie: Die Preise sehen Sie vor der Zusage.",
+    "kostenlos": "Kostenlose Kategorie: Es fällt keine Gebühr an.",
+    "zurueck": "Zurück zu meinen Anfragen"
+  }
+}

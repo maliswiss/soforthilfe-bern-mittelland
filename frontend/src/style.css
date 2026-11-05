@@ -1,0 +1,84 @@
+@import 'tailwindcss';
+
+/* Farben und Schriften der Oberfläche. Rot bleibt allein dem Notfall vorbehalten. */
+@theme {
+  --color-tanne: #133b33;
+  --color-tanne-hell: #1f5a4d;
+  --color-tanne-blass: #e7eeea;
+  --color-papier: #f5f6f3;
+  --color-kiesel: #dde1da;
+  --color-tinte: #1b211f;
+  --color-grau: #5e6b66;
+  --color-notruf: #c8102e;
+  --color-dringend: #8c3a12;
+
+  --font-titel: Archivo, 'Segoe UI', sans-serif;
+  --font-text: 'Source Sans 3', 'Segoe UI', sans-serif;
+
+  --container-lesen: 68ch;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    @apply bg-papier text-tinte font-text antialiased;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-titel text-tanne;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-tanne-hell;
+  }
+
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@layer components {
+  .feld {
+    @apply w-full border border-kiesel bg-white px-3 py-2 text-base placeholder:text-grau focus:border-tanne-hell focus:outline-none;
+  }
+
+  .knopf {
+    @apply inline-flex items-center justify-center bg-tanne px-5 py-3 font-medium text-white transition-colors hover:bg-tanne-hell disabled:opacity-50;
+  }
+
+  .knopf-leise {
+    @apply inline-flex items-center justify-center border border-tanne bg-transparent px-5 py-3 font-medium text-tanne transition-colors hover:bg-tanne-blass;
+  }
+
+  .karte {
+    @apply border border-kiesel bg-white p-5;
+  }
+
+  .etikett {
+    @apply mb-1 block text-sm font-medium text-grau;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+/* Druck und «Als PDF speichern»: nur der Inhalt, ohne Navigation und Hintergrundfarbe */
+@media print {
+  body {
+    background: #fff;
+  }
+
+  .karte {
+    break-inside: avoid;
+  }
+}

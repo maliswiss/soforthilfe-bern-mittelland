@@ -29,7 +29,7 @@ Hilfesuchende beschreiben ihre Lage in eigenen Worten. Die Plattform erkennt den
 | Anmeldung mit JWT, Rollen und Berechtigungen | R1 | umgesetzt |
 | Anfrage per Kategorie, Freitext oder beidem | R1 | umgesetzt |
 | Ablehnung von Mehrwertnummern, Trennung kostenlos und kostenpflichtig | R1 | umgesetzt |
-| Oberfläche: Regionswahl, Registrierung, Anmeldung und Anfrageformular | R1 | umgesetzt |
+| Oberfläche: Startseite mit Kategorie oder Freitext, Regionswahl, Registrierung, Anmeldung, Anfrage erfassen, eigene Anfragen | R1 | umgesetzt |
 | Containerplattform mit Docker Compose und Traefik | R1 | umgesetzt |
 | Notfall-Stopp mit Hinweis «144 anrufen» | R2 | geplant |
 | Orte über das Ortschaftenverzeichnis von swisstopo, Standortfreigabe | R2 | geplant |
@@ -86,7 +86,7 @@ Jede Region ist ein Mandant; Konten, Helferprofile und Anfragen gehören zu gena
 | Backend | ASP.NET Core 10 (.NET 10), C# |
 | Datenbank | PostgreSQL 16 mit PostGIS als Container, Entity Framework Core mit Npgsql |
 | Anmeldung | JWT (HS256), Passwort-Hash mit PBKDF2 aus ASP.NET Core Identity |
-| Frontend | Vue 3 mit Vue Router, Vite, Tailwind CSS, Progressive Web App mit vite-plugin-pwa |
+| Frontend | Vue 3 mit Vue Router, Pinia und vue-i18n, Vite, Tailwind CSS, Progressive Web App mit vite-plugin-pwa |
 | Betrieb | Docker Compose mit Profilen, Traefik 3 als Lastverteiler, nginx für die Oberfläche |
 | Repository-Schutz | Gitleaks, Hygieneprüfung mit Node.js 22 und node:test |
 | Tests | Schnittstellentests mit node:test, Rauchtest mit curl und jq |
@@ -121,7 +121,7 @@ npm ci
 npm run dev
 ```
 
-Die Oberfläche läuft unter `http://localhost:5173`.
+Die Oberfläche läuft unter `http://localhost:5173`. Ablauf und Bildschirme: [docs/screenflow.md](docs/screenflow.md).
 
 Mit `Testdaten__Laden=true` in der `.env` lädt die Schnittstelle beim Start Testdaten mit ausschliesslich fiktiven Personen, sofern die Datenbank noch keine Konten enthält. Mit `TESTDATEN_PASSWORT` können sich die Testkonten anmelden.
 

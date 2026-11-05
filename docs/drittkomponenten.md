@@ -21,7 +21,9 @@ Verwendete oder geplante Fremdkomponenten mit Zweck, Lizenz und Quelle. Die gena
 | Vue 3 | Oberfläche | MIT | https://github.com/vuejs/core |
 | Vue Router | Seiten und Navigation | MIT | https://github.com/vuejs/router |
 | Vite | Build und Entwicklungsserver | MIT | https://github.com/vitejs/vite |
-| vue-i18n | Mehrsprachigkeit | MIT | https://github.com/intlify/vue-i18n |
+| Pinia | Zustand der Oberfläche (Konto, Entwurf der Anfrage) | MIT | https://github.com/vuejs/pinia |
+| vue-i18n | Texte und Mehrsprachigkeit | MIT | https://github.com/intlify/vue-i18n |
+| Fontsource Archivo, Source Sans 3 | Schriften, mit der Anwendung ausgeliefert | SIL Open Font License 1.1 | https://github.com/fontsource/font-files |
 | Tailwind CSS | Gestaltung | MIT | https://github.com/tailwindlabs/tailwindcss |
 | vite-plugin-pwa (mit Workbox) | Progressive Web App und Service Worker | MIT | https://github.com/vite-pwa/vite-plugin-pwa, https://github.com/GoogleChrome/workbox |
 

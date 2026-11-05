@@ -103,21 +103,23 @@ SignalR für Hinweise und Chat. Bei mehreren API-Instanzen verteilt PostgreSQL d
 
 ## Frontend
 
-Vue 3 mit Vite, Tailwind CSS und PWA. Texte liegen als Sprachdateien vor (Deutsch, Französisch) und lassen sich ohne Deployment ergänzen.
+Vue 3 mit Vite, Tailwind CSS und PWA, Zustand mit Pinia, Texte über vue-i18n. Ablauf und Bildschirme: [screenflow.md](screenflow.md).
 
 | Ordner | Inhalt |
 |---|---|
-| `frontend/src/seiten` | Eine Komponente je Seite, angebunden über `src/router.js` |
-| `frontend/src/komponenten` | Wiederverwendbare Teile wie Kopfzeile und Notfallband |
-| `frontend/src/texte` | Alle Oberflächentexte; Zugriff nur über `t('bereich.schluessel')` |
-| `frontend/src/dienste` | Aufruf der Schnittstelle und Sitzung (Token, Konto, gewählte Region) |
-| `frontend/public/icons` | Symbole für Browser und installierte App |
+| `frontend/src/views` | Eine Ansicht je Seite, angebunden über `src/router/index.js` |
+| `frontend/src/components` | Wiederverwendbare Teile wie Regionswahl, Hinweise, Status- und Dringlichkeitsmarke |
+| `frontend/src/stores` | Pinia: Konto und Sitzung (`konto.js`), Entwurf der Anfrage (`anfrage.js`) |
+| `frontend/src/api` | Aufruf der Schnittstelle (`klient.js`), Prüfung der Mehrwertnummern, sichere Weiterleitung nach der Anmeldung |
+| `frontend/src/sprachen` | Alle Oberflächentexte in `de.json`; Zugriff nur über `t('bereich.schluessel')` |
+| `frontend/public` | Symbole für Browser und installierte App |
 
 - In der Entwicklung leitet Vite `/api` und `/health` an die Schnittstelle weiter; die Oberfläche läuft damit wie im Betrieb unter demselben Ursprung.
 - Die PWA speichert nur die Oberfläche zwischen, nie Antworten der Schnittstelle.
-- Das Token liegt nur im Sitzungsspeicher der Registerkarte und endet mit ihr; die gewählte Region bleibt als Komfort im Browser gespeichert.
-- Ohne Anmeldung sendet die Oberfläche die gewählte Region im Kopf `X-Region`, angemeldet nur das Token.
-- Seiten mit Anmeldung leiten zur Anmeldung und danach zurück; die Rolle prüft die Schnittstelle.
+- Schriften (Archivo, Source Sans 3) werden mit der Anwendung ausgeliefert; die Oberfläche lädt nichts von fremden Servern (Content-Security-Policy nur für den eigenen Ursprung, `frontend/csp.js` für die Vorschau, `frontend/nginx-sicherheit.conf` im Container).
+- Die Region wählt die Person vor der Anmeldung; Registrierung und Anmeldung senden sie im Feld `mandant`, danach gilt die Region aus dem Token.
+- Token und Konto liegen im lokalen Speicher des Browsers bis zum Ablauf des Tokens oder bis zur Abmeldung; lehnt die Schnittstelle das Token ab, führt die Oberfläche zur Anmeldung zurück.
+- Seiten mit Anmeldung leiten zur Anmeldung und danach zurück, nur auf Pfade innerhalb der Anwendung; die Rolle prüft die Schnittstelle.
 - Das Notfallband mit der Nummer 144 steht auf jeder Seite.
 
 ## Betrieb
