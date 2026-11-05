@@ -5,10 +5,11 @@ namespace Soforthilfe.Dienste.Konten;
 /// </summary>
 public interface IKontoDienst
 {
+    // Registriert ein Konto in der Region der laufenden Anfrage.
     Task<KontoErgebnis> RegistrierenAsync(RegistrierungsDaten daten, CancellationToken abbruch);
 
-    // Liefert null, wenn E-Mail-Adresse oder Passwort nicht stimmen.
-    Task<KontoInfo?> AnmeldenAsync(string eMail, string passwort, CancellationToken abbruch);
+    // Liefert null, wenn E-Mail-Adresse oder Passwort nicht stimmen oder das Konto nicht zur gewählten Region gehört.
+    Task<KontoInfo?> AnmeldenAsync(string eMail, string passwort, string? region, CancellationToken abbruch);
 
     // Liest ein Konto der aktuellen Region.
     Task<KontoInfo?> LiesAsync(Guid id, CancellationToken abbruch);

@@ -42,10 +42,17 @@ export const istAngemeldet = computed(() => sitzung.token !== null);
 export const aktuelleRegion = computed(() => sitzung.konto?.region ?? sitzung.region?.kennung ?? null);
 
 export function setzeAnmeldung(antwort) {
-  sitzung.token = antwort.token;
-  sitzung.ablauf = antwort.ablauf;
-  sitzung.konto = antwort.konto;
-  schreibe(sessionStorage, TOKEN_SCHLUESSEL, antwort);
+  // Antwort der Schnittstelle: Token, Ablauf und Benutzer mit Rollen und Region (Mandant).
+  const benutzer = antwort.benutzer;
+  const gesichert = {
+    token: antwort.token,
+    ablauf: antwort.gueltigBis,
+    konto: { ...benutzer, rolle: benutzer.rollen[0], region: benutzer.mandantSchluessel },
+  };
+  sitzung.token = gesichert.token;
+  sitzung.ablauf = gesichert.ablauf;
+  sitzung.konto = gesichert.konto;
+  schreibe(sessionStorage, TOKEN_SCHLUESSEL, gesichert);
 }
 
 export function abmelden() {

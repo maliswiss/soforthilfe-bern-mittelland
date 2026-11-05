@@ -224,6 +224,7 @@ jobs:
           cat antwort.json; echo
           test "$status" = "404"
           grep -q '"status":404' antwort.json
+          grep -q '"fehler":' antwort.json
 
       - name: Stammdaten und Testdaten prüfen
         run: |
@@ -234,8 +235,8 @@ jobs:
             test "$anzahl" = "$2"
           }
           pruefe Regionen 2
-          pruefe Kategorien 6
-          pruefe Skills 11
+          pruefe Kategorien 10
+          pruefe Skills 10
           pruefe Konten 8
           pruefe Helferprofile 3
           pruefe Anfragen 2

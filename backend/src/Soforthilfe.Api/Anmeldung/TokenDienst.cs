@@ -5,9 +5,9 @@ using Soforthilfe.Dienste.Konten;
 namespace Soforthilfe.Api.Anmeldung;
 
 /// <summary>
-/// Antwort auf eine erfolgreiche Anmeldung.
+/// Ausgestelltes Token mit Ablaufzeitpunkt.
 /// </summary>
-public sealed record TokenAntwort(string Token, DateTimeOffset Ablauf, KontoInfo Konto);
+public sealed record TokenAntwort(string Token, DateTimeOffset GueltigBis);
 
 /// <summary>
 /// Stellt signierte Tokens (JWT, HS256) aus.
@@ -41,6 +41,6 @@ public sealed class TokenDienst(JwtEinstellungen einstellungen)
             SigningCredentials = new SigningCredentials(einstellungen.Schluessel, SecurityAlgorithms.HmacSha256),
         });
 
-        return new TokenAntwort(token, ablauf, konto);
+        return new TokenAntwort(token, ablauf);
     }
 }

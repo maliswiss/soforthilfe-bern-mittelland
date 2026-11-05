@@ -1,7 +1,7 @@
 namespace Soforthilfe.Datenzugriff.Modell;
 
 /// <summary>
-/// Anfrage einer hilfesuchenden Person, per Kategorie oder als Freitext.
+/// Anfrage einer hilfesuchenden Person, per Kategorie, als Freitext oder mit beidem.
 /// </summary>
 public sealed class Anfrage
 {
@@ -23,7 +23,17 @@ public sealed class Anfrage
 
     public string? Freitext { get; set; }
 
+    // Ort grob öffentlich (Postleitzahl und Ort), die genaue Adresse wird getrennt gespeichert.
     public required string Postleitzahl { get; set; }
+
+    public required string Ort { get; set; }
+
+    public string? Adresse { get; set; }
+
+    // Wann die Hilfe passt, in eigenen Worten, zum Beispiel «heute zwischen 17 und 19 Uhr».
+    public string? Zeitfenster { get; set; }
+
+    public Prioritaet Prioritaet { get; set; } = Prioritaet.Mittel;
 
     public AnfrageStatus Status { get; set; } = AnfrageStatus.Offen;
 

@@ -56,7 +56,8 @@ builder.Services
 builder.Services.AddAuthorization();
 
 // Zentrale Fehlerbehandlung: Fehler werden einheitlich als «application/problem+json» beantwortet.
-builder.Services.AddProblemDetails();
+// Jedes Problem-Dokument enthält «fehler» (Text für die Oberfläche) und bei Eingabefehlern «feld».
+builder.Services.AddProblemDetails(optionen => optionen.CustomizeProblemDetails = FehlerAntwort.Ergaenzen);
 builder.Services.AddExceptionHandler<ZentraleFehlerbehandlung>();
 
 // Zustandsprüfungen; weitere Prüfungen (zum Beispiel die Datenbank) tragen den Tag «bereit».

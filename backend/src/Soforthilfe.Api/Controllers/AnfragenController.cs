@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Soforthilfe.Api.Fehlerbehandlung;
 using Soforthilfe.Api.Modelle;
 using Soforthilfe.Dienste.Anfragen;
 using Soforthilfe.Dienste.Konten;
@@ -19,7 +20,7 @@ public sealed class AnfragenController(IAnfrageDienst anfragen) : ControllerBase
     // Nur Hilfesuchende erfassen eine Anfrage.
     [Authorize(Roles = Rollen.Hilfesuchende)]
     [HttpPost]
-    public async Task<IActionResult> Erfassen(NeueAnfrage eingabe, CancellationToken abbruch)
+    public async Task<IActionResult> Erstellen(AnfrageErstellen eingabe, CancellationToken abbruch)
     {
         if (KontoId() is not Guid kontoId)
         {
@@ -27,18 +28,27 @@ public sealed class AnfragenController(IAnfrageDienst anfragen) : ControllerBase
         }
 
         var ergebnis = await anfragen.ErfassenAsync(
-            new AnfrageDaten(kontoId, eingabe.KategorieId, eingabe.Freitext, eingabe.Postleitzahl),
+            new AnfrageDaten(kontoId, eingabe.KategorieId, eingabe.Freitext, eingabe.Plz, eingabe.Ort,
+                eingabe.Adresse, eingabe.Zeitfenster, eingabe.Prioritaet),
             abbruch);
 
         return ergebnis.Fehler switch
         {
             null => Created($"/api/anfragen/{ergebnis.Anfrage!.Id}", ergebnis.Anfrage),
-            AnfrageFehler.RegionFehlt => Fehler("Keine Region", "Das Konto ist keiner Region zugeordnet."),
-            AnfrageFehler.InhaltFehlt => Fehler("Anfrage unvollständig", "Bitte eine Kategorie wählen oder die Lage in eigenen Worten beschreiben."),
-            AnfrageFehler.PostleitzahlUngueltig => Fehler("Postleitzahl ungültig", "Bitte eine vierstellige Schweizer Postleitzahl angeben, zum Beispiel 3011."),
-            _ => Fehler("Kategorie unbekannt", "Die gewählte Kategorie gibt es nicht."),
+            AnfrageFehler.RegionFehlt => Ungueltig("Keine Region", "Das Konto ist keiner Region zugeordnet.", null),
+            AnfrageFehler.InhaltFehlt => Ungueltig("Anfrage unvollständig", "Bitte eine Kategorie wählen oder das Anliegen beschreiben.", "freitext"),
+            AnfrageFehler.PostleitzahlUngueltig => Ungueltig("Postleitzahl ungültig", "Bitte eine vierstellige Postleitzahl angeben.", "plz"),
+            AnfrageFehler.OrtFehlt => Ungueltig("Ort fehlt", "Bitte den Ort angeben.", "ort"),
+            AnfrageFehler.PrioritaetUngueltig => Ungueltig("Dringlichkeit ungültig", "Zulässig sind tief, mittel und hoch.", "prioritaet"),
+            _ => Ungueltig("Kategorie unbekannt", "Unbekannte Kategorie.", "kategorieId"),
         };
     }
+
+    // Eigene Anfragen, neueste zuerst.
+    [Authorize(Roles = Rollen.Hilfesuchende)]
+    [HttpGet("meine")]
+    public async Task<ActionResult<IReadOnlyList<AnfrageInfo>>> Meine(CancellationToken abbruch) =>
+        Ok(await anfragen.ListeAsync(KontoId() ?? Guid.Empty, abbruch));
 
     // Hilfesuchende sehen ihre eigenen Anfragen, Koordination und Verwaltung alle Anfragen ihrer Region.
     [Authorize(Roles = Lesende)]
@@ -49,7 +59,7 @@ public sealed class AnfragenController(IAnfrageDienst anfragen) : ControllerBase
     // Eine fremde oder regionsfremde Anfrage gilt als nicht vorhanden.
     [Authorize(Roles = Lesende)]
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> Lies(Guid id, CancellationToken abbruch)
+    public async Task<IActionResult> Einzeln(Guid id, CancellationToken abbruch)
     {
         var anfrage = await anfragen.LiesAsync(id, NurEigene(), abbruch);
         return anfrage is null ? NotFound() : Ok(anfrage);
@@ -59,6 +69,6 @@ public sealed class AnfragenController(IAnfrageDienst anfragen) : ControllerBase
 
     private Guid? NurEigene() => User.IsInRole(Rollen.Hilfesuchende) ? KontoId() ?? Guid.Empty : null;
 
-    private ObjectResult Fehler(string titel, string text) =>
-        Problem(statusCode: StatusCodes.Status400BadRequest, title: titel, detail: text);
+    private ObjectResult Ungueltig(string titel, string text, string? feld) =>
+        this.Fehler(StatusCodes.Status400BadRequest, titel, text, feld);
 }

@@ -3,50 +3,63 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
-import { aufruf, neuesKonto, testkonto, OHNE_TESTPASSWORT } from './hilfen.mjs';
+import {
+  aufruf, neueAdresse, neuesKonto, neuesPasswort, testkonto, BIEL, HELFENDE, OHNE_TESTPASSWORT,
+} from './hilfen.mjs';
 
 test('Region anlegen: ohne Anmeldung 401, mit falscher Rolle 403, als Plattformbetrieb 201', { skip: OHNE_TESTPASSWORT }, async () => {
-  const region = { kennung: `test-${randomUUID().slice(0, 8)}`, name: 'Testregion' };
+  const region = { schluessel: `test-${randomUUID().slice(0, 8)}`, name: 'Soforthilfe Testregion' };
   const { token: hilfesuchende } = await neuesKonto();
   const koordination = await testkonto('dora.probe@beispiel.invalid');
   const betrieb = await testkonto('hans.betrieb@beispiel.invalid');
 
-  assert.equal((await aufruf('POST', '/api/regionen', { daten: region })).status, 401);
-  assert.equal((await aufruf('POST', '/api/regionen', { token: hilfesuchende, daten: region })).status, 403);
-  assert.equal((await aufruf('POST', '/api/regionen', { token: koordination, daten: region })).status, 403);
-  assert.equal((await aufruf('POST', '/api/regionen', { token: betrieb, daten: region })).status, 201);
-  assert.equal((await aufruf('POST', '/api/regionen', { token: betrieb, daten: region })).status, 409);
+  assert.equal((await aufruf('POST', '/api/mandanten', { daten: region })).status, 401);
+  assert.equal((await aufruf('POST', '/api/mandanten', { token: hilfesuchende, daten: region })).status, 403);
+  assert.equal((await aufruf('POST', '/api/mandanten', { token: koordination, daten: region })).status, 403);
 
-  // Neue Region ohne Neustart nutzbar.
-  const aktuell = await aufruf('GET', '/api/regionen/aktuell', { region: region.kennung });
-  assert.equal(aktuell.status, 200);
-  assert.equal(aktuell.inhalt.kennung, region.kennung);
+  const angelegt = await aufruf('POST', '/api/mandanten', { token: betrieb, daten: region });
+  assert.equal(angelegt.status, 201);
+  assert.equal(angelegt.inhalt.schluessel, region.schluessel);
+
+  const doppelt = await aufruf('POST', '/api/mandanten', { token: betrieb, daten: region });
+  assert.equal(doppelt.status, 409);
+  assert.equal(doppelt.inhalt.feld, 'schluessel');
+
+  // Neue Region ohne Neustart nutzbar: in der Liste und für die Registrierung.
+  const liste = await aufruf('GET', '/api/mandanten');
+  assert.ok(liste.inhalt.some((eintrag) => eintrag.schluessel === region.schluessel));
+  const konto = await aufruf('POST', '/api/auth/registrierung', {
+    daten: { eMail: neueAdresse(), passwort: neuesPasswort(), anzeigename: 'Test Person', mandant: region.schluessel },
+  });
+  assert.equal(konto.status, 200);
+  assert.equal(konto.inhalt.benutzer.mandantSchluessel, region.schluessel);
 });
 
-test('Ungültige Kennungen für Regionen werden abgewiesen', { skip: OHNE_TESTPASSWORT }, async () => {
+test('Ungültige Schlüssel für Regionen werden abgewiesen', { skip: OHNE_TESTPASSWORT }, async () => {
   const betrieb = await testkonto('hans.betrieb@beispiel.invalid');
-  for (const kennung of ['A', 'Gross', 'mit leerzeichen', 'ü-zeichen']) {
-    const { status } = await aufruf('POST', '/api/regionen', { token: betrieb, daten: { kennung, name: 'Test' } });
-    assert.equal(status, 400, kennung);
+  for (const schluessel of ['a', 'Gross', 'mit leerzeichen', 'ü-zeichen', '-vorne', 'doppelt--strich']) {
+    const { status } = await aufruf('POST', '/api/mandanten', { token: betrieb, daten: { schluessel, name: 'Test' } });
+    assert.equal(status, 400, schluessel);
   }
 });
 
 test('Kontenliste nur für Koordination, Mandantenadministration und Plattformbetrieb', { skip: OHNE_TESTPASSWORT }, async () => {
   const { token: hilfesuchende } = await neuesKonto();
-  const { token: helfende } = await neuesKonto('bern', 'Helfende');
+  const { token: helfende } = await neuesKonto(undefined, HELFENDE);
 
   assert.equal((await aufruf('GET', '/api/konten')).status, 401);
   assert.equal((await aufruf('GET', '/api/konten', { token: hilfesuchende })).status, 403);
   assert.equal((await aufruf('GET', '/api/konten', { token: helfende })).status, 403);
 
   for (const adresse of ['dora.probe@beispiel.invalid', 'greta.muster@beispiel.invalid', 'hans.betrieb@beispiel.invalid']) {
-    const { status } = await aufruf('GET', '/api/konten', { token: await testkonto(adresse) });
+    const { status, inhalt } = await aufruf('GET', '/api/konten', { token: await testkonto(adresse) });
     assert.equal(status, 200, adresse);
+    assert.ok(inhalt.every((konto) => !('telefon' in konto)), 'keine Telefonnummern in der Liste');
   }
 });
 
 test('Rollen vergeben nur Mandantenadministration und Plattformbetrieb, nie den Plattformbetrieb selbst', { skip: OHNE_TESTPASSWORT }, async () => {
-  const { konto } = await neuesKonto('mittelland', 'Helfende');
+  const { konto } = await neuesKonto(BIEL, HELFENDE);
   const koordination = await testkonto('dora.probe@beispiel.invalid');
   const admin = await testkonto('greta.muster@beispiel.invalid');
   const pfad = `/api/konten/${konto.id}/rolle`;

@@ -23,16 +23,27 @@ public sealed partial class AnfrageDienst(SoforthilfeDbContext datenbank, IManda
         }
 
         // Mindestens eine Kategorie oder ein Freitext; beides zusammen ist erlaubt.
-        var freitext = string.IsNullOrWhiteSpace(daten.Freitext) ? null : daten.Freitext.Trim();
+        var freitext = Leer(daten.Freitext);
         if (daten.KategorieId is null && freitext is null)
         {
             return new AnfrageErgebnis(null, AnfrageFehler.InhaltFehlt);
         }
 
-        var postleitzahl = daten.Postleitzahl.Trim();
-        if (!PostleitzahlMuster().IsMatch(postleitzahl))
+        var plz = daten.Plz.Trim();
+        if (!PostleitzahlMuster().IsMatch(plz))
         {
             return new AnfrageErgebnis(null, AnfrageFehler.PostleitzahlUngueltig);
+        }
+
+        var ort = Leer(daten.Ort);
+        if (ort is null)
+        {
+            return new AnfrageErgebnis(null, AnfrageFehler.OrtFehlt);
+        }
+
+        if (!Enum.IsDefined(typeof(Prioritaet), daten.Prioritaet))
+        {
+            return new AnfrageErgebnis(null, AnfrageFehler.PrioritaetUngueltig);
         }
 
         Kategorie? kategorie = null;
@@ -52,7 +63,11 @@ public sealed partial class AnfrageDienst(SoforthilfeDbContext datenbank, IManda
             KontoId = daten.KontoId,
             KategorieId = kategorie?.Id,
             Freitext = freitext,
-            Postleitzahl = postleitzahl,
+            Postleitzahl = plz,
+            Ort = ort,
+            Adresse = Leer(daten.Adresse),
+            Zeitfenster = Leer(daten.Zeitfenster),
+            Prioritaet = (Prioritaet)daten.Prioritaet,
             Status = AnfrageStatus.Offen,
             ErstelltAm = DateTimeOffset.UtcNow,
         };
@@ -86,13 +101,19 @@ public sealed partial class AnfrageDienst(SoforthilfeDbContext datenbank, IManda
         return nurVon is Guid konto ? abfrage.Where(a => a.KontoId == konto) : abfrage;
     }
 
+    private static string? Leer(string? text) => string.IsNullOrWhiteSpace(text) ? null : text.Trim();
+
     private static AnfrageInfo Info(Anfrage anfrage) => new(
         anfrage.Id,
-        anfrage.Kategorie?.Kennung,
+        anfrage.KategorieId,
         anfrage.Kategorie?.Bezeichnung,
-        anfrage.Kategorie?.Kostenpflichtig,
         anfrage.Freitext,
         anfrage.Postleitzahl,
-        anfrage.Status.ToString(),
-        anfrage.ErstelltAm);
+        anfrage.Ort,
+        anfrage.Adresse,
+        anfrage.Zeitfenster,
+        (int)anfrage.Prioritaet,
+        (int)anfrage.Status,
+        anfrage.ErstelltAm,
+        anfrage.Kategorie?.Kostenpflichtig ?? false);
 }

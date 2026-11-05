@@ -1,50 +1,58 @@
 namespace Soforthilfe.Datenzugriff.Modell;
 
 /// <summary>
-/// Stammdaten, die mit den Migrationen in jede Datenbank kommen: Regionen, Kategorien und Fähigkeiten.
+/// Stammdaten, die mit den Migrationen in jede Datenbank kommen: Region, Kategorien und Fähigkeiten.
 /// Die Kennungen sind fest, damit Migrationen und Tests stabil bleiben.
 /// </summary>
 public static class Stammdaten
 {
-    public static readonly Guid RegionBern = Guid.Parse("9abd0c6c-da62-4469-99e0-cf9406a99ac6");
-    public static readonly Guid RegionMittelland = Guid.Parse("a61871bc-f698-4e48-9d36-90fb837b56ae");
+    // Pilotregion der Plattform; die Kennung der Region bleibt seit der ersten Migration gleich. Weitere Regionen entstehen im laufenden Betrieb als Daten, ohne Migration.
+    public static readonly Guid RegionBernMittelland = Guid.Parse("9abd0c6c-da62-4469-99e0-cf9406a99ac6");
 
-    public static readonly Guid KategorieHandwerk = Guid.Parse("426d6e5b-34b4-425c-b408-efa9a96d06bd");
-    public static readonly Guid KategorieHaushalt = Guid.Parse("ff0714f3-a6bc-4578-8e1c-006043768441");
-    public static readonly Guid KategorieDigital = Guid.Parse("77a421f5-aa9f-4701-87b0-233dc23d7098");
-    public static readonly Guid KategorieNachbarschaft = Guid.Parse("c87f69fb-01f1-4a32-9891-a7f31d9ffa20");
+    public static readonly Guid KategorieSchluesseldienst = Guid.Parse("495056ab-d82d-4e33-be3b-dc3e96e6b75a");
+    public static readonly Guid KategorieKleineReparatur = Guid.Parse("3e09dd9e-7619-4b11-9aee-b0dc7150aacf");
+    public static readonly Guid KategorieSanitaerElektro = Guid.Parse("8d71da98-bf81-45df-9633-d5b3d2d0b6a7");
+    public static readonly Guid KategoriePannenhilfe = Guid.Parse("725c18b0-04e0-4f12-8c08-2ac5c2ec9d64");
+    public static readonly Guid KategorieTransporthilfe = Guid.Parse("e3b9eb6e-e4b7-47d2-997b-63d4ad05e262");
+    public static readonly Guid KategorieItSoforthilfe = Guid.Parse("7013d888-2f47-4ea8-9736-b91825f849d3");
+    public static readonly Guid KategorieReinigung = Guid.Parse("aba279c9-09f5-4426-b30a-2b04b6baa08a");
+    public static readonly Guid KategorieLieferdienst = Guid.Parse("3000be64-c436-4751-ac80-e3d4b20b50bd");
+    public static readonly Guid KategorieNachbarschaftshilfe = Guid.Parse("c87f69fb-01f1-4a32-9891-a7f31d9ffa20");
     public static readonly Guid KategorieBegleitung = Guid.Parse("01af187a-c8fa-47fa-a425-4b3b63c260a3");
-    public static readonly Guid KategorieOrientierung = Guid.Parse("79adfee0-8bc3-440f-abfd-3c0981d08d78");
 
     public static Region[] Regionen =>
     [
-        new() { Id = RegionBern, Kennung = "bern", Name = "Bern", Aktiv = true },
-        new() { Id = RegionMittelland, Kennung = "mittelland", Name = "Mittelland", Aktiv = true },
+        new() { Id = RegionBernMittelland, Kennung = "bern-mittelland", Name = "Soforthilfe Bern/Mittelland", Aktiv = true },
     ];
 
-    // Nachbarschaftshilfe, Begleitung und Orientierung bleiben bewusst kostenlos.
+    // Reihenfolge wie auf der Startseite. Nachbarschaftshilfe sowie Begleitung und Orientierung bleiben kostenlos;
+    // gesundheitliche Anliegen sind auf Orientierung, Transport und Begleitung begrenzt.
     public static Kategorie[] Kategorien =>
     [
-        new() { Id = KategorieHandwerk, Kennung = "handwerk", Bezeichnung = "Handwerk und Reparaturen", Kostenpflichtig = true },
-        new() { Id = KategorieHaushalt, Kennung = "haushalt", Bezeichnung = "Haushalt", Kostenpflichtig = true },
-        new() { Id = KategorieDigital, Kennung = "digital", Bezeichnung = "Computer und Smartphone", Kostenpflichtig = true },
-        new() { Id = KategorieNachbarschaft, Kennung = "nachbarschaft", Bezeichnung = "Nachbarschaftshilfe", Kostenpflichtig = false },
-        new() { Id = KategorieBegleitung, Kennung = "begleitung", Bezeichnung = "Begleitung", Kostenpflichtig = false },
-        new() { Id = KategorieOrientierung, Kennung = "orientierung", Bezeichnung = "Orientierung und Formulare", Kostenpflichtig = false },
+        new() { Id = KategorieSchluesseldienst, Kennung = "schluesseldienst", Bezeichnung = "Schlüsseldienst", Kostenpflichtig = true, Reihenfolge = 1 },
+        new() { Id = KategorieKleineReparatur, Kennung = "kleine-reparatur", Bezeichnung = "Kleine Reparatur", Kostenpflichtig = true, Reihenfolge = 2 },
+        new() { Id = KategorieSanitaerElektro, Kennung = "sanitaer-elektro", Bezeichnung = "Sanitär, Heizung, Elektro", Kostenpflichtig = true, Reihenfolge = 3 },
+        new() { Id = KategoriePannenhilfe, Kennung = "pannenhilfe", Bezeichnung = "Panne und Abschleppdienst", Kostenpflichtig = true, Reihenfolge = 4 },
+        new() { Id = KategorieTransporthilfe, Kennung = "transporthilfe", Bezeichnung = "Transport- und Umzugshilfe", Kostenpflichtig = true, Reihenfolge = 5 },
+        new() { Id = KategorieItSoforthilfe, Kennung = "it-soforthilfe", Bezeichnung = "IT- und Handy-Soforthilfe", Kostenpflichtig = true, Reihenfolge = 6 },
+        new() { Id = KategorieReinigung, Kennung = "reinigung", Bezeichnung = "Reinigung nach Schäden", Kostenpflichtig = true, Reihenfolge = 7 },
+        new() { Id = KategorieLieferdienst, Kennung = "lieferdienst", Bezeichnung = "Lieferung Apotheke und Einkauf", Kostenpflichtig = true, Reihenfolge = 8 },
+        new() { Id = KategorieNachbarschaftshilfe, Kennung = "nachbarschaftshilfe", Bezeichnung = "Nachbarschaftshilfe", Kostenpflichtig = false, Reihenfolge = 9 },
+        new() { Id = KategorieBegleitung, Kennung = "begleitung", Bezeichnung = "Begleitung und Orientierung", Kostenpflichtig = false, NurOrientierung = true, Reihenfolge = 10 },
     ];
 
+    // Je Kategorie eine Fähigkeit mit derselben Kennung; Helfende wählen ihre Fähigkeiten aus dieser Liste.
     public static Skill[] Skills =>
     [
-        new() { Id = Guid.Parse("403c1897-d38b-46a2-aaa5-118e15190285"), KategorieId = KategorieHandwerk, Kennung = "sanitaer", Bezeichnung = "Sanitär" },
-        new() { Id = Guid.Parse("a0e17f6f-a52d-4624-ad1c-050cad1c8e0c"), KategorieId = KategorieHandwerk, Kennung = "elektro", Bezeichnung = "Elektro" },
-        new() { Id = Guid.Parse("dfdf01df-dd1c-4dfe-8138-810d32f1751f"), KategorieId = KategorieHandwerk, Kennung = "schluesseldienst", Bezeichnung = "Schlüsseldienst" },
-        new() { Id = Guid.Parse("47a61bb0-fae5-4202-9c46-8e6c12fb83c3"), KategorieId = KategorieHaushalt, Kennung = "reinigung", Bezeichnung = "Reinigung" },
-        new() { Id = Guid.Parse("dab5a587-49b7-4a13-ba57-575e79aba354"), KategorieId = KategorieHaushalt, Kennung = "transport", Bezeichnung = "Transport und Umzug" },
-        new() { Id = Guid.Parse("8853ae85-82fe-4bf8-a46d-356e74bf282e"), KategorieId = KategorieDigital, Kennung = "computer", Bezeichnung = "Computer und Smartphone einrichten" },
-        new() { Id = Guid.Parse("90385480-007c-47b5-9ae3-9e5e906b1fda"), KategorieId = KategorieNachbarschaft, Kennung = "einkauf", Bezeichnung = "Einkauf" },
-        new() { Id = Guid.Parse("6ae96d9a-d647-477c-8f50-7b91876b4c13"), KategorieId = KategorieNachbarschaft, Kennung = "haustiere", Bezeichnung = "Haustiere betreuen" },
-        new() { Id = Guid.Parse("f0828c46-e830-4fec-81e5-9006b4e00ddd"), KategorieId = KategorieBegleitung, Kennung = "termin", Bezeichnung = "Begleitung zu Terminen" },
-        new() { Id = Guid.Parse("f40abd8a-fd5a-473c-8064-362823f1b214"), KategorieId = KategorieBegleitung, Kennung = "spaziergang", Bezeichnung = "Spaziergang" },
-        new() { Id = Guid.Parse("82f5ec98-bdb2-4fc2-9228-2542d64a7fb1"), KategorieId = KategorieOrientierung, Kennung = "formulare", Bezeichnung = "Hilfe bei Formularen" },
+        new() { Id = Guid.Parse("f944be5a-3e77-471b-a0e0-97d82287547c"), KategorieId = KategorieSchluesseldienst, Kennung = "schluesseldienst", Bezeichnung = "Schlüsseldienst" },
+        new() { Id = Guid.Parse("a68e8a08-980e-4fc6-86b1-0baf5da9172e"), KategorieId = KategorieKleineReparatur, Kennung = "kleine-reparatur", Bezeichnung = "Kleine Reparatur" },
+        new() { Id = Guid.Parse("c9a7b813-8f26-4dc1-8d0f-28d4a3cbad74"), KategorieId = KategorieSanitaerElektro, Kennung = "sanitaer-elektro", Bezeichnung = "Sanitär, Heizung, Elektro" },
+        new() { Id = Guid.Parse("f38abfd7-19c8-45b1-9343-f5cf66a40b4b"), KategorieId = KategoriePannenhilfe, Kennung = "pannenhilfe", Bezeichnung = "Pannen- und Abschleppdienst" },
+        new() { Id = Guid.Parse("45cc60eb-cce3-41c6-afa0-92b265177884"), KategorieId = KategorieTransporthilfe, Kennung = "transporthilfe", Bezeichnung = "Transport- und Umzugshilfe" },
+        new() { Id = Guid.Parse("7d0fc8b8-f5e2-44f3-84e3-0c83452a7b33"), KategorieId = KategorieItSoforthilfe, Kennung = "it-soforthilfe", Bezeichnung = "IT- und Handy-Soforthilfe" },
+        new() { Id = Guid.Parse("086f4f0d-06ad-4856-9d05-0c5136cb3f93"), KategorieId = KategorieReinigung, Kennung = "reinigung", Bezeichnung = "Reinigung nach Schäden" },
+        new() { Id = Guid.Parse("4cc55036-09e9-454e-a2fb-9d4a7ea4bd43"), KategorieId = KategorieLieferdienst, Kennung = "lieferdienst", Bezeichnung = "Lieferdienst Apotheke und Einkauf" },
+        new() { Id = Guid.Parse("11c55505-ba55-464c-86ea-f34088f5ab36"), KategorieId = KategorieNachbarschaftshilfe, Kennung = "nachbarschaftshilfe", Bezeichnung = "Nachbarschaftshilfe" },
+        new() { Id = Guid.Parse("137f3e2b-d5fe-4c8e-814d-1941b47121d4"), KategorieId = KategorieBegleitung, Kennung = "begleitung", Bezeichnung = "Begleitung und Orientierung" },
     ];
 }

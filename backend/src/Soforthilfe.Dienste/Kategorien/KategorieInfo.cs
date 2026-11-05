@@ -1,6 +1,18 @@
 namespace Soforthilfe.Dienste.Kategorien;
 
 /// <summary>
-/// Kategorie mit Fähigkeiten, wie sie die Oberfläche zur Auswahl anzeigt.
+/// Kategorie, wie sie die Startseite zur Auswahl anzeigt. Code ist die feste Kennung, zum Beispiel «schluesseldienst».
 /// </summary>
-public sealed record KategorieInfo(Guid Id, string Kennung, string Bezeichnung, bool Kostenpflichtig, IReadOnlyList<string> Skills);
+public sealed record KategorieInfo(
+    Guid Id,
+    string Code,
+    string Bezeichnung,
+    string? Beschreibung,
+    bool Bezahlpflichtig,
+    bool NurOrientierung,
+    int Reihenfolge);
+
+/// <summary>
+/// Fähigkeit, die Helfende anbieten. Bezahlpflichtig wie die zugehörige Kategorie.
+/// </summary>
+public sealed record SkillInfo(Guid Id, string Code, string Bezeichnung, bool Bezahlpflichtig);

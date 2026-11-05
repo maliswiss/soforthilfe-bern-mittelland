@@ -2,11 +2,20 @@ namespace Soforthilfe.Dienste.Konten;
 
 /// <summary>
 /// Angaben zu einem Konto, wie sie die Schnittstelle zurückgibt. Enthält nie den Passwort-Hash.
+/// Region ist die Kennung (zum Beispiel «bern-mittelland»), RegionName der angezeigte Name.
 /// </summary>
-public sealed record KontoInfo(Guid Id, string EMail, string Anzeigename, string Rolle, string? Region);
+public sealed record KontoInfo(
+    Guid Id,
+    string EMail,
+    string Anzeigename,
+    string? Telefon,
+    string Rolle,
+    string? Region,
+    string? RegionName,
+    bool HatHelferprofil);
 
 /// <summary>
-/// Daten für eine Registrierung.
+/// Daten für eine Registrierung in einer Region.
 /// </summary>
 public sealed record RegistrierungsDaten(string EMail, string Passwort, string Anzeigename, string Rolle, string? Telefon);
 

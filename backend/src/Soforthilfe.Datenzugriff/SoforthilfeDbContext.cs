@@ -104,7 +104,11 @@ public sealed class SoforthilfeDbContext : DbContext
             anfrage.ToTable("Anfragen");
             anfrage.Property(a => a.Freitext).HasMaxLength(2000);
             anfrage.Property(a => a.Postleitzahl).HasMaxLength(4);
+            anfrage.Property(a => a.Ort).HasMaxLength(120);
+            anfrage.Property(a => a.Adresse).HasMaxLength(250);
+            anfrage.Property(a => a.Zeitfenster).HasMaxLength(120);
             anfrage.Property(a => a.Status).HasConversion<string>().HasMaxLength(20);
+            anfrage.Property(a => a.Prioritaet).HasConversion<string>().HasMaxLength(10);
 
             // Abfragen laufen immer je Region; der Index unterstützt die Mandantentrennung.
             anfrage.HasIndex(a => a.RegionId);

@@ -77,7 +77,7 @@ erDiagram
   HELFERPROFIL }o--o{ SKILL : bietet
 ```
 
-Jede Region ist ein Mandant; Konten, Helferprofile und Anfragen gehören zu genau einer Region, nur der Plattformbetrieb arbeitet regionsübergreifend. Regionen, Kategorien und Fähigkeiten kommen als Stammdaten mit den Migrationen. Kategorien sind entweder kostenlos oder kostenpflichtig.
+Jede Region ist ein Mandant; Konten, Helferprofile und Anfragen gehören zu genau einer Region, nur der Plattformbetrieb arbeitet regionsübergreifend. Die Region Bern/Mittelland, zehn Kategorien und ihre Fähigkeiten kommen als Stammdaten mit den Migrationen; weitere Regionen entstehen im laufenden Betrieb. Kategorien sind entweder kostenlos oder kostenpflichtig. Eine Anfrage hält Postleitzahl und Ort getrennt von der genauen Adresse. Tabellen, Stammdaten und Entscheide: [docs/datenmodell.md](docs/datenmodell.md).
 
 ## Technische Basis
 
@@ -125,11 +125,11 @@ Die Oberfläche läuft unter `http://localhost:5173`.
 
 Mit `Testdaten__Laden=true` in der `.env` lädt die Schnittstelle beim Start Testdaten mit ausschliesslich fiktiven Personen, sofern die Datenbank noch keine Konten enthält. Mit `TESTDATEN_PASSWORT` können sich die Testkonten anmelden.
 
-**Neue Region einrichten** (ohne Deployment): Der Plattformbetrieb sendet `POST /api/regionen` mit Kennung und Name, zum Beispiel `{ "kennung": "thun", "name": "Thun" }`. Die Region ist sofort nutzbar. Details: [docs/mandanten.md](docs/mandanten.md).
+**Neue Region einrichten** (ohne Deployment): Der Plattformbetrieb sendet `POST /api/mandanten` mit Schlüssel und Name, zum Beispiel `{ "schluessel": "thun", "name": "Soforthilfe Thun" }`. Die Region ist sofort nutzbar. Details: [docs/mandanten.md](docs/mandanten.md).
 
 Registrierung, Anmeldung, Rollen und Berechtigungen: [docs/anmeldung-und-rollen.md](docs/anmeldung-und-rollen.md).
 
-Anfragen und Kategorien: [docs/anfragen.md](docs/anfragen.md).
+Alle Endpunkte, Fehlerantworten und Zahlenwerte: [docs/schnittstelle.md](docs/schnittstelle.md).
 
 **Containerplattform** mit einem Befehl (Lastverteiler, Schnittstelle, Oberfläche, Datenbank):
 

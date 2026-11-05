@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router';
 import Feld from '../komponenten/Feld.vue';
 import Meldung from '../komponenten/Meldung.vue';
 import { aufruf } from '../dienste/schnittstelle.js';
-import { setzeAnmeldung } from '../dienste/sitzung.js';
+import { setzeAnmeldung, sitzung } from '../dienste/sitzung.js';
 import { t } from '../texte/index.js';
 
 const route = useRoute();
@@ -18,7 +18,7 @@ async function absenden() {
   laeuft.value = true;
   fehler.value = null;
   try {
-    setzeAnmeldung(await aufruf('POST', '/api/konto/anmelden', { eMail: eMail.value, passwort: passwort.value }));
+    setzeAnmeldung(await aufruf('POST', '/api/auth/anmeldung', { eMail: eMail.value, passwort: passwort.value, mandant: sitzung.region?.kennung ?? 'bern-mittelland' }));
     // Zurück zur Seite, die die Anmeldung verlangt hat; nur interne Pfade sind erlaubt.
     const weiter = typeof route.query.weiter === 'string' && route.query.weiter.startsWith('/') ? route.query.weiter : '/';
     await router.push(weiter);

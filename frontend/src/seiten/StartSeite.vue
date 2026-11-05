@@ -12,7 +12,7 @@ const fehler = ref(null);
 // Die Liste der Regionen ist öffentlich; ohne Anmeldung wählt die Person ihre Region selbst.
 onMounted(async () => {
   try {
-    regionen.value = await aufruf('GET', '/api/regionen');
+    regionen.value = (await aufruf('GET', '/api/mandanten')).map((r) => ({ kennung: r.schluessel, name: r.name }));
   } catch (ausnahme) {
     fehler.value = ausnahme;
   } finally {

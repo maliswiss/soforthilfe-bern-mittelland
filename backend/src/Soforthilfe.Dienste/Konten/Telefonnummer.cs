@@ -30,6 +30,25 @@ public static class Telefonnummer
     }
 
     /// <summary>
+    /// Prüft eine Eingabe in beliebiger Schreibweise auf eine Mehrwertvorwahl, auch wenn die Nummer
+    /// unvollständig ist (zum Beispiel nur «0900»). Gleiche Regel wie in der Oberfläche.
+    /// </summary>
+    public static bool IstKostenpflichtig(string? eingabe)
+    {
+        var ziffern = new string((eingabe ?? string.Empty).Where(z => char.IsAsciiDigit(z) || z == '+').ToArray());
+        if (ziffern.StartsWith("+41", StringComparison.Ordinal))
+        {
+            ziffern = "0" + ziffern[3..];
+        }
+        else if (ziffern.StartsWith("0041", StringComparison.Ordinal))
+        {
+            ziffern = "0" + ziffern[4..];
+        }
+
+        return IstMehrwertnummer(ziffern);
+    }
+
+    /// <summary>
     /// Prüft eine bereits normierte Nummer auf eine Mehrwertvorwahl.
     /// </summary>
     public static bool IstMehrwertnummer(string normiert) =>

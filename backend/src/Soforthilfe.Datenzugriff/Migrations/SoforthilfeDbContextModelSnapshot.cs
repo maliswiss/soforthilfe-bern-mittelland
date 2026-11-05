@@ -17,7 +17,7 @@ namespace Soforthilfe.Datenzugriff.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.12")
+                .HasAnnotation("ProductVersion", "10.0.14")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "postgis");
@@ -44,6 +44,10 @@ namespace Soforthilfe.Datenzugriff.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Adresse")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
                     b.Property<DateTimeOffset>("ErstelltAm")
                         .HasColumnType("timestamp with time zone");
 
@@ -57,10 +61,20 @@ namespace Soforthilfe.Datenzugriff.Migrations
                     b.Property<Guid>("KontoId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Ort")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
                     b.Property<string>("Postleitzahl")
                         .IsRequired()
                         .HasMaxLength(4)
                         .HasColumnType("character varying(4)");
+
+                    b.Property<string>("Prioritaet")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
 
                     b.Property<Guid>("RegionId")
                         .HasColumnType("uuid");
@@ -69,6 +83,10 @@ namespace Soforthilfe.Datenzugriff.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<string>("Zeitfenster")
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
 
                     b.HasKey("Id");
 
@@ -138,6 +156,12 @@ namespace Soforthilfe.Datenzugriff.Migrations
                     b.Property<bool>("Kostenpflichtig")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("NurOrientierung")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Reihenfolge")
+                        .HasColumnType("integer");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Kennung")
@@ -148,45 +172,93 @@ namespace Soforthilfe.Datenzugriff.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("426d6e5b-34b4-425c-b408-efa9a96d06bd"),
-                            Bezeichnung = "Handwerk und Reparaturen",
-                            Kennung = "handwerk",
-                            Kostenpflichtig = true
+                            Id = new Guid("495056ab-d82d-4e33-be3b-dc3e96e6b75a"),
+                            Bezeichnung = "Schlüsseldienst",
+                            Kennung = "schluesseldienst",
+                            Kostenpflichtig = true,
+                            NurOrientierung = false,
+                            Reihenfolge = 1
                         },
                         new
                         {
-                            Id = new Guid("ff0714f3-a6bc-4578-8e1c-006043768441"),
-                            Bezeichnung = "Haushalt",
-                            Kennung = "haushalt",
-                            Kostenpflichtig = true
+                            Id = new Guid("3e09dd9e-7619-4b11-9aee-b0dc7150aacf"),
+                            Bezeichnung = "Kleine Reparatur",
+                            Kennung = "kleine-reparatur",
+                            Kostenpflichtig = true,
+                            NurOrientierung = false,
+                            Reihenfolge = 2
                         },
                         new
                         {
-                            Id = new Guid("77a421f5-aa9f-4701-87b0-233dc23d7098"),
-                            Bezeichnung = "Computer und Smartphone",
-                            Kennung = "digital",
-                            Kostenpflichtig = true
+                            Id = new Guid("8d71da98-bf81-45df-9633-d5b3d2d0b6a7"),
+                            Bezeichnung = "Sanitär, Heizung, Elektro",
+                            Kennung = "sanitaer-elektro",
+                            Kostenpflichtig = true,
+                            NurOrientierung = false,
+                            Reihenfolge = 3
+                        },
+                        new
+                        {
+                            Id = new Guid("725c18b0-04e0-4f12-8c08-2ac5c2ec9d64"),
+                            Bezeichnung = "Panne und Abschleppdienst",
+                            Kennung = "pannenhilfe",
+                            Kostenpflichtig = true,
+                            NurOrientierung = false,
+                            Reihenfolge = 4
+                        },
+                        new
+                        {
+                            Id = new Guid("e3b9eb6e-e4b7-47d2-997b-63d4ad05e262"),
+                            Bezeichnung = "Transport- und Umzugshilfe",
+                            Kennung = "transporthilfe",
+                            Kostenpflichtig = true,
+                            NurOrientierung = false,
+                            Reihenfolge = 5
+                        },
+                        new
+                        {
+                            Id = new Guid("7013d888-2f47-4ea8-9736-b91825f849d3"),
+                            Bezeichnung = "IT- und Handy-Soforthilfe",
+                            Kennung = "it-soforthilfe",
+                            Kostenpflichtig = true,
+                            NurOrientierung = false,
+                            Reihenfolge = 6
+                        },
+                        new
+                        {
+                            Id = new Guid("aba279c9-09f5-4426-b30a-2b04b6baa08a"),
+                            Bezeichnung = "Reinigung nach Schäden",
+                            Kennung = "reinigung",
+                            Kostenpflichtig = true,
+                            NurOrientierung = false,
+                            Reihenfolge = 7
+                        },
+                        new
+                        {
+                            Id = new Guid("3000be64-c436-4751-ac80-e3d4b20b50bd"),
+                            Bezeichnung = "Lieferung Apotheke und Einkauf",
+                            Kennung = "lieferdienst",
+                            Kostenpflichtig = true,
+                            NurOrientierung = false,
+                            Reihenfolge = 8
                         },
                         new
                         {
                             Id = new Guid("c87f69fb-01f1-4a32-9891-a7f31d9ffa20"),
                             Bezeichnung = "Nachbarschaftshilfe",
-                            Kennung = "nachbarschaft",
-                            Kostenpflichtig = false
+                            Kennung = "nachbarschaftshilfe",
+                            Kostenpflichtig = false,
+                            NurOrientierung = false,
+                            Reihenfolge = 9
                         },
                         new
                         {
                             Id = new Guid("01af187a-c8fa-47fa-a425-4b3b63c260a3"),
-                            Bezeichnung = "Begleitung",
+                            Bezeichnung = "Begleitung und Orientierung",
                             Kennung = "begleitung",
-                            Kostenpflichtig = false
-                        },
-                        new
-                        {
-                            Id = new Guid("79adfee0-8bc3-440f-abfd-3c0981d08d78"),
-                            Bezeichnung = "Orientierung und Formulare",
-                            Kennung = "orientierung",
-                            Kostenpflichtig = false
+                            Kostenpflichtig = false,
+                            NurOrientierung = true,
+                            Reihenfolge = 10
                         });
                 });
 
@@ -265,15 +337,8 @@ namespace Soforthilfe.Datenzugriff.Migrations
                         {
                             Id = new Guid("9abd0c6c-da62-4469-99e0-cf9406a99ac6"),
                             Aktiv = true,
-                            Kennung = "bern",
-                            Name = "Bern"
-                        },
-                        new
-                        {
-                            Id = new Guid("a61871bc-f698-4e48-9d36-90fb837b56ae"),
-                            Aktiv = true,
-                            Kennung = "mittelland",
-                            Name = "Mittelland"
+                            Kennung = "bern-mittelland",
+                            Name = "Soforthilfe Bern/Mittelland"
                         });
                 });
 
@@ -308,80 +373,73 @@ namespace Soforthilfe.Datenzugriff.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("403c1897-d38b-46a2-aaa5-118e15190285"),
-                            Bezeichnung = "Sanitär",
-                            KategorieId = new Guid("426d6e5b-34b4-425c-b408-efa9a96d06bd"),
-                            Kennung = "sanitaer"
-                        },
-                        new
-                        {
-                            Id = new Guid("a0e17f6f-a52d-4624-ad1c-050cad1c8e0c"),
-                            Bezeichnung = "Elektro",
-                            KategorieId = new Guid("426d6e5b-34b4-425c-b408-efa9a96d06bd"),
-                            Kennung = "elektro"
-                        },
-                        new
-                        {
-                            Id = new Guid("dfdf01df-dd1c-4dfe-8138-810d32f1751f"),
+                            Id = new Guid("f944be5a-3e77-471b-a0e0-97d82287547c"),
                             Bezeichnung = "Schlüsseldienst",
-                            KategorieId = new Guid("426d6e5b-34b4-425c-b408-efa9a96d06bd"),
+                            KategorieId = new Guid("495056ab-d82d-4e33-be3b-dc3e96e6b75a"),
                             Kennung = "schluesseldienst"
                         },
                         new
                         {
-                            Id = new Guid("47a61bb0-fae5-4202-9c46-8e6c12fb83c3"),
-                            Bezeichnung = "Reinigung",
-                            KategorieId = new Guid("ff0714f3-a6bc-4578-8e1c-006043768441"),
+                            Id = new Guid("a68e8a08-980e-4fc6-86b1-0baf5da9172e"),
+                            Bezeichnung = "Kleine Reparatur",
+                            KategorieId = new Guid("3e09dd9e-7619-4b11-9aee-b0dc7150aacf"),
+                            Kennung = "kleine-reparatur"
+                        },
+                        new
+                        {
+                            Id = new Guid("c9a7b813-8f26-4dc1-8d0f-28d4a3cbad74"),
+                            Bezeichnung = "Sanitär, Heizung, Elektro",
+                            KategorieId = new Guid("8d71da98-bf81-45df-9633-d5b3d2d0b6a7"),
+                            Kennung = "sanitaer-elektro"
+                        },
+                        new
+                        {
+                            Id = new Guid("f38abfd7-19c8-45b1-9343-f5cf66a40b4b"),
+                            Bezeichnung = "Pannen- und Abschleppdienst",
+                            KategorieId = new Guid("725c18b0-04e0-4f12-8c08-2ac5c2ec9d64"),
+                            Kennung = "pannenhilfe"
+                        },
+                        new
+                        {
+                            Id = new Guid("45cc60eb-cce3-41c6-afa0-92b265177884"),
+                            Bezeichnung = "Transport- und Umzugshilfe",
+                            KategorieId = new Guid("e3b9eb6e-e4b7-47d2-997b-63d4ad05e262"),
+                            Kennung = "transporthilfe"
+                        },
+                        new
+                        {
+                            Id = new Guid("7d0fc8b8-f5e2-44f3-84e3-0c83452a7b33"),
+                            Bezeichnung = "IT- und Handy-Soforthilfe",
+                            KategorieId = new Guid("7013d888-2f47-4ea8-9736-b91825f849d3"),
+                            Kennung = "it-soforthilfe"
+                        },
+                        new
+                        {
+                            Id = new Guid("086f4f0d-06ad-4856-9d05-0c5136cb3f93"),
+                            Bezeichnung = "Reinigung nach Schäden",
+                            KategorieId = new Guid("aba279c9-09f5-4426-b30a-2b04b6baa08a"),
                             Kennung = "reinigung"
                         },
                         new
                         {
-                            Id = new Guid("dab5a587-49b7-4a13-ba57-575e79aba354"),
-                            Bezeichnung = "Transport und Umzug",
-                            KategorieId = new Guid("ff0714f3-a6bc-4578-8e1c-006043768441"),
-                            Kennung = "transport"
+                            Id = new Guid("4cc55036-09e9-454e-a2fb-9d4a7ea4bd43"),
+                            Bezeichnung = "Lieferdienst Apotheke und Einkauf",
+                            KategorieId = new Guid("3000be64-c436-4751-ac80-e3d4b20b50bd"),
+                            Kennung = "lieferdienst"
                         },
                         new
                         {
-                            Id = new Guid("8853ae85-82fe-4bf8-a46d-356e74bf282e"),
-                            Bezeichnung = "Computer und Smartphone einrichten",
-                            KategorieId = new Guid("77a421f5-aa9f-4701-87b0-233dc23d7098"),
-                            Kennung = "computer"
-                        },
-                        new
-                        {
-                            Id = new Guid("90385480-007c-47b5-9ae3-9e5e906b1fda"),
-                            Bezeichnung = "Einkauf",
+                            Id = new Guid("11c55505-ba55-464c-86ea-f34088f5ab36"),
+                            Bezeichnung = "Nachbarschaftshilfe",
                             KategorieId = new Guid("c87f69fb-01f1-4a32-9891-a7f31d9ffa20"),
-                            Kennung = "einkauf"
+                            Kennung = "nachbarschaftshilfe"
                         },
                         new
                         {
-                            Id = new Guid("6ae96d9a-d647-477c-8f50-7b91876b4c13"),
-                            Bezeichnung = "Haustiere betreuen",
-                            KategorieId = new Guid("c87f69fb-01f1-4a32-9891-a7f31d9ffa20"),
-                            Kennung = "haustiere"
-                        },
-                        new
-                        {
-                            Id = new Guid("f0828c46-e830-4fec-81e5-9006b4e00ddd"),
-                            Bezeichnung = "Begleitung zu Terminen",
+                            Id = new Guid("137f3e2b-d5fe-4c8e-814d-1941b47121d4"),
+                            Bezeichnung = "Begleitung und Orientierung",
                             KategorieId = new Guid("01af187a-c8fa-47fa-a425-4b3b63c260a3"),
-                            Kennung = "termin"
-                        },
-                        new
-                        {
-                            Id = new Guid("f40abd8a-fd5a-473c-8064-362823f1b214"),
-                            Bezeichnung = "Spaziergang",
-                            KategorieId = new Guid("01af187a-c8fa-47fa-a425-4b3b63c260a3"),
-                            Kennung = "spaziergang"
-                        },
-                        new
-                        {
-                            Id = new Guid("82f5ec98-bdb2-4fc2-9228-2542d64a7fb1"),
-                            Bezeichnung = "Hilfe bei Formularen",
-                            KategorieId = new Guid("79adfee0-8bc3-440f-abfd-3c0981d08d78"),
-                            Kennung = "formulare"
+                            Kennung = "begleitung"
                         });
                 });
 

@@ -11,6 +11,7 @@ const meine = ref([]);
 const kategorieId = ref('');
 const freitext = ref('');
 const postleitzahl = ref('');
+const ort = ref('');
 const laeuft = ref(false);
 const fehler = ref(null);
 const erfasst = ref(null);
@@ -19,12 +20,12 @@ const istHilfesuchend = computed(() => sitzung.konto?.rolle === 'Hilfesuchende')
 
 // Kostenlose und kostenpflichtige Kategorien getrennt anzeigen (Anforderung A12).
 const gruppen = computed(() => [
-  { titel: t('anfrage.kostenlos'), hinweis: t('anfrage.kostenlosHinweis'), liste: kategorien.value.filter((k) => !k.kostenpflichtig) },
-  { titel: t('anfrage.kostenpflichtig'), hinweis: t('anfrage.kostenpflichtigHinweis'), liste: kategorien.value.filter((k) => k.kostenpflichtig) },
+  { titel: t('anfrage.kostenlos'), hinweis: t('anfrage.kostenlosHinweis'), liste: kategorien.value.filter((k) => !k.bezahlpflichtig) },
+  { titel: t('anfrage.kostenpflichtig'), hinweis: t('anfrage.kostenpflichtigHinweis'), liste: kategorien.value.filter((k) => k.bezahlpflichtig) },
 ]);
 
 async function ladeMeine() {
-  meine.value = await aufruf('GET', '/api/anfragen');
+  meine.value = await aufruf('GET', '/api/anfragen/meine');
 }
 
 onMounted(async () => {
@@ -47,6 +48,9 @@ function pruefe() {
   if (!/^[1-9][0-9]{3}$/.test(postleitzahl.value.trim())) {
     return t('anfrage.postleitzahlFalsch');
   }
+  if (!ort.value.trim()) {
+    return t('anfrage.ortFehlt');
+  }
   return null;
 }
 
@@ -64,7 +68,8 @@ async function absenden() {
     erfasst.value = await aufruf('POST', '/api/anfragen', {
       kategorieId: kategorieId.value || null,
       freitext: freitext.value.trim() || null,
-      postleitzahl: postleitzahl.value.trim(),
+      plz: postleitzahl.value.trim(),
+      ort: ort.value.trim(),
     });
     kategorieId.value = '';
     freitext.value = '';
@@ -105,7 +110,6 @@ const datum = (wert) => new Date(wert).toLocaleString('de-CH', { dateStyle: 'med
                 <input v-model="kategorieId" type="radio" name="kategorie" :value="kategorie.id" class="mt-1 h-5 w-5 accent-linie" />
                 <span>
                   <span class="block font-semibold">{{ kategorie.bezeichnung }}</span>
-                  <span class="block text-sm text-gedaempft">{{ kategorie.skills.join(', ') }}</span>
                 </span>
               </label>
             </div>
@@ -124,6 +128,7 @@ const datum = (wert) => new Date(wert).toLocaleString('de-CH', { dateStyle: 'med
         </div>
 
         <Feld id="postleitzahl" v-model="postleitzahl" :beschriftung="t('anfrage.postleitzahl')" inputmode="numeric" maxlength="4" autocomplete="postal-code" class="max-w-40" />
+        <Feld id="ort" v-model="ort" :beschriftung="t('anfrage.ort')" autocomplete="address-level2" />
 
         <Meldung v-if="fehler" :titel="fehler.titel ?? t('fehler.allgemein')" :text="fehler.text" />
         <Meldung v-if="erfasst" art="hinweis" :titel="t('anfrage.erfasst')" :text="t('anfrage.status', { status: t(`status.${erfasst.status}`) })" />
@@ -138,7 +143,7 @@ const datum = (wert) => new Date(wert).toLocaleString('de-CH', { dateStyle: 'med
       <ul class="mt-3 space-y-3">
         <li v-for="anfrage in meine" :key="anfrage.id" class="rounded-lg border border-rand bg-karte px-4 py-3">
           <p class="font-semibold">
-            {{ anfrage.kategorie ?? t('anfrage.ohneKategorie') }} · {{ anfrage.postleitzahl }}
+            {{ anfrage.kategorieBezeichnung ?? t('anfrage.ohneKategorie') }} · {{ anfrage.plz }} {{ anfrage.ort }}
           </p>
           <p v-if="anfrage.freitext" class="mt-1">{{ anfrage.freitext }}</p>
           <p class="mt-1 text-sm text-gedaempft">

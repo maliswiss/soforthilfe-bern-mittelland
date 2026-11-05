@@ -23,19 +23,20 @@ public sealed class KontoDienst(
             return new KontoErgebnis(null, KontoFehler.RegionFehlt);
         }
 
-        // Telefonnummer ist freiwillig; wenn angegeben, muss sie eine Schweizer Nummer und darf keine Mehrwertnummer sein.
+        // Telefonnummer ist freiwillig. Kostenpflichtige Mehrwertnummern werden in jeder Schreibweise abgelehnt
+        // (Anforderung A10), alle anderen Angaben müssen eine Schweizer Nummer sein.
         string? telefon = null;
         if (!string.IsNullOrWhiteSpace(daten.Telefon))
         {
+            if (Telefonnummer.IstKostenpflichtig(daten.Telefon))
+            {
+                return new KontoErgebnis(null, KontoFehler.KostenpflichtigeNummer);
+            }
+
             telefon = Telefonnummer.Normieren(daten.Telefon);
             if (telefon is null)
             {
                 return new KontoErgebnis(null, KontoFehler.TelefonUngueltig);
-            }
-
-            if (Telefonnummer.IstMehrwertnummer(telefon))
-            {
-                return new KontoErgebnis(null, KontoFehler.KostenpflichtigeNummer);
             }
         }
 
@@ -67,12 +68,14 @@ public sealed class KontoDienst(
         datenbank.Konten.Add(konto);
         await datenbank.SaveChangesAsync(abbruch);
 
+        var aktuelle = regionen.Aktuelle;
         return new KontoErgebnis(
-            new KontoInfo(konto.Id, konto.EMail, konto.Anzeigename, konto.Rolle.ToString(), regionen.Aktuelle?.Kennung),
+            new KontoInfo(konto.Id, konto.EMail, konto.Anzeigename, konto.Telefon, konto.Rolle.ToString(),
+                aktuelle?.Kennung, aktuelle?.Name, false),
             null);
     }
 
-    public async Task<KontoInfo?> AnmeldenAsync(string eMail, string passwort, CancellationToken abbruch)
+    public async Task<KontoInfo?> AnmeldenAsync(string eMail, string passwort, string? region, CancellationToken abbruch)
     {
         var normiert = Normiere(eMail);
 
@@ -91,7 +94,15 @@ public sealed class KontoDienst(
             return null;
         }
 
-        return new KontoInfo(konto.Id, konto.EMail, konto.Anzeigename, konto.Rolle.ToString(), konto.Region?.Kennung);
+        // Anfragen gelten nur in der Region des Kontos (Anforderung A18). Wer eine fremde Region wählt,
+        // erhält dieselbe Antwort wie bei einem falschen Passwort. Der Plattformbetrieb hat keine Region.
+        if (konto.Region is not null && region is not null && !string.Equals(konto.Region.Kennung, Normiere(region), StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        var hatProfil = await datenbank.Helferprofile.IgnoreQueryFilters().AnyAsync(h => h.KontoId == konto.Id, abbruch);
+        return Info(konto, hatProfil);
     }
 
     public async Task<KontoInfo?> LiesAsync(Guid id, CancellationToken abbruch)
@@ -102,9 +113,13 @@ public sealed class KontoDienst(
             .AsNoTracking()
             .FirstOrDefaultAsync(k => k.Id == id, abbruch);
 
-        return konto is null
-            ? null
-            : new KontoInfo(konto.Id, konto.EMail, konto.Anzeigename, konto.Rolle.ToString(), konto.Region?.Kennung);
+        if (konto is null)
+        {
+            return null;
+        }
+
+        var hatProfil = await datenbank.Helferprofile.AnyAsync(h => h.KontoId == konto.Id, abbruch);
+        return Info(konto, hatProfil);
     }
 
     public async Task<IReadOnlyList<KontoInfo>> ListeAsync(CancellationToken abbruch)
@@ -116,9 +131,8 @@ public sealed class KontoDienst(
             .OrderBy(k => k.Anzeigename)
             .ToListAsync(abbruch);
 
-        return liste
-            .Select(k => new KontoInfo(k.Id, k.EMail, k.Anzeigename, k.Rolle.ToString(), k.Region?.Kennung))
-            .ToList();
+        var mitProfil = (await datenbank.Helferprofile.Select(h => h.KontoId).ToListAsync(abbruch)).ToHashSet();
+        return liste.Select(k => Info(k, mitProfil.Contains(k.Id))).ToList();
     }
 
     public async Task<RollenErgebnis> RolleSetzenAsync(Guid id, string rolle, CancellationToken abbruch)
@@ -146,5 +160,15 @@ public sealed class KontoDienst(
         return RollenErgebnis.Gesetzt;
     }
 
-    private static string Normiere(string eMail) => eMail.Trim().ToLowerInvariant();
+    private static KontoInfo Info(Konto konto, bool hatProfil) => new(
+        konto.Id,
+        konto.EMail,
+        konto.Anzeigename,
+        konto.Telefon,
+        konto.Rolle.ToString(),
+        konto.Region?.Kennung,
+        konto.Region?.Name,
+        hatProfil);
+
+    private static string Normiere(string text) => text.Trim().ToLowerInvariant();
 }

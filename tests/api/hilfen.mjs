@@ -42,35 +42,45 @@ export async function aufruf(methode, pfad, { token, region, daten } = {}) {
 export const neueAdresse = (vorsilbe = 'test') => `${vorsilbe}.${randomUUID()}@beispiel.invalid`;
 export const neuesPasswort = () => randomBytes(18).toString('base64url');
 
+// Regionen der Testdaten: die Pilotregion aus den Stammdaten und eine zweite Region für die Datentrennung.
+export const BERN = 'bern-mittelland';
+export const BIEL = 'biel-seeland';
+
+// Kontoart bei der Registrierung: 0 Hilfe suchen, 1 Hilfe anbieten.
+export const HILFESUCHENDE = 0;
+export const HELFENDE = 1;
+
 /**
- * Registriert ein neues Konto und meldet es an.
+ * Registriert ein neues Konto; die Antwort meldet es gleich an.
  * @returns {Promise<{ adresse: string, passwort: string, token: string, konto: any }>}
  */
-export async function neuesKonto(region = 'bern', rolle = 'Hilfesuchende', zusatz = {}) {
+export async function neuesKonto(mandant = BERN, kontoart = HILFESUCHENDE, zusatz = {}) {
   const adresse = neueAdresse();
   const passwort = neuesPasswort();
-  const registrierung = await aufruf('POST', '/api/konto/registrieren', {
-    region,
-    daten: { eMail: adresse, passwort, anzeigename: 'Test Person', rolle, ...zusatz },
+  const registrierung = await aufruf('POST', '/api/auth/registrierung', {
+    daten: { eMail: adresse, passwort, anzeigename: 'Test Person', kontoart, mandant, ...zusatz },
   });
-  if (registrierung.status !== 201) {
+  if (registrierung.status !== 200) {
     throw new Error(`Registrierung fehlgeschlagen: ${registrierung.status}`);
   }
-  const token = await anmelden(adresse, passwort);
-  return { adresse, passwort, token, konto: registrierung.inhalt };
+  return { adresse, passwort, token: registrierung.inhalt.token, konto: registrierung.inhalt.benutzer };
 }
 
-/** Meldet ein Konto an und liefert das Token. */
-export async function anmelden(adresse, passwort) {
-  const antwort = await aufruf('POST', '/api/konto/anmelden', { daten: { eMail: adresse, passwort } });
+/** Meldet ein Konto in der gewählten Region an und liefert das Token. */
+export async function anmelden(adresse, passwort, mandant = BERN) {
+  const antwort = await aufruf('POST', '/api/auth/anmeldung', { daten: { eMail: adresse, passwort, mandant } });
   if (antwort.status !== 200) {
     throw new Error(`Anmeldung fehlgeschlagen: ${antwort.status}`);
   }
   return antwort.inhalt.token;
 }
 
-/** Meldet ein fiktives Testkonto aus den Testdaten an. */
-export const testkonto = (adresse) => anmelden(adresse, TESTPASSWORT);
+// Testkonten der Region Biel/Seeland; alle übrigen gehören zu Bern/Mittelland oder zum Plattformbetrieb.
+const KONTEN_BIEL = ['emil.exempel', 'fritz.platzhalter', 'greta.muster'];
+
+/** Meldet ein fiktives Testkonto aus den Testdaten in seiner Region an. */
+export const testkonto = (adresse) =>
+  anmelden(adresse, TESTPASSWORT, KONTEN_BIEL.some((name) => adresse.startsWith(`${name}@`)) ? BIEL : BERN);
 
 /** Liest den Inhalt (Payload) eines Tokens, ohne die Signatur zu prüfen. */
 export function tokenInhalt(token) {

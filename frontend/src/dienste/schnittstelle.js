@@ -52,11 +52,8 @@ export async function aufruf(methode, pfad, daten) {
     abmelden();
   }
 
-  // Prüffehler der Felder kommen ohne eigene Meldung; dann ein allgemeiner Hinweis.
-  if (inhalt?.errors) {
-    throw new SchnittstellenFehler(antwort.status, t('fehler.eingabe'), t('fehler.eingabeText'));
-  }
-  throw new SchnittstellenFehler(antwort.status, inhalt?.title ?? t('fehler.allgemein'), inhalt?.detail ?? '');
+  // Die Schnittstelle liefert im Feld «fehler» einen Text für die Oberfläche.
+  throw new SchnittstellenFehler(antwort.status, inhalt?.title ?? t('fehler.allgemein'), inhalt?.fehler ?? '');
 }
 
 async function liesInhalt(antwort) {

@@ -19,8 +19,12 @@ async function absenden() {
   try {
     const { telefon, ...daten } = formular.value;
     // Das Konto entsteht in der gewählten Region (Kopf X-Region); danach direkt anmelden.
-    await aufruf('POST', '/api/konto/registrieren', { ...daten, telefon: telefon.trim() || null });
-    setzeAnmeldung(await aufruf('POST', '/api/konto/anmelden', { eMail: daten.eMail, passwort: daten.passwort }));
+    setzeAnmeldung(await aufruf('POST', '/api/auth/registrierung', {
+      ...daten,
+      telefon: telefon.trim() || null,
+      kontoart: daten.rolle === 'Helfende' ? 1 : 0,
+      mandant: sitzung.region.kennung,
+    }));
     const weiter = typeof route.query.weiter === 'string' && route.query.weiter.startsWith('/') ? route.query.weiter : null;
     await router.push(weiter ?? (daten.rolle === 'Hilfesuchende' ? { name: 'anfrage' } : '/'));
   } catch (ausnahme) {

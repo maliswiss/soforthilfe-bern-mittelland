@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Soforthilfe.Api.Fehlerbehandlung;
 using Soforthilfe.Api.Modelle;
 using Soforthilfe.Dienste.Konten;
 
@@ -14,8 +15,8 @@ public sealed class KontenController(IKontoDienst konten) : ControllerBase
 {
     [Authorize(Roles = Rollen.KontenEinsehen)]
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<KontoInfo>>> Liste(CancellationToken abbruch) =>
-        Ok(await konten.ListeAsync(abbruch));
+    public async Task<ActionResult<IReadOnlyList<KontoUebersicht>>> Liste(CancellationToken abbruch) =>
+        Ok((await konten.ListeAsync(abbruch)).Select(KontoUebersicht.Aus).ToList());
 
     [Authorize(Roles = Rollen.RollenVergeben)]
     [HttpPut("{id:guid}/rolle")]
@@ -26,14 +27,10 @@ public sealed class KontenController(IKontoDienst konten) : ControllerBase
         return ergebnis switch
         {
             RollenErgebnis.Gesetzt => NoContent(),
-            RollenErgebnis.NichtGefunden => Problem(
-                statusCode: StatusCodes.Status404NotFound,
-                title: "Konto nicht gefunden",
-                detail: "In der eigenen Region gibt es kein Konto mit dieser Kennung."),
-            _ => Problem(
-                statusCode: StatusCodes.Status400BadRequest,
-                title: "Rolle nicht erlaubt",
-                detail: "Vergeben werden können Hilfesuchende, Helfende, Koordination und Mandantenadministration."),
+            RollenErgebnis.NichtGefunden => this.Fehler(StatusCodes.Status404NotFound, "Konto nicht gefunden",
+                "In der eigenen Region gibt es kein Konto mit dieser Kennung."),
+            _ => this.Fehler(StatusCodes.Status400BadRequest, "Rolle nicht erlaubt",
+                "Vergeben werden können Hilfesuchende, Helfende, Koordination und Mandantenadministration.", "rolle"),
         };
     }
 }
