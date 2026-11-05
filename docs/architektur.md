@@ -29,6 +29,8 @@ flowchart LR
 
 Bis Release 2 läuft eine API-Instanz. Zwei Instanzen hinter dem Lastverteiler, Sicherung und Überwachung kommen mit Release 3.
 
+Die Containerplattform mit Lastverteiler, Schnittstelle, Oberfläche und Datenbank startet mit `docker compose --profile plattform up -d --build`. Aufbau, Profile und Sicherheitsköpfe: [containerplattform.md](containerplattform.md).
+
 ## Backend
 
 ASP.NET Core 10 in drei Schichten:

@@ -33,6 +33,9 @@ Verwendete oder geplante Fremdkomponenten mit Zweck, Lizenz und Quelle. Die gena
 | PostGIS | Räumliche Abfragen | GPL-2.0-or-later | https://postgis.net |
 | Container-Image postgis/postgis | Datenbank mit PostGIS als Container | MIT (Image-Definition) | https://github.com/postgis/docker-postgis |
 | Traefik | Lastverteiler | MIT | https://github.com/traefik/traefik |
+| nginx (Container-Image nginx-unprivileged) | Auslieferung der Oberfläche ohne Administratorrechte | BSD-2-Clause | https://github.com/nginxinc/docker-nginx-unprivileged |
+| Container-Images .NET (sdk, aspnet) | Build und Laufzeit der Schnittstelle | MIT | https://github.com/dotnet/dotnet-docker |
+| Container-Image Node.js (node:22-alpine) | Build der Oberfläche | MIT | https://github.com/nodejs/docker-node |
 | Docker Compose | Containerplattform | Apache-2.0 | https://github.com/docker/compose |
 | Prometheus | Kennzahlen | Apache-2.0 | https://github.com/prometheus/prometheus |
 | Alertmanager | Alarmierung | Apache-2.0 | https://github.com/prometheus/alertmanager |

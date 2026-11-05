@@ -30,7 +30,7 @@ Hilfesuchende beschreiben ihre Lage in eigenen Worten. Die Plattform erkennt den
 | Anfrage per Kategorie, Freitext oder beidem | R1 | umgesetzt |
 | Ablehnung von Mehrwertnummern, Trennung kostenlos und kostenpflichtig | R1 | umgesetzt |
 | Oberfläche: Regionswahl, Registrierung, Anmeldung und Anfrageformular | R1 | umgesetzt |
-| Containerplattform mit Docker Compose und Traefik | R1 | geplant |
+| Containerplattform mit Docker Compose und Traefik | R1 | umgesetzt |
 | Notfall-Stopp mit Hinweis «144 anrufen» | R2 | geplant |
 | Orte über das Ortschaftenverzeichnis von swisstopo, Standortfreigabe | R2 | geplant |
 | Helferprofile mit Verifizierung und Preisangaben | R2 | geplant |
@@ -48,11 +48,12 @@ Der Stand der einzelnen Aufgaben steht im [Kanban](https://github.com/users/mali
 
 ## Architektur
 
-Die Oberfläche ist eine Progressive Web App mit Vue 3 und ruft die Schnittstelle unter `/api` auf. Das Backend ist eine ASP.NET Core Web API in drei Schichten; jede Schicht ist ein eigenes Projekt und kennt nur die Schicht darunter.
+Die Oberfläche ist eine Progressive Web App mit Vue 3 und ruft die Schnittstelle unter `/api` auf. In der Containerplattform nimmt Traefik alle Anfragen über HTTPS entgegen. Das Backend ist eine ASP.NET Core Web API in drei Schichten; jede Schicht ist ein eigenes Projekt und kennt nur die Schicht darunter.
 
 ```mermaid
 flowchart LR
-  Ui["Oberfläche<br/>Vue 3, PWA"] -- "/api" --> Api["Soforthilfe.Api<br/>Controller"]
+  Lv["Lastverteiler<br/>Traefik, HTTPS"] -- "/" --> Ui["Oberfläche<br/>Vue 3, PWA, nginx"]
+  Lv -- "/api" --> Api["Soforthilfe.Api<br/>Controller"]
   Api --> Dienste["Soforthilfe.Dienste<br/>Fachlogik"]
   Dienste --> Daten["Soforthilfe.Datenzugriff<br/>Datenzugriff"]
   Daten --> Db[("PostgreSQL<br/>mit PostGIS")]
@@ -86,6 +87,7 @@ Jede Region ist ein Mandant; Konten, Helferprofile und Anfragen gehören zu gena
 | Datenbank | PostgreSQL 16 mit PostGIS als Container, Entity Framework Core mit Npgsql |
 | Anmeldung | JWT (HS256), Passwort-Hash mit PBKDF2 aus ASP.NET Core Identity |
 | Frontend | Vue 3 mit Vue Router, Vite, Tailwind CSS, Progressive Web App mit vite-plugin-pwa |
+| Betrieb | Docker Compose mit Profilen, Traefik 3 als Lastverteiler, nginx für die Oberfläche |
 | Repository-Schutz | Gitleaks, Hygieneprüfung mit Node.js 22 und node:test |
 | Tests | Schnittstellentests mit node:test, Rauchtest mit curl und jq |
 | CI | GitHub Actions, Dependabot |
@@ -128,6 +130,14 @@ Mit `Testdaten__Laden=true` in der `.env` lädt die Schnittstelle beim Start Tes
 Registrierung, Anmeldung, Rollen und Berechtigungen: [docs/anmeldung-und-rollen.md](docs/anmeldung-und-rollen.md).
 
 Anfragen und Kategorien: [docs/anfragen.md](docs/anfragen.md).
+
+**Containerplattform** mit einem Befehl (Lastverteiler, Schnittstelle, Oberfläche, Datenbank):
+
+```
+docker compose --profile plattform up -d --build
+```
+
+Die Plattform läuft unter `https://localhost`; das lokale Zertifikat beim ersten Aufruf im Browser bestätigen. Beenden mit `docker compose --profile plattform down`. Details: [docs/containerplattform.md](docs/containerplattform.md).
 
 Zugangsdaten gehören nie ins Repository; Vorlage für die lokale Konfiguration ist [`.env.example`](.env.example).
 

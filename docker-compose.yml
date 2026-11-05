@@ -1,6 +1,14 @@
-# Lokale Datenbank für Entwicklung und Tests: PostgreSQL mit PostGIS
-# Start:  docker compose up -d datenbank
-# Werte:  aus der lokalen .env (Vorlage: .env.example)
+# Soforthilfe Bern/Mittelland – Container
+#
+# Entwicklung (Schnittstelle mit «dotnet run», Oberfläche mit «npm run dev»):
+#   docker compose up -d datenbank
+#
+# Containerplattform (Lastverteiler, Schnittstelle, Oberfläche, Datenbank) mit einem Befehl:
+#   docker compose --profile plattform up -d --build
+#   Aufruf: https://localhost  (lokales Zertifikat, Warnung im Browser einmal bestätigen)
+#   Übersicht Lastverteiler: http://localhost:8081
+#
+# Alle Werte stammen aus der lokalen .env (Vorlage: .env.example). Passwörter gehören nie in diese Datei.
 
 name: soforthilfe-bern-mittelland
 
@@ -22,6 +30,54 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
+
+  api:
+    build:
+      context: ./backend
+    image: soforthilfe-api:lokal
+    profiles: [plattform]
+    restart: unless-stopped
+    depends_on:
+      datenbank:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ASPNETCORE_HTTP_PORTS: "8080"
+      # Im Container ist die Datenbank über ihren Dienstnamen und den internen Port erreichbar.
+      POSTGRES_HOST: datenbank
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: ${POSTGRES_DB:-soforthilfe}
+      POSTGRES_USER: ${POSTGRES_USER:-soforthilfe}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD in der .env setzen}
+      JWT_KEY: ${JWT_KEY:?JWT_KEY in der .env setzen}
+      JWT_ISSUER: ${JWT_ISSUER:-soforthilfe}
+      JWT_AUDIENCE: ${JWT_AUDIENCE:-soforthilfe}
+      # Das Schema entsteht beim Start aus den Migrationen.
+      Datenbank__MigrationBeimStart: "true"
+      Testdaten__Laden: ${Testdaten__Laden:-false}
+      TESTDATEN_PASSWORT: ${TESTDATEN_PASSWORT:-}
+
+  frontend:
+    build:
+      context: ./frontend
+    image: soforthilfe-frontend:lokal
+    profiles: [plattform]
+    restart: unless-stopped
+
+  lastverteiler:
+    image: traefik:v3.7
+    profiles: [plattform]
+    restart: unless-stopped
+    command: ["--configFile=/etc/traefik/traefik.yml"]
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+      - "127.0.0.1:${LASTVERTEILER_DASHBOARD_PORT:-8081}:8080"
+    volumes:
+      - ./deploy/traefik:/etc/traefik:ro
+    depends_on:
+      - api
+      - frontend
 
 volumes:
   datenbank:

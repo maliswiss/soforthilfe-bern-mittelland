@@ -37,3 +37,18 @@ updates:
     labels: []
     commit-message:
       prefix: "Abhängigkeiten"
+
+  # Basis-Images der Dockerfiles von Schnittstelle und Oberfläche
+  - package-ecosystem: "docker"
+    directories:
+      - "/backend"
+      - "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "Europe/Zurich"
+    open-pull-requests-limit: 5
+    labels: []
+    commit-message:
+      prefix: "Abhängigkeiten"

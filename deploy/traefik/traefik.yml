@@ -1,0 +1,36 @@
+# Lastverteiler (Traefik), statische Konfiguration.
+# Nimmt Anfragen über HTTPS entgegen und leitet sie an Oberfläche und Schnittstelle weiter.
+# Die Routen stehen in dynamisch.yml; Änderungen dort wirken ohne Neustart.
+
+entryPoints:
+  web:
+    address: ":80"
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+  websecure:
+    address: ":443"
+    http:
+      tls: {}
+
+providers:
+  file:
+    filename: /etc/traefik/dynamisch.yml
+    watch: true
+
+# Übersicht nur lokal erreichbar (Port 8081 auf 127.0.0.1, siehe docker-compose.yml).
+api:
+  dashboard: true
+  insecure: true
+
+ping: {}
+
+log:
+  level: INFO
+
+accessLog: {}
+
+# Lokal verwendet Traefik sein selbst erzeugtes Zertifikat (Warnung im Browser einmal bestätigen).
+# Es wird beim Start im Container erzeugt; kein Schlüssel liegt im Repository.

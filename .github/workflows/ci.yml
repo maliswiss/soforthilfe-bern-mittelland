@@ -84,6 +84,50 @@ jobs:
       - name: Bauen
         run: npm run build
 
+  container:
+    name: Containerplattform starten
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository auschecken
+        uses: actions/checkout@v7
+
+      - name: Lokale Konfiguration nur für diesen Lauf erzeugen
+        run: |
+          # Zufällige Werte je Lauf, in den Protokollen maskiert; die Datei .env wird nie committet.
+          kennwort="$(openssl rand -hex 24)"
+          schluessel="$(openssl rand -base64 48)"
+          echo "::add-mask::${kennwort}"
+          echo "::add-mask::${schluessel}"
+          printf 'POSTGRES_PASSWORD=%s\nJWT_KEY=%s\n' "$kennwort" "$schluessel" > .env
+
+      - name: Plattform mit einem Befehl starten
+        run: docker compose --profile plattform up -d --build
+
+      - name: Oberfläche und Schnittstelle über den Lastverteiler prüfen
+        run: |
+          for versuch in $(seq 1 60); do
+            if curl -ksf https://localhost/health/ready > /dev/null; then
+              break
+            fi
+            sleep 2
+          done
+          curl -ksf https://localhost/health/ready; echo
+          curl -ksf https://localhost/api/info; echo
+          # Die Oberfläche kommt von nginx, mit den Sicherheitsköpfen.
+          curl -ksf https://localhost/ | grep -q '<div id="app">'
+          curl -ksI https://localhost/ | grep -qi '^content-security-policy:'
+          # HTTP wird auf HTTPS umgeleitet.
+          status=$(curl -s -o /dev/null -w '%{http_code}' http://localhost/)
+          test "$status" = "301" -o "$status" = "308"
+
+      - name: Protokolle der Container
+        if: always()
+        run: docker compose --profile plattform logs --no-color
+
+      - name: Plattform beenden
+        if: always()
+        run: docker compose --profile plattform down -v
+
   backend:
     name: Backend bauen und testen
     runs-on: ubuntu-latest

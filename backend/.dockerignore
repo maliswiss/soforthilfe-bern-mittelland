@@ -1,0 +1,10 @@
+# Nur Quelltext gelangt ins Image. Build-Ausgaben, lokale Einstellungen und
+# Entwicklungsdateien bleiben draussen; die Werte kommen im Container aus der Umgebung.
+**/bin/
+**/obj/
+**/appsettings.Development.json
+**/*.user
+**/.vs/
+**/.vscode/
+**/*.log
+**/.env

@@ -1,0 +1,40 @@
+# Lastverteiler (Traefik), Routen und Dienste.
+# /api geht an die Schnittstelle, alles andere an die Oberfläche.
+
+http:
+  routers:
+    api:
+      rule: "PathPrefix(`/api`) || PathPrefix(`/health`)"
+      entryPoints: [websecure]
+      service: api
+      middlewares: [sicherheitskopf]
+      tls: {}
+
+    frontend:
+      rule: "PathPrefix(`/`)"
+      priority: 1
+      entryPoints: [websecure]
+      service: frontend
+      middlewares: [sicherheitskopf]
+      tls: {}
+
+  services:
+    api:
+      loadBalancer:
+        servers:
+          - url: "http://api:8080"
+
+    frontend:
+      loadBalancer:
+        servers:
+          - url: "http://frontend:8080"
+
+  middlewares:
+    sicherheitskopf:
+      headers:
+        stsSeconds: 31536000
+        stsIncludeSubdomains: true
+        contentTypeNosniff: true
+        frameDeny: true
+        referrerPolicy: "strict-origin-when-cross-origin"
+        permissionsPolicy: "geolocation=(self), camera=(), microphone=()"
