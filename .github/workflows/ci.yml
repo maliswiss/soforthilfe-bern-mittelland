@@ -261,6 +261,35 @@ jobs:
           API_URL: http://localhost:5000
         run: node --test "tests/api/*.test.mjs"
 
+      - name: Oberfläche bauen und als Vorschau starten
+        working-directory: frontend
+        env:
+          API_URL: http://localhost:5000
+        run: |
+          npm ci
+          npm run build
+          # Die Vorschau leitet /api an die laufende Schnittstelle weiter, mit denselben Sicherheitsköpfen wie im Betrieb.
+          nohup npx vite preview --port 4173 --strictPort > ../vorschau.log 2>&1 &
+          for versuch in $(seq 1 30); do
+            if curl -sf http://localhost:4173/ > /dev/null; then
+              break
+            fi
+            sleep 1
+          done
+          curl -sf http://localhost:4173/ > /dev/null
+
+      - name: Playwright mit Chromium einrichten
+        working-directory: tests/oberflaeche
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+
+      - name: Oberflächentests
+        working-directory: tests/oberflaeche
+        env:
+          OBERFLAECHE_URL: http://localhost:4173
+        run: npx playwright test
+
       - name: Protokoll der Schnittstelle
         if: always()
         run: cat api.log || true

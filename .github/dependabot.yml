@@ -15,7 +15,9 @@ updates:
       prefix: "Abhängigkeiten"
 
   - package-ecosystem: "npm"
-    directory: "/frontend"
+    directories:
+      - "/frontend"
+      - "/tests/oberflaeche"
     schedule:
       interval: "weekly"
       day: "monday"
