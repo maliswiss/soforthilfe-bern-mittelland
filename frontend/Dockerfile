@@ -8,7 +8,7 @@ COPY . .
 RUN npm run build
 
 # Auslieferung: statische Dateien über nginx, ohne Administratorrechte (Port 8080).
-FROM nginxinc/nginx-unprivileged:1.27-alpine AS laufzeit
+FROM nginxinc/nginx-unprivileged:1.31-alpine AS laufzeit
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY nginx-sicherheit.conf /etc/nginx/sicherheit.conf
 COPY --from=build /quelle/dist /usr/share/nginx/html

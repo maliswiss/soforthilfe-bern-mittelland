@@ -146,7 +146,7 @@ Zugangsdaten gehören nie ins Repository; Vorlage für die lokale Konfiguration 
 - **Kanban:** [Soforthilfe Bern/Mittelland Kanban](https://github.com/users/maliswiss/projects/3)
 - **Aufgaben:** Jede Aufgabe ist ein Issue, jede Aufgabe ein Commit.
 - **Commits:** `<Release>: <Kurzbeschreibung> (Refs #<Issue>)`, zum Beispiel `R1: Backend-Projektstruktur mit Schichten angelegt (Refs #4)`.
-- **Tests:** `node --test "tests/api/*.test.mjs"` gegen die laufende Schnittstelle (`API_URL`, Testkonten mit `TESTDATEN_PASSWORT`); Oberflächentests in `tests/oberflaeche` mit `npm ci`, `npx playwright install chromium` und `npx playwright test` gegen die laufende Oberfläche (`OBERFLAECHE_URL`, Standard `http://localhost:4173`). Die CI führt alle Tests bei jedem Push aus.
+- **Tests:** `node --test "tests/api/*.test.mjs"` gegen die laufende Schnittstelle (`API_URL`, Testkonten mit `TESTDATEN_PASSWORT`); Oberflächentests in `tests/oberflaeche` mit `npm ci`, `npx playwright install chromium` und `npx playwright test` gegen die laufende Oberfläche (`OBERFLAECHE_URL`, Standard `http://localhost:4173`). Die CI führt alle Tests bei jedem Push aus; Umfang und Ergebnisse von Release 1 stehen im [Testprotokoll](docs/testprotokoll-r1.md).
 - **Prüfung vor dem Commit:** Hygieneprüfung und Gitleaks, Einrichtung mit `git config core.hooksPath .githooks`.
 - **Releases und Tags:** R1 (19.10. bis 06.11.2026), R2 (09.11. bis 27.11.2026), R3 (30.11. bis 18.12.2026); jede Abnahme erhält den Tag `r1-abnahme`, `r2-abnahme` oder `r3-abnahme`.
 
