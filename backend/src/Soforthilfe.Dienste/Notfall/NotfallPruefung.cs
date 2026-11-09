@@ -3,9 +3,10 @@ using Soforthilfe.Dienste.Verstaendnis;
 namespace Soforthilfe.Dienste.Notfall;
 
 /// <summary>
-/// Ergebnis der Notfallprüfung. «Schluesselwort» nennt den erkannten Begriff so, wie er im Text steht.
+/// Ergebnis der Notfallprüfung. «Schluesselwort» nennt den erkannten Begriff so, wie er im Text steht,
+/// «Begriff» denselben Eintrag aus der festen Liste (für das Protokoll, ohne Wortlaut aus dem Text).
 /// </summary>
-public sealed record Notfallergebnis(bool IstNotfall, string? Schluesselwort)
+public sealed record Notfallergebnis(bool IstNotfall, string? Schluesselwort, string? Begriff = null)
 {
     public static readonly Notfallergebnis KeinNotfall = new(false, null);
 }
@@ -66,7 +67,7 @@ public sealed class NotfallPruefung : INotfallPruefung
         {
             if (Enthaelt(text, begriff))
             {
-                return new Notfallergebnis(true, Textnormalisierung.Fundstelle(freitext, begriff));
+                return new Notfallergebnis(true, Textnormalisierung.Fundstelle(freitext, begriff), begriff);
             }
         }
 

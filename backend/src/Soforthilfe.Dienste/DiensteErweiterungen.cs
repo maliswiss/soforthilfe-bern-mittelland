@@ -6,6 +6,7 @@ using Soforthilfe.Dienste.Info;
 using Soforthilfe.Dienste.Kategorien;
 using Soforthilfe.Dienste.Konten;
 using Soforthilfe.Dienste.Notfall;
+using Soforthilfe.Dienste.Protokoll;
 using Soforthilfe.Dienste.Regionen;
 using Soforthilfe.Dienste.Verstaendnis;
 
@@ -34,6 +35,9 @@ public static class DiensteErweiterungen
 
         // Die Notfallprüfung arbeitet nur mit festen Regeln und ist zustandslos.
         dienste.AddSingleton<INotfallPruefung, NotfallPruefung>();
+
+        // Das Protokoll schreibt in die Region der laufenden Anfrage.
+        dienste.AddScoped<IProtokollDienst, ProtokollDienst>();
 
         // Kategorien und Anfragen werden je Anfrage aus der Datenbank gelesen.
         dienste.AddScoped<IKategorienDienst, KategorienDienst>();

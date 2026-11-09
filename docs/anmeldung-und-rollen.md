@@ -22,11 +22,12 @@
 
 | Schnittstelle | Hilfesuchende | Helfende | Koordination | Mandantenadministration | Plattformbetrieb |
 |---|---|---|---|---|---|
-| `GET /api/mandanten`, `GET /api/kategorien`, `GET /api/skills` | ja | ja | ja | ja | ja |
+| `GET /api/mandanten`, `GET /api/kategorien`, `GET /api/skills`, `POST /api/anfragen/verstehen` | ja | ja | ja | ja | ja |
 | `GET /api/auth/ich` | ja | ja | ja | ja | ja |
 | `POST /api/anfragen`, `GET /api/anfragen/meine` | ja | nein | nein | nein | nein |
 | `GET /api/anfragen`, `GET /api/anfragen/{id}` | eigene | nein | eigene Region | eigene Region | alle Regionen |
 | `GET /api/konten` | nein | nein | eigene Region | eigene Region | alle Regionen |
+| `GET /api/protokoll` | nein | nein | eigene Region | eigene Region | alle Regionen und Einträge ohne Region |
 | `PUT /api/konten/{id}/rolle` | nein | nein | nein | eigene Region | alle Regionen |
 | `POST /api/mandanten` | nein | nein | nein | nein | ja |
 

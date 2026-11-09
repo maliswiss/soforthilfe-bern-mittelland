@@ -4,6 +4,7 @@ using Soforthilfe.Datenzugriff;
 using Soforthilfe.Datenzugriff.Mandanten;
 using Soforthilfe.Datenzugriff.Modell;
 using Soforthilfe.Dienste.Notfall;
+using Soforthilfe.Dienste.Protokoll;
 using Soforthilfe.Dienste.Verstaendnis;
 
 namespace Soforthilfe.Dienste.Anfragen;
@@ -14,7 +15,8 @@ namespace Soforthilfe.Dienste.Anfragen;
 public sealed partial class AnfrageDienst(
     SoforthilfeDbContext datenbank,
     IMandantenKontext mandant,
-    INotfallPruefung notfallPruefung) : IAnfrageDienst
+    INotfallPruefung notfallPruefung,
+    IProtokollDienst protokoll) : IAnfrageDienst
 {
     // Schweizer Postleitzahlen sind vierstellig und beginnen nicht mit 0.
     [GeneratedRegex("^[1-9][0-9]{3}$")]
@@ -38,6 +40,9 @@ public sealed partial class AnfrageDienst(
         var notfall = notfallPruefung.Pruefen(freitext);
         if (notfall.IstNotfall)
         {
+            // Protokolliert wird nur der Vorgang mit dem Begriff aus der festen Liste, ohne Konto und ohne Freitext.
+            await protokoll.SchreibenAsync(ProtokollAktionen.NotfallStopp, ProtokollAktionen.ObjektAnfrage, null,
+                NotfallTexte.Grund(notfall.Begriff), abbruch);
             return new AnfrageErgebnis(null, AnfrageFehler.Notfall, NotfallTexte.Grund(notfall.Schluesselwort));
         }
 

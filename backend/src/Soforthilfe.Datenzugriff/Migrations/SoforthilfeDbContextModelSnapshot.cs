@@ -306,6 +306,44 @@ namespace Soforthilfe.Datenzugriff.Migrations
                     b.ToTable("Konten", (string)null);
                 });
 
+            modelBuilder.Entity("Soforthilfe.Datenzugriff.Modell.Protokolleintrag", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Aktion")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Detail")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<string>("Objekt")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("ObjektId")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid?>("RegionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("Zeitpunkt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RegionId", "Zeitpunkt");
+
+                    b.ToTable("Protokoll", (string)null);
+                });
+
             modelBuilder.Entity("Soforthilfe.Datenzugriff.Modell.Region", b =>
                 {
                     b.Property<Guid>("Id")
@@ -504,6 +542,16 @@ namespace Soforthilfe.Datenzugriff.Migrations
                 });
 
             modelBuilder.Entity("Soforthilfe.Datenzugriff.Modell.Konto", b =>
+                {
+                    b.HasOne("Soforthilfe.Datenzugriff.Modell.Region", "Region")
+                        .WithMany()
+                        .HasForeignKey("RegionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("Region");
+                });
+
+            modelBuilder.Entity("Soforthilfe.Datenzugriff.Modell.Protokolleintrag", b =>
                 {
                     b.HasOne("Soforthilfe.Datenzugriff.Modell.Region", "Region")
                         .WithMany()

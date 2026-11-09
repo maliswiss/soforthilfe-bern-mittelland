@@ -21,6 +21,7 @@ Die Schnittstelle ist eine REST-API unter `/api`. Sie spricht JSON; Feldnamen be
 | GET | `/api/anfragen/{id}` | wie oben | einzelne Anfrage; fremde Anfragen liefern `404` |
 | GET | `/api/konten` | Koordination, Mandantenadministration, Plattformbetrieb | Konten der Region, ohne Telefonnummern |
 | PUT | `/api/konten/{id}/rolle` | Mandantenadministration, Plattformbetrieb | Rolle eines Kontos ändern |
+| GET | `/api/protokoll` | Koordination, Mandantenadministration, Plattformbetrieb | Neueste Protokolleinträge der eigenen Region, für den Plattformbetrieb aller Regionen; Filter `aktion`, Anzahl `anzahl` (Standard 100, höchstens 500) |
 | GET | `/health/live` | intern | Prozess läuft |
 | GET | `/health/ready` | intern | Anwendung bereit, Datenbank erreichbar |
 
@@ -92,6 +93,21 @@ Antwort `200`:
 ```
 
 Ohne Hinweis auf einen Notfall sind `notfall` falsch und die beiden Texte `null`. Enthält der Freitext beim Erfassen (`POST /api/anfragen`) einen Notfallhinweis, wird die Anfrage nicht gespeichert; die Antwort ist `451` mit `notfall`, `hinweis` und `grund`. Der Status 451 steht dafür, dass die Plattform aus rechtlichen Gründen keine medizinischen Leistungen vermittelt. Regeln und Testfälle: [notfallpruefung.md](notfallpruefung.md).
+
+Jeder Notfall-Stopp wird ohne Personendaten protokolliert:
+
+```
+GET /api/protokoll?aktion=Notfall.Stopp
+Authorization: Bearer <token>
+```
+
+Antwort `200`:
+
+```
+[ { "id": 42, "aktion": "Notfall.Stopp", "objekt": "Verstaendnis", "objektId": null,
+    "detail": "Erkanntes Schlüsselwort: bewusstlos", "zeitpunkt": "2026-11-09T14:03:11+00:00",
+    "region": "bern-mittelland" } ]
+```
 
 ## Zahlenwerte
 

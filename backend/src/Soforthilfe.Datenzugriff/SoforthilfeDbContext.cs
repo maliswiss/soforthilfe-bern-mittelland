@@ -6,7 +6,7 @@ namespace Soforthilfe.Datenzugriff;
 
 /// <summary>
 /// Datenbankkontext der Plattform (PostgreSQL mit PostGIS).
-/// Konten, Helferprofile und Anfragen sind strikt nach Region (Mandant) getrennt.
+/// Konten, Helferprofile, Anfragen und Protokolleinträge sind strikt nach Region (Mandant) getrennt.
 /// </summary>
 public sealed class SoforthilfeDbContext : DbContext
 {
@@ -29,6 +29,8 @@ public sealed class SoforthilfeDbContext : DbContext
     public DbSet<Helferprofil> Helferprofile => Set<Helferprofil>();
 
     public DbSet<Anfrage> Anfragen => Set<Anfrage>();
+
+    public DbSet<Protokolleintrag> Protokoll => Set<Protokolleintrag>();
 
     protected override void OnModelCreating(ModelBuilder modell)
     {
@@ -119,6 +121,23 @@ public sealed class SoforthilfeDbContext : DbContext
 
             anfrage.HasQueryFilter(a => _mandant.Uebergreifend || a.RegionId == _mandant.RegionId);
         });
+
+        modell.Entity<Protokolleintrag>(eintrag =>
+        {
+            eintrag.ToTable("Protokoll");
+            eintrag.Property(p => p.Aktion).HasMaxLength(100);
+            eintrag.Property(p => p.Objekt).HasMaxLength(50);
+            eintrag.Property(p => p.ObjektId).HasMaxLength(50);
+            eintrag.Property(p => p.Detail).HasMaxLength(250);
+
+            // Gelesen wird je Region und neueste zuerst.
+            eintrag.HasIndex(p => new { p.RegionId, p.Zeitpunkt });
+
+            eintrag.HasOne(p => p.Region).WithMany().HasForeignKey(p => p.RegionId).OnDelete(DeleteBehavior.Restrict);
+
+            // Einträge ohne Region sieht nur der Plattformbetrieb.
+            eintrag.HasQueryFilter(p => _mandant.Uebergreifend || p.RegionId == _mandant.RegionId);
+        });
     }
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
@@ -160,6 +179,14 @@ public sealed class SoforthilfeDbContext : DbContext
                 case Anfrage anfrage:
                     region = anfrage.RegionId;
                     break;
+                case Protokolleintrag protokoll:
+                    // Ein Notfall-Stopp vor der Regionswahl wird ohne Region protokolliert.
+                    if (protokoll.RegionId != _mandant.RegionId)
+                    {
+                        throw new MandantenVerletzung("Schreibzugriff ausserhalb der Region der Anfrage.");
+                    }
+
+                    continue;
                 default:
                     continue;
             }

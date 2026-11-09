@@ -29,6 +29,19 @@ Die Plattform vermittelt keine medizinischen Leistungen. Jede Beschreibung in ei
 
 Das erkannte Wort steht nur im Speicher der Seite und nie in der Adresse, damit es weder im Browserverlauf noch in Zugriffsprotokollen landet.
 
+## Protokoll
+
+Jeder Notfall-Stopp erzeugt einen Eintrag in der Tabelle `Protokoll`, im Verständnis-Schritt (`Objekt` «Verstaendnis») wie beim Erfassen (`Objekt` «Anfrage»).
+
+| Feld | Inhalt |
+|---|---|
+| `Aktion` | `Notfall.Stopp` |
+| `Detail` | `Erkanntes Schlüsselwort: …` mit dem Begriff aus der festen Liste in normalisierter Form, nie mit dem Wortlaut der Eingabe |
+| `Region` | Region der Anfrage; leer, wenn noch keine Region gewählt ist |
+| `Zeitpunkt` | Zeitpunkt in UTC |
+
+Nicht gespeichert werden Konto, Name, E-Mail-Adresse, Telefonnummer, IP-Adresse, Ort und Freitext. Scheitert das Speichern des Eintrags, erhält die Person den Hinweis auf 144 trotzdem; der Fehler steht im Anwendungsprotokoll. Lesen: `GET /api/protokoll` ([schnittstelle.md](schnittstelle.md)).
+
 ## Begriffe
 
 | Bereich | Beispiele |

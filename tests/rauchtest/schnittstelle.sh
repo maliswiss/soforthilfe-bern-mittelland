@@ -77,6 +77,8 @@ erwarte "Notfall erkannt" true "$(jq '.notfall' "$ANTWORT")"
 notfall_anfrage='{"freitext":"Mein Mann ist bewusstlos auf dem Boden.","plz":"3011","ort":"Bern"}'
 erwarte "Anfrage mit Notfall wird gestoppt" 451 "$(status "${json[@]}" -H "Authorization: Bearer $token" -d "$notfall_anfrage" "$BASIS/api/anfragen")"
 erwarte "Weiterhin eine einzige eigene Anfrage" 1 "$(status -H "Authorization: Bearer $token" "$BASIS/api/anfragen/meine" > /dev/null; jq 'length' "$ANTWORT")"
+erwarte "Protokoll ohne Anmeldung" 401 "$(status "$BASIS/api/protokoll")"
+erwarte "Protokoll als Hilfesuchende" 403 "$(status -H "Authorization: Bearer $token" "$BASIS/api/protokoll")"
 
 echo "== Rollen und Berechtigungen"
 if [ -z "${TESTDATEN_PASSWORT:-}" ]; then
@@ -115,6 +117,15 @@ else
   erwarte "Rolle in fremder Region setzen" 404 "$(status -X PUT "${json[@]}" -H "Authorization: Bearer $admin_biel" -d "$rolle" "$BASIS/api/konten/$bruno/rolle")"
   erwarte "Rolle in eigener Region setzen" 204 "$(status -X PUT "${json[@]}" -H "Authorization: Bearer $admin_biel" -d "$rolle" "$BASIS/api/konten/$fritz/rolle")"
   erwarte "Plattformbetrieb vergeben" 400 "$(status -X PUT "${json[@]}" -H "Authorization: Bearer $admin_biel" -d '{"rolle": "Plattformbetrieb"}' "$BASIS/api/konten/$fritz/rolle")"
+
+  erwarte "Protokoll als Koordination Bern/Mittelland" 200 "$(status -H "Authorization: Bearer $koordination_bern" "$BASIS/api/protokoll?aktion=Notfall.Stopp")"
+  erwarte "Notfall-Stopp der Anfrage protokolliert" true "$(jq 'any(.objekt == "Anfrage" and .detail == "Erkanntes Schlüsselwort: bewusstlos")' "$ANTWORT")"
+  erwarte "Nur Einträge aus Bern/Mittelland" true "$(jq 'length > 0 and all(.region == "bern-mittelland")' "$ANTWORT")"
+  erwarte "Protokoll ohne Personendaten" true "$(jq 'all(keys == ["aktion", "detail", "id", "objekt", "objektId", "region", "zeitpunkt"])' "$ANTWORT")"
+  erwarte "Protokoll als Mandantenadministration Biel/Seeland" 200 "$(status -H "Authorization: Bearer $admin_biel" "$BASIS/api/protokoll")"
+  erwarte "Keine Einträge aus Bern/Mittelland" false "$(jq 'any(.region == "bern-mittelland")' "$ANTWORT")"
+  erwarte "Protokoll als Plattformbetrieb" 200 "$(status -H "Authorization: Bearer $betrieb" "$BASIS/api/protokoll")"
+  erwarte "Notfall-Stopp ohne Region nur im Plattformbetrieb" true "$(jq 'any(.region == null and .objekt == "Verstaendnis")' "$ANTWORT")"
 fi
 
 if [ "$fehler" -ne 0 ]; then

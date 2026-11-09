@@ -59,6 +59,7 @@ Die Schnittstelle registriert die Fachdienste über `AddDienste()`; diese binden
 | Zustandsprüfung | `GET /health/live` meldet, ob der Prozess läuft; `GET /health/ready` führt alle Prüfungen mit dem Tag «bereit» aus |
 | Fehlerbehandlung | Unbehandelte Ausnahmen und Statuscodes ohne Inhalt werden als `application/problem+json` beantwortet, ohne technische Details, mit Verfolgungsnummer |
 | Protokollierung | Konsole, ausserhalb der Entwicklung als JSON; protokolliert werden Methode, Pfad und Verfolgungsnummer, keine Eingaben und keine Personendaten |
+| Protokoll der Vorgänge | Sicherheitsrelevante Vorgänge wie der Notfall-Stopp stehen in der Tabelle `Protokoll`, je Region und ohne Personendaten ([notfallpruefung.md](notfallpruefung.md)) |
 | Antwortköpfe | Kein `Server`-Kopf mit Produktname und Version |
 
 ## Daten

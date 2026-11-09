@@ -71,6 +71,19 @@ public sealed class NotfallPruefungTests
         Assert.False(_pruefung.Pruefen(freitext).IstNotfall);
     }
 
+    [Theory]
+    [InlineData("Herzinfarktverdacht bei meinem Nachbarn", "herzinfarkt")]
+    [InlineData("Herr Muster ist BEWUSSTLOS.", "bewusstlos")]
+    [InlineData("Ma mère ne respire plus normalement.", "ne respire plus")]
+    public void Fuer_das_Protokoll_gilt_der_Begriff_aus_der_Liste_ohne_Wortlaut_aus_dem_Text(string freitext, string begriff)
+    {
+        var ergebnis = _pruefung.Pruefen(freitext);
+
+        Assert.Equal(begriff, ergebnis.Begriff);
+        Assert.Contains(begriff, NotfallPruefung.Schluesselwoerter);
+        Assert.Null(_pruefung.Pruefen("Der Wasserhahn tropft.").Begriff);
+    }
+
     [Fact]
     public void Alle_Begriffe_sind_normalisiert_und_eindeutig()
     {

@@ -23,6 +23,7 @@ Die aktiven Regionen liefert `GET /api/mandanten` mit `schluessel`, `name` und `
 | Lesen | Globale Filter von Entity Framework Core liefern nur Zeilen der Region der Anfrage |
 | Schreiben | Vor dem Speichern prüft der Datenbankkontext jede neue, geänderte oder gelöschte Zeile; Zeilen einer anderen Region lösen einen Fehler aus und werden nicht gespeichert |
 | Datenbank | Jede regionsbezogene Tabelle hat einen Fremdschlüssel auf `Regionen`; Regionen mit Daten lassen sich nicht löschen |
+| Protokoll | Einträge tragen die Region der Anfrage; ein Notfall-Stopp ohne gewählte Region wird ohne Region gespeichert und ist nur für den Plattformbetrieb sichtbar |
 
 Regionen sind Daten und keine Konfiguration. Eine neue Region braucht deshalb weder einen Neustart noch ein Deployment.
 

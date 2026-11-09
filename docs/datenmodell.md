@@ -9,6 +9,7 @@ erDiagram
   REGION |o--o{ KONTO : "gehört zu"
   REGION ||--o{ HELFERPROFIL : "gehört zu"
   REGION ||--o{ ANFRAGE : "gehört zu"
+  REGION |o--o{ PROTOKOLLEINTRAG : "gehört zu"
   KONTO ||--o| HELFERPROFIL : hat
   KONTO ||--o{ ANFRAGE : stellt
   KATEGORIE ||--o{ SKILL : umfasst
@@ -66,6 +67,15 @@ erDiagram
     text Prioritaet
     text Status
   }
+  PROTOKOLLEINTRAG {
+    bigint Id PK
+    uuid RegionId FK
+    text Aktion
+    text Objekt
+    text ObjektId
+    text Detail
+    timestamptz Zeitpunkt
+  }
 ```
 
 ## Tabellen
@@ -79,6 +89,7 @@ erDiagram
 | `Helferprofile` | Einsatzgebiet, Radius und Fähigkeiten helfender Personen | genau eine |
 | `HelferprofilSkills` | Zuordnung Profil zu Fähigkeit | über das Profil |
 | `Anfragen` | Anliegen mit Kategorie und/oder Freitext, Ort, Zeitfenster, Dringlichkeit und Status | genau eine |
+| `Protokoll` | Sicherheitsrelevante Vorgänge wie der Notfall-Stopp, ohne Personendaten | eine oder keine (vor der Regionswahl) |
 
 ## Stammdaten
 
@@ -105,6 +116,7 @@ Weitere Regionen entstehen im laufenden Betrieb als Daten (`POST /api/mandanten`
 | 6 | Rolle, Status und Dringlichkeit als Text gespeichert | Daten bleiben ohne Code lesbar; an der Schnittstelle gelten feste Zahlenwerte |
 | 7 | Eine E-Mail-Adresse gehört plattformweit zu genau einem Konto | eindeutige Anmeldung, keine Verwechslung zwischen Regionen |
 | 8 | Nur der Passwort-Hash wird gespeichert | kein Klartext, auch nicht in Testdaten |
+| 9 | `Protokoll` ohne Konto, IP-Adresse und Eingaben; das Detail nennt nur den Begriff aus der festen Liste | Nachvollziehbarkeit ohne Personendaten; Einträge ohne Region sieht nur der Plattformbetrieb |
 
 ## Testdaten
 

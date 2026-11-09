@@ -31,7 +31,7 @@ Hilfesuchende beschreiben ihre Lage in eigenen Worten. Die Plattform erkennt den
 | Ablehnung von Mehrwertnummern, Trennung kostenlos und kostenpflichtig | R1 | umgesetzt |
 | Oberfläche: Startseite mit Kategorie oder Freitext, Regionswahl, Registrierung, Anmeldung, Anfrage erfassen, eigene Anfragen | R1 | umgesetzt |
 | Containerplattform mit Docker Compose und Traefik | R1 | umgesetzt |
-| Notfall-Stopp mit Hinweis «144 anrufen» | R2 | umgesetzt |
+| Notfall-Stopp mit Hinweis «144 anrufen» und Protokolleintrag ohne Personendaten | R2 | umgesetzt |
 | Orte über das Ortschaftenverzeichnis von swisstopo, Standortfreigabe | R2 | geplant |
 | Helferprofile mit Verifizierung und Preisangaben | R2 | geplant |
 | Verständniskette: Kategorie, Regeln, TF-IDF-Klassifikator, Sprachmodell | R2 | geplant |

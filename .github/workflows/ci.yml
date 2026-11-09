@@ -240,6 +240,8 @@ jobs:
           pruefe Konten 8
           pruefe Helferprofile 3
           pruefe Anfragen 2
+          # Das Protokoll ist nach dem Start leer und entsteht erst mit dem ersten Notfall-Stopp.
+          pruefe Protokoll 0
           # Alle Testpersonen sind fiktiv: Ihre Adressen enden auf «.invalid».
           pruefe_fiktiv=$(psql -h localhost -U soforthilfe -d soforthilfe -tAc "SELECT COUNT(*) FROM \"Konten\" WHERE \"EMail\" NOT LIKE '%@beispiel.invalid'")
           test "$pruefe_fiktiv" = "0"
