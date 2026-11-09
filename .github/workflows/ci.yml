@@ -184,7 +184,7 @@ jobs:
 
       - name: Tests
         if: hashFiles('backend/tests/**/*.csproj') != ''
-        run: dotnet test Soforthilfe.slnx --configuration Release --no-build
+        run: dotnet test --solution Soforthilfe.slnx --configuration Release --no-build
 
       - name: Werkzeuge wiederherstellen (dotnet ef)
         run: dotnet tool restore

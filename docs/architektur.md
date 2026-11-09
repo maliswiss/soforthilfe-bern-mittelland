@@ -41,7 +41,7 @@ ASP.NET Core 10 in drei Schichten:
 | Dienste | Fachlogik: Verständniskette, Matching, Preise, Verifizierung |
 | Datenzugriff | Entity Framework Core mit Npgsql, Migrationen, Mandantenfilter |
 
-Die Lösung `backend/Soforthilfe.slnx` bildet die Schichten als eigene Projekte ab. Gemeinsame Einstellungen stehen in `backend/Directory.Build.props`, die SDK-Version in `backend/global.json`.
+Die Lösung `backend/Soforthilfe.slnx` bildet die Schichten als eigene Projekte ab. Gemeinsame Einstellungen stehen in `backend/Directory.Build.props`, die SDK-Version und der Testläufer (Microsoft Testing Platform) in `backend/global.json`.
 
 | Projekt | Schicht | Verweist auf |
 |---|---|---|
@@ -81,14 +81,14 @@ Die Rolle wird an der Schnittstelle geprüft, die Region im Datenzugriff. Berech
 
 ## Verständniskette
 
-Eine Freitext-Anfrage durchläuft vier Stufen, die erste Stufe mit einer sicheren Entscheidung gewinnt:
+Vor jeder Einordnung prüfen feste Regeln den Text auf akute gesundheitliche Hinweise. Bei einem Treffer stoppt die Kette und die Plattform zeigt «144 anrufen» ([notfallpruefung.md](notfallpruefung.md)). Danach durchläuft eine Anfrage vier Stufen, die erste Stufe mit einer sicheren Entscheidung gewinnt:
 
 1. Kategorieauswahl durch die hilfesuchende Person
-2. Regeln mit Schlüsselwörtern, darunter die Notfallregeln
+2. Regeln mit Schlüsselwörtern
 3. Maschinelles Lernen (TF-IDF) als Klassifikator
 4. Sprachmodell (Ollama) als Rückfall
 
-Der Weg der Klassifikation wird festgehalten. Bei einem gesundheitlichen Notfall stoppt die Kette und die Plattform zeigt «144 anrufen».
+Der Weg der Klassifikation wird festgehalten.
 
 ## Matching
 

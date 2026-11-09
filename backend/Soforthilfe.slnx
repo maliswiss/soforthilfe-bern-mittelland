@@ -4,4 +4,7 @@
     <Project Path="src/Soforthilfe.Dienste/Soforthilfe.Dienste.csproj" />
     <Project Path="src/Soforthilfe.Datenzugriff/Soforthilfe.Datenzugriff.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Soforthilfe.Tests/Soforthilfe.Tests.csproj" />
+  </Folder>
 </Solution>

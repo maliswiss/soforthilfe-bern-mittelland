@@ -51,6 +51,7 @@ PostGIS läuft als Erweiterung des Datenbankdienstes im eigenen Container und is
 |---|---|---|---|
 | Node.js (node:test) | Schnittstellentests | MIT | https://github.com/nodejs/node |
 | Playwright | Oberflächentests | Apache-2.0 | https://github.com/microsoft/playwright |
+| xUnit v3 mit Microsoft Testing Platform | Einheitentests des Backends | Apache-2.0 | https://github.com/xunit/xunit |
 | Gitleaks | Suche nach Geheimnissen | MIT | https://github.com/gitleaks/gitleaks |
 | OWASP ZAP | Sicherheitsscans | Apache-2.0 | https://github.com/zaproxy/zaproxy |
 

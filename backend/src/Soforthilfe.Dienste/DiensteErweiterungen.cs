@@ -5,6 +5,7 @@ using Soforthilfe.Dienste.Anfragen;
 using Soforthilfe.Dienste.Info;
 using Soforthilfe.Dienste.Kategorien;
 using Soforthilfe.Dienste.Konten;
+using Soforthilfe.Dienste.Notfall;
 using Soforthilfe.Dienste.Regionen;
 
 namespace Soforthilfe.Dienste;
@@ -29,6 +30,9 @@ public static class DiensteErweiterungen
         // Passwort-Hashing ist zustandslos; Konten werden je Anfrage gelesen.
         dienste.AddSingleton<PasswortDienst>();
         dienste.AddScoped<IKontoDienst, KontoDienst>();
+
+        // Die Notfallprüfung arbeitet nur mit festen Regeln und ist zustandslos.
+        dienste.AddSingleton<INotfallPruefung, NotfallPruefung>();
 
         // Kategorien und Anfragen werden je Anfrage aus der Datenbank gelesen.
         dienste.AddScoped<IKategorienDienst, KategorienDienst>();
