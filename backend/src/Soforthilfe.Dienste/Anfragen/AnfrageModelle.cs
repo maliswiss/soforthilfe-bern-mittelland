@@ -42,9 +42,11 @@ public enum AnfrageFehler
     OrtFehlt,
     KategorieUnbekannt,
     PrioritaetUngueltig,
+    Notfall,
 }
 
 /// <summary>
-/// Ergebnis beim Erfassen: entweder eine Anfrage oder ein Fehler.
+/// Ergebnis beim Erfassen: entweder eine Anfrage oder ein Fehler. Beim Notfall-Stopp nennt
+/// «NotfallGrund» das erkannte Wort; die Anfrage wird dann nicht gespeichert.
 /// </summary>
-public sealed record AnfrageErgebnis(AnfrageInfo? Anfrage, AnfrageFehler? Fehler);
+public sealed record AnfrageErgebnis(AnfrageInfo? Anfrage, AnfrageFehler? Fehler, string? NotfallGrund = null);

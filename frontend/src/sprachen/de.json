@@ -34,6 +34,14 @@
     "fuerHelfende": "Für Helfende",
     "anmelden": "Anmelden"
   },
+  "notfall": {
+    "titel": "Bitte sofort 144 anrufen",
+    "text": "Ihre Beschreibung enthält Hinweise auf einen akuten gesundheitlichen Notfall. Die Vermittlung wurde deshalb gestoppt.",
+    "grund": "{grund}",
+    "anrufen": "144 anrufen",
+    "abgrenzung": "Diese Plattform vermittelt keine medizinischen Leistungen. Gesundheitliche Anliegen sind auf Orientierung, Transport und Begleitung begrenzt.",
+    "zurueck": "Zurück zur Startseite"
+  },
   "fuss": {
     "problem": "Problem mit der Anwendung?",
     "servicezeiten": "Servicezeiten Montag bis Freitag, 09 bis 17 Uhr",
@@ -92,7 +100,8 @@
     "vertrauen1": "Helfende werden vor der Vermittlung überprüft und freigegeben.",
     "vertrauen2": "Ihre genaue Adresse und Telefonnummer sehen Helfende erst nach der Zusage.",
     "vertrauen3": "Bei akuten gesundheitlichen Hinweisen stoppt die Vermittlung und verweist auf 144.",
-    "vertrauen4": "Für die Verifizierung werden keine Ausweisdokumente gespeichert."
+    "vertrauen4": "Für die Verifizierung werden keine Ausweisdokumente gespeichert.",
+    "pruefen": "Wird geprüft …"
   },
   "ablauf": {
     "titel": "So funktioniert es",

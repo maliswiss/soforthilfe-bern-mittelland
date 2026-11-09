@@ -5,6 +5,7 @@ using Soforthilfe.Api.Fehlerbehandlung;
 using Soforthilfe.Api.Modelle;
 using Soforthilfe.Dienste.Anfragen;
 using Soforthilfe.Dienste.Konten;
+using Soforthilfe.Dienste.Verstaendnis;
 
 namespace Soforthilfe.Api.Controllers;
 
@@ -13,9 +14,22 @@ namespace Soforthilfe.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/anfragen")]
-public sealed class AnfragenController(IAnfrageDienst anfragen) : ControllerBase
+public sealed class AnfragenController(IAnfrageDienst anfragen, IVerstaendnisDienst verstaendnis) : ControllerBase
 {
     private const string Lesende = Rollen.Hilfesuchende + "," + Rollen.KontenEinsehen;
+
+    // Verständnis-Schritt vor dem Erfassen, auch ohne Anmeldung: zuerst immer die Notfallprüfung.
+    [HttpPost("verstehen")]
+    public async Task<IActionResult> Verstehen(VerstaendnisAnfrage eingabe, CancellationToken abbruch)
+    {
+        if (eingabe.KategorieId is null && string.IsNullOrWhiteSpace(eingabe.Freitext))
+        {
+            return Ungueltig("Anfrage unvollständig", "Bitte eine Kategorie wählen oder das Anliegen beschreiben.", "freitext");
+        }
+
+        var ergebnis = await verstaendnis.VerstehenAsync(eingabe.KategorieId, eingabe.Freitext, abbruch);
+        return Ok(new VerstaendnisAntwort(ergebnis.Notfall, ergebnis.NotfallGrund, ergebnis.NotfallHinweis));
+    }
 
     // Nur Hilfesuchende erfassen eine Anfrage.
     [Authorize(Roles = Rollen.Hilfesuchende)]
@@ -40,6 +54,7 @@ public sealed class AnfragenController(IAnfrageDienst anfragen) : ControllerBase
             AnfrageFehler.PostleitzahlUngueltig => Ungueltig("Postleitzahl ungültig", "Bitte eine vierstellige Postleitzahl angeben.", "plz"),
             AnfrageFehler.OrtFehlt => Ungueltig("Ort fehlt", "Bitte den Ort angeben.", "ort"),
             AnfrageFehler.PrioritaetUngueltig => Ungueltig("Dringlichkeit ungültig", "Zulässig sind tief, mittel und hoch.", "prioritaet"),
+            AnfrageFehler.Notfall => NotfallStopp(ergebnis.NotfallGrund),
             _ => Ungueltig("Kategorie unbekannt", "Unbekannte Kategorie.", "kategorieId"),
         };
     }
@@ -68,6 +83,18 @@ public sealed class AnfragenController(IAnfrageDienst anfragen) : ControllerBase
     private Guid? KontoId() => Guid.TryParse(User.FindFirstValue("sub"), out var id) ? id : null;
 
     private Guid? NurEigene() => User.IsInRole(Rollen.Hilfesuchende) ? KontoId() ?? Guid.Empty : null;
+
+    // Gesundheitlicher Notfall: Status 451, weil die Plattform keine medizinischen Leistungen vermitteln darf.
+    // Die Oberfläche zeigt «notfall», «hinweis» und «grund» auf der Notfallseite an.
+    private ObjectResult NotfallStopp(string? grund)
+    {
+        var antwort = this.Fehler(StatusCodes.Status451UnavailableForLegalReasons, "Notfall-Stopp", NotfallTexte.Hinweis);
+        var problem = (ProblemDetails)antwort.Value!;
+        problem.Extensions["notfall"] = true;
+        problem.Extensions["hinweis"] = NotfallTexte.Hinweis;
+        problem.Extensions["grund"] = grund;
+        return antwort;
+    }
 
     private ObjectResult Ungueltig(string titel, string text, string? feld) =>
         this.Fehler(StatusCodes.Status400BadRequest, titel, text, feld);

@@ -2,7 +2,7 @@
 import { onMounted, ref } from 'vue';
 import { useRouter, RouterLink } from 'vue-router';
 import { useI18n } from 'vue-i18n';
-import { holen } from '../api/klient';
+import { holen, senden } from '../api/klient';
 import { useAnfrageEntwurf } from '../stores/anfrage';
 import { useKonto } from '../stores/konto';
 import HinweisFeld from '../components/HinweisFeld.vue';
@@ -17,6 +17,7 @@ const eingabeart = ref(entwurf.freitext && !entwurf.kategorieId ? 'freitext' : '
 const gewaehlteKategorie = ref(entwurf.kategorieId);
 const freitext = ref(entwurf.freitext);
 const fehler = ref('');
+const laeuft = ref(false);
 
 onMounted(async () => {
   try {
@@ -27,7 +28,8 @@ onMounted(async () => {
 });
 
 // Die Eingabe bleibt im Entwurf; angemeldet geht es direkt weiter, sonst zuerst zur Anmeldung.
-function hilfeFinden() {
+// Vorher prüft die Schnittstelle den Text auf einen gesundheitlichen Notfall.
+async function hilfeFinden() {
   fehler.value = '';
 
   if (eingabeart.value === 'kategorie' && !gewaehlteKategorie.value) {
@@ -38,6 +40,26 @@ function hilfeFinden() {
   if (eingabeart.value === 'freitext' && freitext.value.trim().length < 10) {
     fehler.value = t('start.fehlerFreitext');
     return;
+  }
+
+  laeuft.value = true;
+  try {
+    const ergebnis = await senden('/anfragen/verstehen', {
+      kategorieId: eingabeart.value === 'kategorie' ? gewaehlteKategorie.value : null,
+      freitext: eingabeart.value === 'freitext' ? freitext.value.trim() : null
+    });
+
+    if (ergebnis.notfall) {
+      entwurf.leeren();
+      entwurf.notfallGrund = ergebnis.notfallGrund;
+      router.push({ name: 'notfall' });
+      return;
+    }
+  } catch (problem) {
+    fehler.value = problem.message;
+    return;
+  } finally {
+    laeuft.value = false;
   }
 
   const kategorie = kategorien.value.find((k) => k.id === gewaehlteKategorie.value);
@@ -134,8 +156,8 @@ function hilfeFinden() {
 
       <HinweisFeld v-if="fehler" art="fehler" :meldung="fehler" class="mt-4" />
 
-      <button type="button" class="knopf mt-5 w-full" @click="hilfeFinden">
-        {{ t('start.hilfeFinden') }}
+      <button type="button" class="knopf mt-5 w-full" :disabled="laeuft" @click="hilfeFinden">
+        {{ laeuft ? t('start.pruefen') : t('start.hilfeFinden') }}
       </button>
 
       <p class="mt-3 text-xs text-grau">

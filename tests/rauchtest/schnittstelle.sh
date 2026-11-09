@@ -70,6 +70,14 @@ erwarte "Erfasste Anfrage ist offen" 1 "$(jq -r '.status' "$ANTWORT")"
 erwarte "Eigene Anfragen auflisten" 200 "$(status -H "Authorization: Bearer $token" "$BASIS/api/anfragen/meine")"
 erwarte "Eine eigene Anfrage" 1 "$(jq 'length' "$ANTWORT")"
 
+echo "== Notfall-Stopp"
+notfall_text='{"freitext":"Mein Mann ist bewusstlos auf dem Boden."}'
+erwarte "Notfallprüfung ohne Anmeldung" 200 "$(status "${json[@]}" -d "$notfall_text" "$BASIS/api/anfragen/verstehen")"
+erwarte "Notfall erkannt" true "$(jq '.notfall' "$ANTWORT")"
+notfall_anfrage='{"freitext":"Mein Mann ist bewusstlos auf dem Boden.","plz":"3011","ort":"Bern"}'
+erwarte "Anfrage mit Notfall wird gestoppt" 451 "$(status "${json[@]}" -H "Authorization: Bearer $token" -d "$notfall_anfrage" "$BASIS/api/anfragen")"
+erwarte "Weiterhin eine einzige eigene Anfrage" 1 "$(status -H "Authorization: Bearer $token" "$BASIS/api/anfragen/meine" > /dev/null; jq 'length' "$ANTWORT")"
+
 echo "== Rollen und Berechtigungen"
 if [ -z "${TESTDATEN_PASSWORT:-}" ]; then
   echo "übersprungen: TESTDATEN_PASSWORT ist nicht gesetzt"

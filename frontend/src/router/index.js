@@ -24,6 +24,7 @@ const routen = [
     meta: { anmeldung: true }
   },
   { path: '/so-funktioniert-es', name: 'ablauf', component: () => import('../views/AblaufView.vue') },
+  { path: '/notfall', name: 'notfall', component: () => import('../views/NotfallView.vue') },
   // Unbekannte Pfade führen zur Startseite
   { path: '/:pfad(.*)*', redirect: { name: 'startseite' } }
 ];

@@ -14,3 +14,13 @@ public sealed record AnfrageErstellen(
     [StringLength(250)] string? Adresse = null,
     [StringLength(120)] string? Zeitfenster = null,
     int Prioritaet = 1);
+
+/// <summary>
+/// Eingabe für den Verständnis-Schritt vor dem Erfassen: Kategorie, Freitext oder beides.
+/// </summary>
+public sealed record VerstaendnisAnfrage(Guid? KategorieId, [StringLength(2000)] string? Freitext);
+
+/// <summary>
+/// Antwort des Verständnis-Schritts. Bei «Notfall» ist die Vermittlung gestoppt.
+/// </summary>
+public sealed record VerstaendnisAntwort(bool Notfall, string? NotfallGrund, string? NotfallHinweis);

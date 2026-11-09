@@ -9,7 +9,9 @@ export const useAnfrageEntwurf = defineStore('anfrageEntwurf', {
     freitext: '',
     prioritaet: 1,
     plz: '',
-    ort: ''
+    ort: '',
+    // Erkanntes Wort beim Notfall-Stopp; bleibt nur im Speicher der Seite, nie in der Adresse
+    notfallGrund: null
   }),
 
   getters: {

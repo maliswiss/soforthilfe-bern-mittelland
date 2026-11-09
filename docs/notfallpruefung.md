@@ -19,6 +19,16 @@ Die Plattform vermittelt keine medizinischen Leistungen. Jede Beschreibung in ei
 2. Die Begriffsliste wird der Reihe nach geprüft ([`NotfallPruefung.cs`](../backend/src/Soforthilfe.Dienste/Notfall/NotfallPruefung.cs)). Kurze Begriffe bis fünf Buchstaben (zum Beispiel «avc», «wehen») zählen nur als ganzes Wort, längere auch innerhalb zusammengesetzter Wörter (zum Beispiel «Herzinfarktverdacht»).
 3. Der erste Treffer wird als Fundstelle so zurückgegeben, wie die Person ihn geschrieben hat.
 
+## Notfall-Stopp
+
+| Stelle | Verhalten |
+|---|---|
+| Startseite, «Hilfe finden» | `POST /api/anfragen/verstehen` prüft den Text auch ohne Anmeldung; bei einem Treffer öffnet die Oberfläche die Notfallseite |
+| Anfrage erfassen | `POST /api/anfragen` prüft den Text erneut; bei einem Treffer wird nichts gespeichert, Antwort `451` |
+| Notfallseite | «Bitte sofort 144 anrufen», das erkannte Wort, ein Anrufknopf (`tel:144`) und die Abgrenzung: keine medizinischen Leistungen, gesundheitliche Anliegen nur für Orientierung, Transport und Begleitung |
+
+Das erkannte Wort steht nur im Speicher der Seite und nie in der Adresse, damit es weder im Browserverlauf noch in Zugriffsprotokollen landet.
+
 ## Begriffe
 
 | Bereich | Beispiele |

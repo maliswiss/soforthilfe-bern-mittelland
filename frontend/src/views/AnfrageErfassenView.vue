@@ -62,6 +62,13 @@ async function absenden() {
     entwurf.leeren();
     router.push({ name: 'anfrage', params: { id: anfrage.id } });
   } catch (problem) {
+    // Gesundheitlicher Notfall: nicht vermitteln, sondern auf 144 verweisen
+    if (problem.status === 451) {
+      entwurf.leeren();
+      entwurf.notfallGrund = problem.daten?.grund ?? null;
+      router.push({ name: 'notfall' });
+      return;
+    }
     fehler.value = problem.message;
   } finally {
     laeuft.value = false;

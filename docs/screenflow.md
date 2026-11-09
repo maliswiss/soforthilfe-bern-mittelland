@@ -20,7 +20,9 @@ flowchart TD
     S["Startseite"] --> I{"Eingabeart"}
     I -->|"Kategorie wählen"| H["Hilfe finden"]
     I -->|"Frei beschreiben"| H
-    H --> A{"Angemeldet?"}
+    H --> N{"Notfall-<br/>hinweis?"}
+    N -->|"Ja"| NF["Notfallseite<br/>144 anrufen"]
+    N -->|"Nein"| A{"Angemeldet?"}
     A -->|"Nein"| AN["Anmeldung oder Registrierung<br/>mit Regionswahl"]
     AN --> E
     A -->|"Ja"| E["Wo und wann?<br/>Postleitzahl, Ort, Adresse, Zeitfenster"]
@@ -41,6 +43,7 @@ Die Eingabe der Startseite bleibt während Anmeldung oder Registrierung im Entwu
 | 05 | Anfrage | `/anfragen/:id` | angemeldet | Kategorie, Status, Dringlichkeit, Ort, Beschreibung, kostenlos oder kostenpflichtig |
 | 06 | Meine Anfragen | `/anfragen` | angemeldet | eigene Anfragen, neueste zuerst |
 | 07 | So funktioniert es | `/so-funktioniert-es` | offen | Ablauf in vier Schritten und Abgrenzung |
+| 08 | Notfall | `/notfall` | offen | Notfall-Stopp: «Bitte sofort 144 anrufen», Anrufknopf und Abgrenzung |
 
 ## Navigation
 

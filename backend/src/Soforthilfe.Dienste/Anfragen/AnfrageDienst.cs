@@ -3,13 +3,18 @@ using Microsoft.EntityFrameworkCore;
 using Soforthilfe.Datenzugriff;
 using Soforthilfe.Datenzugriff.Mandanten;
 using Soforthilfe.Datenzugriff.Modell;
+using Soforthilfe.Dienste.Notfall;
+using Soforthilfe.Dienste.Verstaendnis;
 
 namespace Soforthilfe.Dienste.Anfragen;
 
 /// <summary>
 /// Erfasst Anfragen in der Region der laufenden Anfrage und liest sie wieder.
 /// </summary>
-public sealed partial class AnfrageDienst(SoforthilfeDbContext datenbank, IMandantenKontext mandant) : IAnfrageDienst
+public sealed partial class AnfrageDienst(
+    SoforthilfeDbContext datenbank,
+    IMandantenKontext mandant,
+    INotfallPruefung notfallPruefung) : IAnfrageDienst
 {
     // Schweizer Postleitzahlen sind vierstellig und beginnen nicht mit 0.
     [GeneratedRegex("^[1-9][0-9]{3}$")]
@@ -27,6 +32,13 @@ public sealed partial class AnfrageDienst(SoforthilfeDbContext datenbank, IManda
         if (daten.KategorieId is null && freitext is null)
         {
             return new AnfrageErgebnis(null, AnfrageFehler.InhaltFehlt);
+        }
+
+        // Gesundheitlicher Notfall: nicht speichern und nicht vermitteln, sondern auf 144 verweisen.
+        var notfall = notfallPruefung.Pruefen(freitext);
+        if (notfall.IstNotfall)
+        {
+            return new AnfrageErgebnis(null, AnfrageFehler.Notfall, NotfallTexte.Grund(notfall.Schluesselwort));
         }
 
         var plz = daten.Plz.Trim();

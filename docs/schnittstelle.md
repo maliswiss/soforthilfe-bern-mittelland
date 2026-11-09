@@ -14,7 +14,8 @@ Die Schnittstelle ist eine REST-API unter `/api`. Sie spricht JSON; Feldnamen be
 | GET | `/api/auth/ich` | angemeldet | Angaben zum eigenen Konto |
 | GET | `/api/kategorien` | offen | Kategorien der Startseite; `?bezahlpflichtig=false` oder `=true` filtert |
 | GET | `/api/skills` | offen | Fähigkeiten, die Helfende anbieten können |
-| POST | `/api/anfragen` | Hilfesuchende | Anfrage erfassen |
+| POST | `/api/anfragen/verstehen` | offen | Verständnis-Schritt vor dem Erfassen, zuerst immer die Notfallprüfung |
+| POST | `/api/anfragen` | Hilfesuchende | Anfrage erfassen; bei einem gesundheitlichen Notfall `451` statt Speicherung |
 | GET | `/api/anfragen/meine` | Hilfesuchende | eigene Anfragen, neueste zuerst |
 | GET | `/api/anfragen` | Hilfesuchende (eigene), Koordination, Mandantenadministration, Plattformbetrieb | Anfragen der Region |
 | GET | `/api/anfragen/{id}` | wie oben | einzelne Anfrage; fremde Anfragen liefern `404` |
@@ -74,6 +75,24 @@ Content-Type: application/json
 
 Antwort `201` mit der Anfrage: `id`, `kategorieId`, `kategorieBezeichnung`, `freitext`, `plz`, `ort`, `adresse`, `zeitfenster`, `prioritaet`, `status`, `erstelltAm` und `bezahlpflichtig`.
 
+## Notfall-Stopp
+
+```
+POST /api/anfragen/verstehen
+Content-Type: application/json
+
+{ "freitext": "Mein Mann ist bewusstlos auf dem Boden." }
+```
+
+Antwort `200`:
+
+```
+{ "notfall": true, "notfallGrund": "Erkanntes Schlüsselwort: bewusstlos",
+  "notfallHinweis": "Bitte sofort 144 anrufen. Diese Plattform vermittelt keine medizinischen Leistungen." }
+```
+
+Ohne Hinweis auf einen Notfall sind `notfall` falsch und die beiden Texte `null`. Enthält der Freitext beim Erfassen (`POST /api/anfragen`) einen Notfallhinweis, wird die Anfrage nicht gespeichert; die Antwort ist `451` mit `notfall`, `hinweis` und `grund`. Der Status 451 steht dafür, dass die Plattform aus rechtlichen Gründen keine medizinischen Leistungen vermittelt. Regeln und Testfälle: [notfallpruefung.md](notfallpruefung.md).
+
 ## Zahlenwerte
 
 | Feld | Werte |
@@ -106,6 +125,7 @@ Jeder Fehler ist ein Problem-Dokument (`application/problem+json`) mit zwei zus�
 | `403` | Rolle fehlt oder Kopf `X-Region` passt nicht zum Konto |
 | `404` | nicht vorhanden, auch für Daten einer fremden Region |
 | `409` | E-Mail-Adresse oder Region besteht bereits |
+| `451` | Notfall-Stopp: Hinweis auf einen gesundheitlichen Notfall, die Anfrage wird nicht vermittelt |
 | `500` | interner Fehler, ohne technische Details, mit Verfolgungsnummer |
 
 ## Sicherheitsverhalten
