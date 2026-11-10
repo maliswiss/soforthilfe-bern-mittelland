@@ -13,4 +13,8 @@ public sealed class Region
     public required string Name { get; set; }
 
     public bool Aktiv { get; set; } = true;
+
+    // Gemeinden der Region als BFS-Gemeindenummern. Über die Postleitzahl ergibt sich daraus die Region einer Person.
+    // Eine Gemeinde gehört zu höchstens einer Region.
+    public int[] Gemeinden { get; set; } = [];
 }

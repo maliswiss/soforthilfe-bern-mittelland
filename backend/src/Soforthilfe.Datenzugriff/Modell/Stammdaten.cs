@@ -20,9 +20,20 @@ public static class Stammdaten
     public static readonly Guid KategorieNachbarschaftshilfe = Guid.Parse("c87f69fb-01f1-4a32-9891-a7f31d9ffa20");
     public static readonly Guid KategorieBegleitung = Guid.Parse("01af187a-c8fa-47fa-a425-4b3b63c260a3");
 
+    // Gemeinden des Verwaltungskreises Bern-Mittelland (74 Gemeinden, BFS-Nummern), abgeglichen mit dem
+    // amtlichen Ortschaftenverzeichnis vom 01.09.2026.
+    public static readonly int[] GemeindenBernMittelland =
+    [
+        307, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 403,
+        535, 538, 540, 541, 543, 544, 546, 551, 553, 557, 602, 603, 605, 606, 607,
+        608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 619, 620, 622, 623, 626,
+        627, 628, 629, 630, 632, 662, 663, 665, 666, 667, 668, 669, 670, 671, 852,
+        853, 855, 861, 866, 868, 869, 870, 872, 877, 879, 880, 884, 888, 889,
+    ];
+
     public static Region[] Regionen =>
     [
-        new() { Id = RegionBernMittelland, Kennung = "bern-mittelland", Name = "Soforthilfe Bern/Mittelland", Aktiv = true },
+        new() { Id = RegionBernMittelland, Kennung = "bern-mittelland", Name = "Soforthilfe Bern/Mittelland", Aktiv = true, Gemeinden = GemeindenBernMittelland },
     ];
 
     // Reihenfolge wie auf der Startseite. Nachbarschaftshilfe sowie Begleitung und Orientierung bleiben kostenlos;

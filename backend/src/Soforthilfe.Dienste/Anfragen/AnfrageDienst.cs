@@ -4,6 +4,7 @@ using Soforthilfe.Datenzugriff;
 using Soforthilfe.Datenzugriff.Mandanten;
 using Soforthilfe.Datenzugriff.Modell;
 using Soforthilfe.Dienste.Notfall;
+using Soforthilfe.Dienste.Orte;
 using Soforthilfe.Dienste.Protokoll;
 using Soforthilfe.Dienste.Verstaendnis;
 
@@ -16,7 +17,8 @@ public sealed partial class AnfrageDienst(
     SoforthilfeDbContext datenbank,
     IMandantenKontext mandant,
     INotfallPruefung notfallPruefung,
-    IProtokollDienst protokoll) : IAnfrageDienst
+    IProtokollDienst protokoll,
+    IOrtDienst orte) : IAnfrageDienst
 {
     // Schweizer Postleitzahlen sind vierstellig und beginnen nicht mit 0.
     [GeneratedRegex("^[1-9][0-9]{3}$")]
@@ -56,6 +58,15 @@ public sealed partial class AnfrageDienst(
         if (ort is null)
         {
             return new AnfrageErgebnis(null, AnfrageFehler.OrtFehlt);
+        }
+
+        // Die Postleitzahl muss im Ortschaftenverzeichnis stehen und eine Gemeinde der Region berühren.
+        switch (await orte.PruefeFuerRegionAsync(plz, region, abbruch))
+        {
+            case PlzPruefung.Unbekannt:
+                return new AnfrageErgebnis(null, AnfrageFehler.PostleitzahlUnbekannt);
+            case PlzPruefung.AndereRegion:
+                return new AnfrageErgebnis(null, AnfrageFehler.PostleitzahlAusserhalbRegion);
         }
 
         if (!Enum.IsDefined(typeof(Prioritaet), daten.Prioritaet))

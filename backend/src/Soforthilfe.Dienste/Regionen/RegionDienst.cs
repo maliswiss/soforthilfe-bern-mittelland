@@ -42,21 +42,30 @@ public sealed class RegionDienst(SoforthilfeDbContext datenbank, IMandantenKonte
 
     public void SetzeUebergreifend() => mandant.SetzeUebergreifend();
 
-    public async Task<RegionInfo?> AnlegenAsync(string kennung, string name, CancellationToken abbruch)
+    public async Task<RegionErgebnis> AnlegenAsync(string kennung, string name, IReadOnlyCollection<int> gemeinden,
+        CancellationToken abbruch)
     {
         var normiert = Normiere(kennung);
 
         // Kennungen sind eindeutig; eine bestehende Region wird nie überschrieben.
         if (await datenbank.Regionen.AnyAsync(r => r.Kennung == normiert, abbruch))
         {
-            return null;
+            return new RegionErgebnis(null, RegionFehler.KennungVergeben);
         }
 
-        var region = new Region { Id = Guid.NewGuid(), Kennung = normiert, Name = name.Trim(), Aktiv = true };
+        // Eine Gemeinde gehört zu höchstens einer Region, damit die Postleitzahl die Region eindeutig bestimmt.
+        var neue = gemeinden.Distinct().Order().ToArray();
+        var vergeben = await datenbank.Regionen.AsNoTracking().Select(r => r.Gemeinden).ToListAsync(abbruch);
+        if (vergeben.Any(bestehende => bestehende.Intersect(neue).Any()))
+        {
+            return new RegionErgebnis(null, RegionFehler.GemeindenVergeben);
+        }
+
+        var region = new Region { Id = Guid.NewGuid(), Kennung = normiert, Name = name.Trim(), Aktiv = true, Gemeinden = neue };
         datenbank.Regionen.Add(region);
         await datenbank.SaveChangesAsync(abbruch);
 
-        return new RegionInfo(region.Kennung, region.Name);
+        return new RegionErgebnis(new RegionInfo(region.Kennung, region.Name), null);
     }
 
     private static string Normiere(string kennung) => kennung.Trim().ToLowerInvariant();

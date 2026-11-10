@@ -116,6 +116,8 @@ jobs:
           # Die Oberfläche kommt von nginx, mit den Sicherheitsköpfen.
           curl -ksf https://localhost/ | grep -q '<div id="app">'
           curl -ksI https://localhost/ | grep -qi '^content-security-policy:'
+          # Das Ortschaftenverzeichnis ist im Image enthalten und beim Start eingelesen.
+          curl -ksf 'https://localhost/api/orte?plz=3011' | grep -q '"ort":"Bern"'
           # HTTP wird auf HTTPS umgeleitet.
           status=$(curl -s -o /dev/null -w '%{http_code}' http://localhost/)
           test "$status" = "301" -o "$status" = "308"

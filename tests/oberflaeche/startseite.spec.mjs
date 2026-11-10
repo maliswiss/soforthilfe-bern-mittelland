@@ -1,7 +1,7 @@
-// Oberflächentests: Startseite, Notfallband und Regionswahl.
+// Oberflächentests: Startseite, Notfallband, Fusszeile und Region aus der Postleitzahl.
 
 import { test, expect } from '@playwright/test';
-import { konsoleBeobachten, erwarteKeineFehler } from './hilfen.mjs';
+import { konsoleBeobachten, erwarteKeineFehler, registrieren, OHNE_TESTPASSWORT } from './hilfen.mjs';
 
 test('Notfallband mit 144 steht auf jeder Seite', async ({ page }) => {
   for (const pfad of ['/', '/anmeldung', '/registrierung', '/so-funktioniert-es']) {
@@ -35,17 +35,23 @@ test('Ohne Auswahl oder mit zu kurzem Text erscheint ein Hinweis', async ({ page
   await expect(page.getByRole('alert')).toHaveText('Bitte beschreiben Sie Ihr Anliegen in einem kurzen Satz.');
 });
 
-test('Regionswahl bietet die aktiven Regionen an und merkt sich die Auswahl', async ({ page }) => {
+test('Keine Regionswahl: die Region folgt aus der Postleitzahl der Registrierung', { tag: '@testdaten' }, async ({ page }) => {
+  test.skip(OHNE_TESTPASSWORT, 'Die Region Biel/Seeland kommt mit den Testdaten');
   await page.goto('/');
-  const auswahl = page.locator('#region-kopf');
-  await expect(auswahl.locator('option[value="bern-mittelland"]')).toHaveText('Bern/Mittelland');
-  await expect(auswahl.locator('option[value="biel-seeland"]')).toHaveText('Biel/Seeland');
+  await expect(page.getByRole('combobox')).toHaveCount(0);
 
-  await auswahl.selectOption('biel-seeland');
-  await expect(page.getByRole('link', { name: /Soforthilfe/ }).first()).toContainText('Biel/Seeland');
-  await page.reload();
-  await expect(page.locator('#region-kopf')).toHaveValue('biel-seeland');
-  await page.locator('#region-kopf').selectOption('bern-mittelland');
+  await page.goto('/registrierung');
+  await registrieren(page, { plz: '2502', ort: 'Biel/Bienne' });
+  await expect(page).toHaveURL(/\/anfragen$/);
+  await expect(page.getByRole('banner')).toContainText('Biel/Seeland');
+  await page.getByRole('button', { name: 'Abmelden' }).click();
+});
+
+test('Postleitzahl ausserhalb der Regionen wird bei der Registrierung erklärt', async ({ page }) => {
+  await page.goto('/registrierung');
+  await registrieren(page, { plz: '8001', ort: 'Zürich' });
+  await expect(page.getByRole('alert')).toHaveText('Für die Postleitzahl 8001 gibt es noch keine Region auf der Plattform.');
+  await expect(page).toHaveURL(/\/registrierung/);
 });
 
 test('Fusszeile nennt die Quelle der Ortsdaten', async ({ page }) => {

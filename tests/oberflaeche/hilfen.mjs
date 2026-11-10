@@ -27,22 +27,22 @@ export async function anliegenBeschreiben(seite, text) {
   await seite.getByRole('button', { name: 'Hilfe finden' }).click();
 }
 
-/// Registrierung mit gültigen Angaben; danach ist die Person angemeldet.
-export async function registrieren(seite, { adresse = neueAdresse(), telefon = '031 123 45 67' } = {}) {
+/// Registrierung mit gültigen Angaben; danach ist die Person angemeldet. Die Postleitzahl bestimmt die Region,
+/// den Ort ergänzt das Ortschaftenverzeichnis.
+export async function registrieren(seite, { adresse = neueAdresse(), telefon = '031 123 45 67', plz = '3011', ort = 'Bern' } = {}) {
   await seite.getByLabel('Name', { exact: true }).fill('Oberfläche Testperson');
   await seite.getByLabel('E-Mail-Adresse').fill(adresse);
   await seite.getByLabel('Telefonnummer').fill(telefon);
+  await seite.getByLabel('Postleitzahl').fill(plz);
+  await expect(seite.getByLabel('Ort', { exact: true })).toHaveValue(ort);
   await seite.getByLabel('Passwort, mindestens zehn Zeichen').fill('oberflaeche-passwort-123');
   await seite.getByRole('button', { name: 'Konto erstellen' }).click();
   return adresse;
 }
 
-/// Anmeldung über das Formular; die Region wird vorher gewählt, falls angegeben.
-export async function anmelden(seite, adresse, passwort, region) {
+/// Anmeldung über das Formular; die Region ergibt sich aus dem Konto.
+export async function anmelden(seite, adresse, passwort) {
   await seite.goto('/anmeldung');
-  if (region) {
-    await seite.locator('#region-anmeldung').selectOption(region);
-  }
   await seite.getByLabel('E-Mail-Adresse').fill(adresse);
   await seite.getByLabel('Passwort').fill(passwort);
   await seite.locator('form button[type=submit]').click();

@@ -25,10 +25,14 @@ public sealed class MandantenController(IRegionDienst regionen) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Anlegen(NeuerMandant eingabe, CancellationToken abbruch)
     {
-        var region = await regionen.AnlegenAsync(eingabe.Schluessel, eingabe.Name, abbruch);
+        var ergebnis = await regionen.AnlegenAsync(eingabe.Schluessel, eingabe.Name, eingabe.Gemeinden ?? [], abbruch);
 
-        return region is null
-            ? this.Fehler(StatusCodes.Status409Conflict, "Region besteht", "Diese Region besteht bereits.", "schluessel")
-            : Created("/api/mandanten", MandantAntwort.Aus(region));
+        return ergebnis.Fehler switch
+        {
+            null => Created("/api/mandanten", MandantAntwort.Aus(ergebnis.Region!)),
+            RegionFehler.GemeindenVergeben => this.Fehler(StatusCodes.Status409Conflict, "Gemeinden vergeben",
+                "Mindestens eine Gemeinde gehört bereits zu einer anderen Region.", "gemeinden"),
+            _ => this.Fehler(StatusCodes.Status409Conflict, "Region besteht", "Diese Region besteht bereits.", "schluessel"),
+        };
     }
 }

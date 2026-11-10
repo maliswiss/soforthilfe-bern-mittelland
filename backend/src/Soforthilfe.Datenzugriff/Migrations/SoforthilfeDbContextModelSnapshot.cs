@@ -414,6 +414,10 @@ namespace Soforthilfe.Datenzugriff.Migrations
                     b.Property<bool>("Aktiv")
                         .HasColumnType("boolean");
 
+                    b.PrimitiveCollection<int[]>("Gemeinden")
+                        .IsRequired()
+                        .HasColumnType("integer[]");
+
                     b.Property<string>("Kennung")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -436,6 +440,7 @@ namespace Soforthilfe.Datenzugriff.Migrations
                         {
                             Id = new Guid("9abd0c6c-da62-4469-99e0-cf9406a99ac6"),
                             Aktiv = true,
+                            Gemeinden = new[] { 307, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361, 362, 363, 403, 535, 538, 540, 541, 543, 544, 546, 551, 553, 557, 602, 603, 605, 606, 607, 608, 609, 610, 611, 612, 613, 614, 615, 616, 617, 619, 620, 622, 623, 626, 627, 628, 629, 630, 632, 662, 663, 665, 666, 667, 668, 669, 670, 671, 852, 853, 855, 861, 866, 868, 869, 870, 872, 877, 879, 880, 884, 888, 889 },
                             Kennung = "bern-mittelland",
                             Name = "Soforthilfe Bern/Mittelland"
                         });

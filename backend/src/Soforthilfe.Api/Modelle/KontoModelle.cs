@@ -13,7 +13,7 @@ public enum Kontoart
 }
 
 /// <summary>
-/// Eingabe für die Registrierung. Mandant ist die Kennung der gewählten Region.
+/// Eingabe für die Registrierung. Mandant ist die Kennung der Region, die die Oberfläche aus der Postleitzahl bestimmt.
 /// Die Prüfung der Felder erfolgt vor dem Aufruf des Controllers.
 /// </summary>
 public sealed record RegistrierungAnfrage(
@@ -25,12 +25,12 @@ public sealed record RegistrierungAnfrage(
     [StringLength(50)] string Mandant = "bern-mittelland");
 
 /// <summary>
-/// Eingabe für die Anmeldung in der gewählten Region.
+/// Eingabe für die Anmeldung. Ohne «mandant» gilt die Region des Kontos; mit «mandant» muss sie dazu passen.
 /// </summary>
 public sealed record AnmeldungAnfrage(
     [Required, StringLength(254)] string EMail,
     [Required, StringLength(128)] string Passwort,
-    [StringLength(50)] string Mandant = "bern-mittelland");
+    [StringLength(50)] string? Mandant = null);
 
 /// <summary>
 /// Antwort auf Registrierung und Anmeldung: Token, Ablauf und Angaben zum Konto.

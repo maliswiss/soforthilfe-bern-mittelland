@@ -201,7 +201,7 @@ public sealed class SoforthilfeDbContext : DbContext
                     region = anfrage.RegionId;
                     break;
                 case Protokolleintrag protokoll:
-                    // Ein Notfall-Stopp vor der Regionswahl wird ohne Region protokolliert.
+                    // Ein Notfall-Stopp ohne Anmeldung und Referenzdaten werden ohne Region protokolliert.
                     if (protokoll.RegionId != _mandant.RegionId)
                     {
                         throw new MandantenVerletzung("Schreibzugriff ausserhalb der Region der Anfrage.");

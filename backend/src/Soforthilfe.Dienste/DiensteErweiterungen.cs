@@ -6,6 +6,7 @@ using Soforthilfe.Dienste.Info;
 using Soforthilfe.Dienste.Kategorien;
 using Soforthilfe.Dienste.Konten;
 using Soforthilfe.Dienste.Notfall;
+using Soforthilfe.Dienste.Orte;
 using Soforthilfe.Dienste.Protokoll;
 using Soforthilfe.Dienste.Regionen;
 using Soforthilfe.Dienste.Verstaendnis;
@@ -41,6 +42,7 @@ public static class DiensteErweiterungen
 
         // Kategorien und Anfragen werden je Anfrage aus der Datenbank gelesen.
         dienste.AddScoped<IKategorienDienst, KategorienDienst>();
+        dienste.AddScoped<IOrtDienst, OrtDienst>();
         dienste.AddScoped<IAnfrageDienst, AnfrageDienst>();
         dienste.AddScoped<IVerstaendnisDienst, VerstaendnisDienst>();
 

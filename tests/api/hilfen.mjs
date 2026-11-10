@@ -66,7 +66,7 @@ export async function neuesKonto(mandant = BERN, kontoart = HILFESUCHENDE, zusat
   return { adresse, passwort, token: registrierung.inhalt.token, konto: registrierung.inhalt.benutzer };
 }
 
-/** Meldet ein Konto in der gewählten Region an und liefert das Token. */
+/** Meldet ein Konto in der angegebenen Region an und liefert das Token. */
 export async function anmelden(adresse, passwort, mandant = BERN) {
   const antwort = await aufruf('POST', '/api/auth/anmeldung', { daten: { eMail: adresse, passwort, mandant } });
   if (antwort.status !== 200) {

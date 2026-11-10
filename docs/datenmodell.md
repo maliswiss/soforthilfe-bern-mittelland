@@ -21,6 +21,7 @@ erDiagram
     text Kennung UK
     text Name
     bool Aktiv
+    int[] Gemeinden
   }
   KONTO {
     uuid Id PK
@@ -94,14 +95,14 @@ erDiagram
 
 | Tabelle | Inhalt | Region |
 |---|---|---|
-| `Regionen` | Mandanten der Plattform | ist selbst die Region |
+| `Regionen` | Mandanten der Plattform mit ihren Gemeinden (BFS-Nummern) | ist selbst die Region |
 | `Konten` | Personen mit Rolle, E-Mail-Adresse, Passwort-Hash und freiwilliger Telefonnummer | genau eine; der Plattformbetrieb hat keine |
 | `Kategorien` | Kategorien der Startseite, kostenlos oder kostenpflichtig | für alle Regionen gleich |
 | `Skills` | Fähigkeiten je Kategorie | für alle Regionen gleich |
 | `Helferprofile` | Einsatzgebiet, Radius und Fähigkeiten helfender Personen | genau eine |
 | `HelferprofilSkills` | Zuordnung Profil zu Fähigkeit | über das Profil |
 | `Anfragen` | Anliegen mit Kategorie und/oder Freitext, Ort, Zeitfenster, Dringlichkeit und Status | genau eine |
-| `Protokoll` | Sicherheitsrelevante Vorgänge wie der Notfall-Stopp, ohne Personendaten | eine oder keine (vor der Regionswahl) |
+| `Protokoll` | Sicherheitsrelevante Vorgänge wie der Notfall-Stopp, ohne Personendaten | eine oder keine (ohne Anmeldung) |
 | `Ortschaften` | Amtliches Ortschaftenverzeichnis von swisstopo: Postleitzahl, Ortschaft, Gemeinde mit Adressenanteil, Kanton und Punkt | für alle Regionen gleich |
 
 ## Stammdaten
@@ -110,7 +111,7 @@ Stammdaten kommen mit festen Kennungen über die Migrationen in jede Datenbank.
 
 | Art | Inhalt |
 |---|---|
-| Region | `bern-mittelland` (Soforthilfe Bern/Mittelland) |
+| Region | `bern-mittelland` (Soforthilfe Bern/Mittelland) mit den 74 Gemeinden des Verwaltungskreises Bern-Mittelland |
 | Kategorien, kostenpflichtig | Schlüsseldienst, Kleine Reparatur, Sanitär/Heizung/Elektro, Panne und Abschleppdienst, Transport- und Umzugshilfe, IT- und Handy-Soforthilfe, Reinigung nach Schäden, Lieferung Apotheke und Einkauf |
 | Kategorien, kostenlos | Nachbarschaftshilfe, Begleitung und Orientierung |
 | Fähigkeiten | je Kategorie eine Fähigkeit mit derselben Kennung |
@@ -131,6 +132,7 @@ Weitere Regionen entstehen im laufenden Betrieb als Daten (`POST /api/mandanten`
 | 8 | Nur der Passwort-Hash wird gespeichert | kein Klartext, auch nicht in Testdaten |
 | 9 | `Protokoll` ohne Konto, IP-Adresse und Eingaben; das Detail nennt nur den Begriff aus der festen Liste | Nachvollziehbarkeit ohne Personendaten; Einträge ohne Region sieht nur der Plattformbetrieb |
 | 10 | `Ortschaften` übernimmt jede Zeile des Verzeichnisses, auch mehrere Gemeinden je Ortschaft | der Adressenanteil zeigt, ob eine Postleitzahl mehrere Gemeinden berührt; Punkte als `geography` mit räumlichem Index |
+| 11 | `Regionen.Gemeinden` als Liste von BFS-Gemeindenummern; eine Gemeinde gehört zu höchstens einer Region | die Postleitzahl bestimmt über ihre Gemeinden die Region; keine Regionswahl in der Oberfläche |
 
 ## Testdaten
 

@@ -43,6 +43,8 @@ public enum AnfrageFehler
     KategorieUnbekannt,
     PrioritaetUngueltig,
     Notfall,
+    PostleitzahlUnbekannt,
+    PostleitzahlAusserhalbRegion,
 }
 
 /// <summary>

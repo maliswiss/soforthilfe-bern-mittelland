@@ -109,7 +109,7 @@ Vue 3 mit Vite, Tailwind CSS und PWA, Zustand mit Pinia, Texte über vue-i18n. A
 | Ordner | Inhalt |
 |---|---|
 | `frontend/src/views` | Eine Ansicht je Seite, angebunden über `src/router/index.js` |
-| `frontend/src/components` | Wiederverwendbare Teile wie Regionswahl, Hinweise, Status- und Dringlichkeitsmarke |
+| `frontend/src/components` | Wiederverwendbare Teile wie Postleitzahl und Ort, Hinweise, Status- und Dringlichkeitsmarke |
 | `frontend/src/stores` | Pinia: Konto und Sitzung (`konto.js`), Entwurf der Anfrage (`anfrage.js`) |
 | `frontend/src/api` | Aufruf der Schnittstelle (`klient.js`), Prüfung der Mehrwertnummern, sichere Weiterleitung nach der Anmeldung |
 | `frontend/src/sprachen` | Alle Oberflächentexte in `de.json`; Zugriff nur über `t('bereich.schluessel')` |
@@ -118,7 +118,7 @@ Vue 3 mit Vite, Tailwind CSS und PWA, Zustand mit Pinia, Texte über vue-i18n. A
 - In der Entwicklung leitet Vite `/api` und `/health` an die Schnittstelle weiter; die Oberfläche läuft damit wie im Betrieb unter demselben Ursprung.
 - Die PWA speichert nur die Oberfläche zwischen, nie Antworten der Schnittstelle.
 - Schriften (Archivo, Source Sans 3) werden mit der Anwendung ausgeliefert; die Oberfläche lädt nichts von fremden Servern (Content-Security-Policy nur für den eigenen Ursprung, `frontend/csp.js` für die Vorschau, `frontend/nginx-sicherheit.conf` im Container).
-- Die Region wählt die Person vor der Anmeldung; Registrierung und Anmeldung senden sie im Feld `mandant`, danach gilt die Region aus dem Token.
+- Die Region wählt die Person nicht: Bei der Registrierung folgt sie aus der Postleitzahl (`GET /api/orte`) und wird im Feld `mandant` gesendet; die Anmeldung braucht keine Region, danach gilt die Region aus dem Token.
 - Token und Konto liegen im lokalen Speicher des Browsers bis zum Ablauf des Tokens oder bis zur Abmeldung; lehnt die Schnittstelle das Token ab, führt die Oberfläche zur Anmeldung zurück.
 - Seiten mit Anmeldung leiten zur Anmeldung und danach zurück, nur auf Pfade innerhalb der Anwendung; die Rolle prüft die Schnittstelle.
 - Das Notfallband mit der Nummer 144 steht auf jeder Seite.

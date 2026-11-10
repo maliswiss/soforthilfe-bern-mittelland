@@ -55,6 +55,10 @@ public sealed class AnfragenController(IAnfrageDienst anfragen, IVerstaendnisDie
             AnfrageFehler.OrtFehlt => Ungueltig("Ort fehlt", "Bitte den Ort angeben.", "ort"),
             AnfrageFehler.PrioritaetUngueltig => Ungueltig("Dringlichkeit ungültig", "Zulässig sind tief, mittel und hoch.", "prioritaet"),
             AnfrageFehler.Notfall => NotfallStopp(ergebnis.NotfallGrund),
+            AnfrageFehler.PostleitzahlUnbekannt => Ungueltig("Postleitzahl unbekannt",
+                "Diese Postleitzahl steht nicht im amtlichen Ortschaftenverzeichnis.", "plz"),
+            AnfrageFehler.PostleitzahlAusserhalbRegion => Ungueltig("Postleitzahl ausserhalb der Region",
+                "Diese Postleitzahl liegt ausserhalb der Region Ihres Kontos.", "plz"),
             _ => Ungueltig("Kategorie unbekannt", "Unbekannte Kategorie.", "kategorieId"),
         };
     }

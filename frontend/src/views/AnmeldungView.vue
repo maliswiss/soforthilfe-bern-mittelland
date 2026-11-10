@@ -5,7 +5,6 @@ import { useI18n } from 'vue-i18n';
 import { useKonto } from '../stores/konto';
 import { internesZiel } from '../api/ziel';
 import HinweisFeld from '../components/HinweisFeld.vue';
-import RegionAuswahl from '../components/RegionAuswahl.vue';
 
 const konto = useKonto();
 const route = useRoute();
@@ -26,10 +25,7 @@ async function anmelden() {
     const standardziel = konto.istHilfesuchende ? { name: 'meine-anfragen' } : { name: 'startseite' };
     router.push(internesZiel(route.query.weiter) ?? standardziel);
   } catch (problem) {
-    fehler.value =
-      problem.status === 401 && konto.mehrereRegionen
-        ? `${problem.message} ${t('anmeldung.regionPruefen')}`
-        : problem.message;
+    fehler.value = problem.message;
   } finally {
     laeuft.value = false;
   }
@@ -41,8 +37,6 @@ async function anmelden() {
     <h1 class="text-3xl">{{ t('anmeldung.titel') }}</h1>
 
     <form class="karte mt-6 space-y-4" @submit.prevent="anmelden">
-      <RegionAuswahl kennung="region-anmeldung" />
-
       <div>
         <label for="email" class="etikett">{{ t('anmeldung.email') }}</label>
         <input id="email" v-model="eMail" type="email" class="feld" autocomplete="email" required />

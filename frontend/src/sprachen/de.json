@@ -56,10 +56,6 @@
   "sprache": {
     "de": "Deutsch"
   },
-  "region": {
-    "titel": "Region",
-    "hinweis": "Konten, Anfragen und Helfende sind pro Region getrennt."
-  },
   "hinweis": {
     "anfrage": "Anfrage",
     "anfrageOeffnen": "Anfrage öffnen"
@@ -67,7 +63,8 @@
   "ort": {
     "plz": "Postleitzahl",
     "plzTitel": "Vierstellige Postleitzahl",
-    "ort": "Ort"
+    "ort": "Ort",
+    "mehrereGemeinden": "Diese Postleitzahl umfasst mehrere Gemeinden. Bitte prüfen Sie den Ort."
   },
   "telefon": {
     "kostenpflichtig": "Nummern mit 0900 (sowie 0901 und 0906) sind kostenpflichtig und werden nicht akzeptiert."
@@ -125,7 +122,6 @@
     "knopf": "Anmelden",
     "keinKonto": "Noch kein Konto?",
     "registrieren": "Jetzt registrieren",
-    "regionPruefen": "Prüfen Sie auch die gewählte Region.",
     "sitzungAbgelaufen": "Ihre Sitzung ist abgelaufen. Bitte melden Sie sich erneut an."
   },
   "registrierung": {
@@ -141,7 +137,10 @@
     "telefonHinweis": "Wird erst nach einer Zusage an die andere Seite weitergegeben.",
     "passwort": "Passwort, mindestens zehn Zeichen",
     "erstellen": "Wird erstellt …",
-    "bereitsRegistriert": "Bereits registriert?"
+    "bereitsRegistriert": "Bereits registriert?",
+    "regionHinweis": "Ihre Postleitzahl bestimmt die Region Ihres Kontos. Sie wird dafür nicht gespeichert.",
+    "plzUnbekannt": "Die Postleitzahl {plz} steht nicht im amtlichen Ortschaftenverzeichnis. Bitte prüfen.",
+    "keineRegion": "Für die Postleitzahl {plz} gibt es noch keine Region auf der Plattform."
   },
   "erfassen": {
     "titel": "Wo und wann?",

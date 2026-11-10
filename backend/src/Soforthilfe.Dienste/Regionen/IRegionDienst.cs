@@ -16,6 +16,6 @@ public interface IRegionDienst
     // Nur für den Plattformbetrieb: Zugriff auf alle Regionen.
     void SetzeUebergreifend();
 
-    // Liefert null, wenn die Kennung schon vergeben ist.
-    Task<RegionInfo?> AnlegenAsync(string kennung, string name, CancellationToken abbruch);
+    // Legt eine Region mit ihren Gemeinden (BFS-Nummern) an. Kennung und Gemeinden dürfen noch nicht vergeben sein.
+    Task<RegionErgebnis> AnlegenAsync(string kennung, string name, IReadOnlyCollection<int> gemeinden, CancellationToken abbruch);
 }

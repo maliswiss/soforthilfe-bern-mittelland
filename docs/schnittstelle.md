@@ -9,11 +9,12 @@ Die Schnittstelle ist eine REST-API unter `/api`. Sie spricht JSON; Feldnamen be
 | GET | `/api/info` | offen | Name und Version |
 | GET | `/api/mandanten` | offen | aktive Regionen für Anmeldung und Registrierung |
 | POST | `/api/mandanten` | Plattformbetrieb | neue Region im laufenden Betrieb anlegen |
-| POST | `/api/auth/registrierung` | offen | Konto in der gewählten Region anlegen, liefert gleich ein Token |
-| POST | `/api/auth/anmeldung` | offen | Anmeldung in der gewählten Region, liefert ein Token |
+| POST | `/api/auth/registrierung` | offen | Konto in einer Region anlegen, liefert gleich ein Token |
+| POST | `/api/auth/anmeldung` | offen | Anmeldung in der Region des Kontos, liefert ein Token |
 | GET | `/api/auth/ich` | angemeldet | Angaben zum eigenen Konto |
 | GET | `/api/kategorien` | offen | Kategorien der Startseite; `?bezahlpflichtig=false` oder `=true` filtert |
 | GET | `/api/skills` | offen | Fähigkeiten, die Helfende anbieten können |
+| GET | `/api/orte?plz=` | offen | Ortschaften zu einer Postleitzahl mit Gemeinde, Kanton, Region und Hinweis auf mehrere Gemeinden |
 | POST | `/api/anfragen/verstehen` | offen | Verständnis-Schritt vor dem Erfassen, zuerst immer die Notfallprüfung |
 | POST | `/api/anfragen` | Hilfesuchende | Anfrage erfassen; bei einem gesundheitlichen Notfall `451` statt Speicherung |
 | GET | `/api/anfragen/meine` | Hilfesuchende | eigene Anfragen, neueste zuerst |
@@ -40,11 +41,11 @@ Content-Type: application/json
 | Feld | Regel |
 |---|---|
 | `kontoart` | `0` Hilfe suchen (Rolle Hilfesuchende), `1` Hilfe anbieten (Rolle Helfende); Standard `0` |
-| `mandant` | Schlüssel der Region; Standard `bern-mittelland` |
+| `mandant` | Schlüssel der Region; die Oberfläche bestimmt ihn aus der Postleitzahl (`GET /api/orte`); Standard `bern-mittelland` |
 | `telefon` | freiwillig; Schweizer Nummer, Mehrwertnummern (0900, 0901, 0906) in jeder Schreibweise abgelehnt (Anforderung A10) |
 | `passwort` | mindestens 10 Zeichen |
 
-`POST /api/auth/anmeldung` erwartet `eMail`, `passwort` und `mandant`. Beide Aufrufe antworten mit `200`:
+`POST /api/auth/anmeldung` erwartet `eMail` und `passwort`; ohne `mandant` gilt die Region des Kontos. Beide Aufrufe antworten mit `200`:
 
 ```
 { "token": "<jwt>", "gueltigBis": "2026-11-05T10:00:00+00:00",
@@ -53,7 +54,7 @@ Content-Type: application/json
                 "mandantSchluessel": "bern-mittelland", "mandantName": "Soforthilfe Bern/Mittelland" } }
 ```
 
-Eine Anmeldung in einer fremden Region erhält dieselbe Antwort `401` wie ein falsches Passwort.
+Wird `mandant` angegeben und passt nicht zum Konto, folgt dieselbe Antwort `401` wie bei einem falschen Passwort.
 
 ## Anfrage erfassen
 
@@ -69,12 +70,27 @@ Content-Type: application/json
 | Feld | Regel |
 |---|---|
 | `kategorieId`, `freitext` | mindestens eines von beiden; Freitext höchstens 2000 Zeichen |
-| `plz` | vierstellig, beginnt nicht mit 0 |
+| `plz` | vierstellig, beginnt nicht mit 0, steht im Ortschaftenverzeichnis und berührt eine Gemeinde der Region des Kontos |
 | `ort` | Pflicht, höchstens 120 Zeichen |
 | `adresse`, `zeitfenster` | freiwillig |
 | `prioritaet` | `0` tief, `1` mittel (Standard), `2` hoch |
 
 Antwort `201` mit der Anfrage: `id`, `kategorieId`, `kategorieBezeichnung`, `freitext`, `plz`, `ort`, `adresse`, `zeitfenster`, `prioritaet`, `status`, `erstelltAm` und `bezahlpflichtig`.
+
+## Orte und Postleitzahlen
+
+```
+GET /api/orte?plz=3174
+```
+
+Antwort `200`, je Ortschaft ein Eintrag; bei unbekannter Postleitzahl eine leere Liste:
+
+```
+[ { "plz": "3174", "ort": "Thörishaus", "gemeinde": "Köniz", "kanton": "BE",
+    "plzUeberMehrereGemeinden": true, "region": "bern-mittelland" } ]
+```
+
+`gemeinde` ist die Gemeinde mit dem grössten Anteil der Adressen, `region` die zuständige Region oder `null` ausserhalb der Regionen. Eine Postleitzahl, die nicht vierstellig ist oder mit 0 beginnt, ergibt `400` mit `"feld": "plz"`. Details: [orte-und-standort.md](orte-und-standort.md).
 
 ## Notfall-Stopp
 

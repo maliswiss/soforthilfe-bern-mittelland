@@ -43,6 +43,21 @@ test('Ungültige Schlüssel für Regionen werden abgewiesen', { skip: OHNE_TESTP
   }
 });
 
+test('Gemeinden einer neuen Region dürfen zu keiner anderen Region gehören', { skip: OHNE_TESTPASSWORT }, async () => {
+  const betrieb = await testkonto('hans.betrieb@beispiel.invalid');
+  const neu = (gemeinden) => aufruf('POST', '/api/mandanten', {
+    token: betrieb, daten: { schluessel: `test-${randomUUID().slice(0, 8)}`, name: 'Soforthilfe Testregion', gemeinden },
+  });
+
+  // 351 ist die Gemeinde Bern und gehört zu Bern/Mittelland.
+  const doppelt = await neu([351]);
+  assert.equal(doppelt.status, 409);
+  assert.equal(doppelt.inhalt.feld, 'gemeinden');
+
+  assert.equal((await neu([0])).status, 400);
+  assert.equal((await neu([10000])).status, 400);
+});
+
 test('Kontenliste nur für Koordination, Mandantenadministration und Plattformbetrieb', { skip: OHNE_TESTPASSWORT }, async () => {
   const { token: hilfesuchende } = await neuesKonto();
   const { token: helfende } = await neuesKonto(undefined, HELFENDE);

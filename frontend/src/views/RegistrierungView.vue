@@ -5,9 +5,10 @@ import { useI18n } from 'vue-i18n';
 import { useKonto } from '../stores/konto';
 import { istKostenpflichtig } from '../api/telefon';
 import { internesZiel } from '../api/ziel';
+import { regionZuPlz } from '../api/orte';
 import HinweisFeld from '../components/HinweisFeld.vue';
 import Warnhinweis from '../components/Warnhinweis.vue';
-import RegionAuswahl from '../components/RegionAuswahl.vue';
+import OrtEingabe from '../components/OrtEingabe.vue';
 
 const konto = useKonto();
 const route = useRoute();
@@ -23,6 +24,9 @@ const formular = ref({
   kontoart: route.query.konto === 'helfende' ? 1 : 0
 });
 
+// Die Postleitzahl bestimmt die Region des Kontos; gespeichert wird sie dabei nicht.
+const wohnort = ref({ plz: '', ort: '' });
+
 // Anforderung A10: kostenpflichtige Mehrwertnummern werden schon bei der Eingabe angezeigt
 const telefonKostenpflichtig = computed(() => istKostenpflichtig(formular.value.telefon));
 const fehler = ref('');
@@ -36,8 +40,25 @@ async function registrieren() {
     return;
   }
 
+  const plz = wohnort.value.plz.trim();
+  if (!/^[1-9]\d{3}$/.test(plz)) {
+    fehler.value = t('erfassen.fehlerPlz');
+    return;
+  }
+
   laeuft.value = true;
   try {
+    const { bekannt, region } = await regionZuPlz(plz, wohnort.value.ort);
+    if (!bekannt) {
+      fehler.value = t('registrierung.plzUnbekannt', { plz });
+      return;
+    }
+    if (!region) {
+      fehler.value = t('registrierung.keineRegion', { plz });
+      return;
+    }
+    konto.regionWaehlen(region);
+
     await konto.registrieren({
       ...formular.value,
       eMail: formular.value.eMail.trim(),
@@ -59,8 +80,6 @@ async function registrieren() {
     <p class="mt-2 text-grau">{{ t('registrierung.einleitung') }}</p>
 
     <form class="karte mt-6 space-y-4" @submit.prevent="registrieren">
-      <RegionAuswahl kennung="region-registrierung" />
-
       <fieldset>
         <legend class="etikett">{{ t('registrierung.ichMoechte') }}</legend>
         <div class="grid gap-2 sm:grid-cols-2">
@@ -105,6 +124,11 @@ async function registrieren() {
         />
         <Warnhinweis v-if="telefonKostenpflichtig" kennung="telefon-hinweis" :meldung="t('telefon.kostenpflichtig')" />
         <p v-else class="mt-1 text-xs text-grau">{{ t('registrierung.telefonHinweis') }}</p>
+      </div>
+
+      <div>
+        <OrtEingabe v-model:plz="wohnort.plz" v-model:ort="wohnort.ort" kennung="wohnort" />
+        <p class="mt-1 text-xs text-grau">{{ t('registrierung.regionHinweis') }}</p>
       </div>
 
       <div>

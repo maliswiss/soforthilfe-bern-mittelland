@@ -31,6 +31,15 @@ erwarte "Regionen auflisten" 200 "$(status "$BASIS/api/mandanten")"
 erwarte "Region Bern/Mittelland in der Liste" true "$(jq 'map(.schluessel) | index("bern-mittelland") != null' "$ANTWORT")"
 erwarte "Unbekannte Region im Kopf X-Region" 404 "$(status -H 'X-Region: gibt-es-nicht' "$BASIS/api/kategorien")"
 
+echo "== Orte und Postleitzahlen"
+erwarte "Ortschaften zur Postleitzahl 3011" 200 "$(status "$BASIS/api/orte?plz=3011")"
+erwarte "Ort zur Postleitzahl" Bern "$(jq -r '.[0].ort' "$ANTWORT")"
+erwarte "Region zur Postleitzahl" bern-mittelland "$(jq -r '.[0].region' "$ANTWORT")"
+erwarte "Hinweis auf mehrere Gemeinden" true "$(status "$BASIS/api/orte?plz=3174" > /dev/null; jq '.[0].plzUeberMehrereGemeinden' "$ANTWORT")"
+erwarte "Postleitzahl ausserhalb der Regionen" null "$(status "$BASIS/api/orte?plz=8001" > /dev/null; jq -r '.[0].region' "$ANTWORT")"
+erwarte "Unbekannte Postleitzahl" 0 "$(status "$BASIS/api/orte?plz=3000" > /dev/null; jq 'length' "$ANTWORT")"
+erwarte "Ungültige Postleitzahl" 400 "$(status "$BASIS/api/orte?plz=abcd")"
+
 echo "== Registrierung und Anmeldung"
 # Zufällige Adresse und zufälliges Passwort je Lauf; die Domain «.invalid» kann es nicht geben.
 adresse="rauchtest.$(date +%s%N)@beispiel.invalid"
@@ -65,6 +74,8 @@ erwarte "Zehn Kategorien" 10 "$(jq 'length' "$ANTWORT")"
 erwarte "Fähigkeiten auflisten" 200 "$(status "$BASIS/api/skills")"
 anfrage='{"freitext":"Unterstützung beim Einkauf benötigt","plz":"3011","ort":"Bern"}'
 erwarte "Anfrage ohne Anmeldung" 401 "$(status "${json[@]}" -d "$anfrage" "$BASIS/api/anfragen")"
+anfrage_ausserhalb='{"freitext":"Unterstützung beim Einkauf benötigt","plz":"8001","ort":"Zürich"}'
+erwarte "Anfrage ausserhalb der Region" 400 "$(status "${json[@]}" -H "Authorization: Bearer $token" -d "$anfrage_ausserhalb" "$BASIS/api/anfragen")"
 erwarte "Anfrage erfassen" 201 "$(status "${json[@]}" -H "Authorization: Bearer $token" -d "$anfrage" "$BASIS/api/anfragen")"
 erwarte "Erfasste Anfrage ist offen" 1 "$(jq -r '.status' "$ANTWORT")"
 erwarte "Eigene Anfragen auflisten" 200 "$(status -H "Authorization: Bearer $token" "$BASIS/api/anfragen/meine")"

@@ -29,7 +29,7 @@ Hilfesuchende beschreiben ihre Lage in eigenen Worten. Die Plattform erkennt den
 | Anmeldung mit JWT, Rollen und Berechtigungen | R1 | umgesetzt |
 | Anfrage per Kategorie, Freitext oder beidem | R1 | umgesetzt |
 | Ablehnung von Mehrwertnummern, Trennung kostenlos und kostenpflichtig | R1 | umgesetzt |
-| Oberfläche: Startseite mit Kategorie oder Freitext, Regionswahl, Registrierung, Anmeldung, Anfrage erfassen, eigene Anfragen | R1 | umgesetzt |
+| Oberfläche: Startseite mit Kategorie oder Freitext, Registrierung, Anmeldung, Anfrage erfassen, eigene Anfragen | R1 | umgesetzt |
 | Containerplattform mit Docker Compose und Traefik | R1 | umgesetzt |
 | Notfall-Stopp mit Hinweis «144 anrufen» und Protokolleintrag ohne Personendaten | R2 | umgesetzt |
 | Orte über das Ortschaftenverzeichnis von swisstopo, Standortfreigabe | R2 | geplant |
@@ -125,7 +125,7 @@ Die Oberfläche läuft unter `http://localhost:5173`. Ablauf und Bildschirme: [d
 
 Mit `Testdaten__Laden=true` in der `.env` lädt die Schnittstelle beim Start Testdaten mit ausschliesslich fiktiven Personen, sofern die Datenbank noch keine Konten enthält. Mit `TESTDATEN_PASSWORT` können sich die Testkonten anmelden.
 
-**Neue Region einrichten** (ohne Deployment): Der Plattformbetrieb sendet `POST /api/mandanten` mit Schlüssel und Name, zum Beispiel `{ "schluessel": "thun", "name": "Soforthilfe Thun" }`. Die Region ist sofort nutzbar. Details: [docs/mandanten.md](docs/mandanten.md).
+**Neue Region einrichten** (ohne Deployment): Der Plattformbetrieb sendet `POST /api/mandanten` mit Schlüssel und Name, zum Beispiel `{ "schluessel": "thun", "name": "Soforthilfe Thun", "gemeinden": [939, 942] }`. Die Region ist sofort nutzbar; über ihre Gemeinden (BFS-Nummern) bestimmt die Postleitzahl, wer zu ihr gehört. Details: [docs/mandanten.md](docs/mandanten.md).
 
 Registrierung, Anmeldung, Rollen und Berechtigungen: [docs/anmeldung-und-rollen.md](docs/anmeldung-und-rollen.md).
 

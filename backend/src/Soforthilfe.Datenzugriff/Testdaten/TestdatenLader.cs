@@ -13,8 +13,33 @@ public static class TestdatenLader
     // genau wie jede weitere Region im laufenden Betrieb.
     public const string ZweiteRegion = "biel-seeland";
 
+    // Gemeinden der Verwaltungskreise Biel/Bienne (19) und Seeland (42) als BFS-Nummern, abgeglichen mit dem
+    // amtlichen Ortschaftenverzeichnis vom 01.09.2026.
+    public static readonly int[] GemeindenBielSeeland =
+    [
+        301, 302, 303, 304, 305, 306, 309, 310, 311, 312, 371, 372, 381, 382, 383,
+        385, 386, 387, 388, 389, 390, 391, 392, 393, 394, 491, 492, 493, 494, 495,
+        496, 497, 498, 499, 500, 501, 502, 731, 732, 733, 734, 735, 736, 737, 738,
+        739, 740, 741, 742, 743, 744, 745, 746, 747, 748, 749, 750, 751, 754, 755,
+        756,
+    ];
+
     public static async Task LadenAsync(SoforthilfeDbContext datenbank, CancellationToken abbruch = default)
     {
+        // Die zweite Region mit ihren Gemeinden; eine früher ohne Gemeinden angelegte Region wird ergänzt.
+        var biel = await datenbank.Regionen.FirstOrDefaultAsync(r => r.Kennung == ZweiteRegion, abbruch);
+        if (biel is null)
+        {
+            biel = new Region { Id = Guid.NewGuid(), Kennung = ZweiteRegion, Name = "Soforthilfe Biel/Seeland", Aktiv = true };
+            datenbank.Regionen.Add(biel);
+        }
+
+        if (biel.Gemeinden.Length == 0)
+        {
+            biel.Gemeinden = GemeindenBielSeeland;
+            await datenbank.SaveChangesAsync(abbruch);
+        }
+
         // Nur in eine Datenbank ohne Konten laden, damit ein Neustart keine Doppelungen erzeugt.
         if (await datenbank.Konten.AnyAsync(abbruch))
         {
@@ -24,13 +49,6 @@ public static class TestdatenLader
         var jetzt = DateTimeOffset.UtcNow;
         var skills = await datenbank.Skills.ToDictionaryAsync(s => s.Kennung, abbruch);
         var kategorien = await datenbank.Kategorien.ToDictionaryAsync(k => k.Kennung, abbruch);
-
-        var biel = await datenbank.Regionen.FirstOrDefaultAsync(r => r.Kennung == ZweiteRegion, abbruch);
-        if (biel is null)
-        {
-            biel = new Region { Id = Guid.NewGuid(), Kennung = ZweiteRegion, Name = "Soforthilfe Biel/Seeland", Aktiv = true };
-            datenbank.Regionen.Add(biel);
-        }
 
         var bern = Stammdaten.RegionBernMittelland;
 

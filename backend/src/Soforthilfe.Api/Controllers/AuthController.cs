@@ -10,13 +10,14 @@ using Soforthilfe.Dienste.Regionen;
 namespace Soforthilfe.Api.Controllers;
 
 /// <summary>
-/// Registrierung, Anmeldung und eigenes Konto. Die Region wählt die Person vor der Anmeldung (Feld «mandant»).
+/// Registrierung, Anmeldung und eigenes Konto. Die Region der Registrierung (Feld «mandant») bestimmt die Oberfläche
+/// aus der Postleitzahl; die Anmeldung kommt ohne Region aus.
 /// </summary>
 [ApiController]
 [Route("api/auth")]
 public sealed class AuthController(IKontoDienst konten, IRegionDienst regionen, TokenDienst tokens) : ControllerBase
 {
-    // Neues Konto in der gewählten Region; die Antwort meldet die Person gleich an.
+    // Neues Konto in der angegebenen Region; die Antwort meldet die Person gleich an.
     [HttpPost("registrierung")]
     public async Task<IActionResult> Registrieren(RegistrierungAnfrage anfrage, CancellationToken abbruch)
     {
@@ -63,7 +64,7 @@ public sealed class AuthController(IKontoDienst konten, IRegionDienst regionen, 
         };
     }
 
-    // Anmeldung in der gewählten Region. Gleiche Antwort für unbekannte Adresse, falsches Passwort und fremde Region.
+    // Anmeldung in der Region des Kontos. Gleiche Antwort für unbekannte Adresse, falsches Passwort und fremde Region.
     [HttpPost("anmeldung")]
     public async Task<IActionResult> Anmelden(AnmeldungAnfrage anfrage, CancellationToken abbruch)
     {
@@ -93,7 +94,7 @@ public sealed class AuthController(IKontoDienst konten, IRegionDienst regionen, 
         return new AnmeldungAntwort(token.Token, token.GueltigBis, BenutzerAntwort.Aus(konto));
     }
 
-    // Legt die Region für die Registrierung fest. Ein Kopf X-Region muss zur gewählten Region passen.
+    // Legt die Region für die Registrierung fest. Ein Kopf X-Region muss zur angegebenen Region passen.
     private async Task<IActionResult?> RegionFestlegenAsync(string mandant, CancellationToken abbruch)
     {
         var kennung = (mandant ?? string.Empty).Trim().ToLowerInvariant();
@@ -103,7 +104,7 @@ public sealed class AuthController(IKontoDienst konten, IRegionDienst regionen, 
             return aktuelle.Kennung == kennung
                 ? null
                 : this.Fehler(StatusCodes.Status400BadRequest, "Region passt nicht",
-                    "Die gewählte Region passt nicht zum Kopf X-Region.", "mandant");
+                    "Die angegebene Region passt nicht zum Kopf X-Region.", "mandant");
         }
 
         return await regionen.SetzeAktuelleAsync(kennung, abbruch) is null

@@ -1,6 +1,6 @@
 # Screenflow und Bildschirme
 
-Ablauf der Oberfläche von der Startseite über Regionswahl und Anmeldung bis zur erfassten Anfrage (Release 1).
+Ablauf der Oberfläche von der Startseite über Anmeldung oder Registrierung bis zur erfassten Anfrage. Eine Regionswahl gibt es nicht: Die Region folgt bei der Registrierung aus der Postleitzahl und danach aus dem Konto.
 
 ## Grundsätze der Oberfläche
 
@@ -10,7 +10,7 @@ Ablauf der Oberfläche von der Startseite über Regionswahl und Anmeldung bis zu
 | 2 | Support-Block im Fussbereich, getrennt vom Notfallband | Notfall und Anwendungsstörung dürfen nicht verwechselt werden |
 | 3 | Anfrage ohne Anmeldung beginnen, Anmeldung erst vor dem Absenden | niedrige Einstiegshürde, trotzdem nachvollziehbare Identität |
 | 4 | Genaue Adresse getrennt von Postleitzahl und Ort | Schutz von Standort- und Personendaten |
-| 5 | Region jederzeit erkennbar, vor der Anmeldung wählbar | Mandantenfähigkeit, Datentrennung je Region |
+| 5 | Region jederzeit erkennbar, bestimmt aus der Postleitzahl statt gewählt | Mandantenfähigkeit ohne zusätzliche Frage an die Person |
 | 6 | Das Eingabefeld ist das auffälligste Element der Startseite | der erste Schritt soll ohne Suchen auffindbar sein |
 
 ## Gesamtablauf Release 1
@@ -23,7 +23,7 @@ flowchart TD
     H --> N{"Notfall-<br/>hinweis?"}
     N -->|"Ja"| NF["Notfallseite<br/>144 anrufen"]
     N -->|"Nein"| A{"Angemeldet?"}
-    A -->|"Nein"| AN["Anmeldung oder Registrierung<br/>mit Regionswahl"]
+    A -->|"Nein"| AN["Anmeldung oder Registrierung<br/>Region aus der Postleitzahl"]
     AN --> E
     A -->|"Ja"| E["Wo und wann?<br/>Postleitzahl, Ort, Adresse, Zeitfenster"]
     E --> D["Anfrage erfasst<br/>Status offen"]
@@ -37,9 +37,9 @@ Die Eingabe der Startseite bleibt während Anmeldung oder Registrierung im Entwu
 | Nr. | Bildschirm | Pfad | Zugriff | Zweck |
 |---|---|---|---|---|
 | 01 | Startseite | `/` | offen | Einstieg: Kategorie aus zehn Kacheln oder Anliegen in eigenen Worten, Hinweise für Helfende und zu Vertrauen und Schutz |
-| 02 | Anmeldung | `/anmeldung` | offen | Region, E-Mail-Adresse und Passwort; danach zurück zum gewünschten Ziel |
-| 03 | Registrierung | `/registrierung` | offen | Region, «Hilfe suchen» oder «Hilfe anbieten», Name, E-Mail-Adresse, freiwillige Telefonnummer, Passwort |
-| 04 | Wo und wann? | `/anfrage/erfassen` | angemeldet | Postleitzahl, Ort, Adresse und Zeitfenster zur Anfrage |
+| 02 | Anmeldung | `/anmeldung` | offen | E-Mail-Adresse und Passwort, die Region kommt aus dem Konto; danach zurück zum gewünschten Ziel |
+| 03 | Registrierung | `/registrierung` | offen | «Hilfe suchen» oder «Hilfe anbieten», Name, E-Mail-Adresse, freiwillige Telefonnummer, Postleitzahl und Ort (bestimmen die Region), Passwort |
+| 04 | Wo und wann? | `/anfrage/erfassen` | angemeldet | Postleitzahl mit ergänztem Ort, Adresse und Zeitfenster zur Anfrage |
 | 05 | Anfrage | `/anfragen/:id` | angemeldet | Kategorie, Status, Dringlichkeit, Ort, Beschreibung, kostenlos oder kostenpflichtig |
 | 06 | Meine Anfragen | `/anfragen` | angemeldet | eigene Anfragen, neueste zuerst |
 | 07 | So funktioniert es | `/so-funktioniert-es` | offen | Ablauf in vier Schritten und Abgrenzung |
@@ -49,7 +49,7 @@ Die Eingabe der Startseite bleibt während Anmeldung oder Registrierung im Entwu
 
 | Zustand | Kopfzeile |
 |---|---|
-| Ohne Anmeldung | Logo mit Region · Regionswahl · So funktioniert es · Für Helfende · Anmelden |
+| Ohne Anmeldung | Logo mit Region · So funktioniert es · Für Helfende · Anmelden |
 | Hilfesuchende | Logo mit Region · So funktioniert es · Meine Anfragen · Name · Abmelden |
 | Andere Rollen | Logo mit Region · So funktioniert es · Name · Abmelden |
 
@@ -61,8 +61,10 @@ Die Eingabe der Startseite bleibt während Anmeldung oder Registrierung im Entwu
 |---|---|---|
 | Startseite | Kategorie gewählt oder Beschreibung mit mindestens zehn Zeichen | «Bitte wählen Sie eine Kategorie.» oder «Bitte beschreiben Sie Ihr Anliegen in einem kurzen Satz.» |
 | Registrierung | Mehrwertnummer schon während der Eingabe erkannt (Anforderung A10) | roter Hinweis unter dem Feld, die Registrierung wird nicht gesendet |
-| Anmeldung | gleiche Meldung für falsches Passwort, unbekannte Adresse und fremde Region | «E-Mail-Adresse oder Passwort ist falsch.» mit dem Hinweis, die Region zu prüfen |
-| Wo und wann? | vierstellige Postleitzahl, Ort ausgefüllt | Hinweis über dem Knopf |
+| Registrierung | Postleitzahl im Ortschaftenverzeichnis und in einer Region der Plattform | «Für die Postleitzahl … gibt es noch keine Region auf der Plattform.» |
+| Anmeldung | gleiche Meldung für falsches Passwort und unbekannte Adresse | «E-Mail-Adresse oder Passwort ist falsch.» |
+| Postleitzahl und Ort | Ort aus dem Ortschaftenverzeichnis ergänzt, weitere Ortschaften zur Auswahl | Hinweis, wenn die Postleitzahl mehrere Gemeinden umfasst |
+| Wo und wann? | vierstellige Postleitzahl, Ort ausgefüllt, Postleitzahl in der Region des Kontos | Hinweis über dem Knopf |
 
 Massgebend bleibt die Schnittstelle; ihre Meldungen (Feld `fehler`) erscheinen unverändert in der Oberfläche.
 

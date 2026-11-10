@@ -6,6 +6,7 @@ import { senden } from '../api/klient';
 import { useKonto } from '../stores/konto';
 import { useAnfrageEntwurf } from '../stores/anfrage';
 import HinweisFeld from '../components/HinweisFeld.vue';
+import OrtEingabe from '../components/OrtEingabe.vue';
 
 const router = useRouter();
 const { t } = useI18n();
@@ -89,26 +90,7 @@ async function absenden() {
       <p class="mt-1">{{ entwurf.freitext }}</p>
     </div>
 
-    <div class="grid gap-4 sm:grid-cols-[140px_1fr]">
-      <div>
-        <label for="anfrage-plz" class="etikett">{{ t('ort.plz') }}</label>
-        <input
-          id="anfrage-plz"
-          v-model="formular.plz"
-          class="feld"
-          inputmode="numeric"
-          maxlength="4"
-          pattern="[0-9]{4}"
-          :title="t('ort.plzTitel')"
-          autocomplete="postal-code"
-          required
-        />
-      </div>
-      <div>
-        <label for="anfrage-ort" class="etikett">{{ t('ort.ort') }}</label>
-        <input id="anfrage-ort" v-model="formular.ort" class="feld" maxlength="120" autocomplete="address-level2" required />
-      </div>
-    </div>
+    <OrtEingabe v-model:plz="formular.plz" v-model:ort="formular.ort" kennung="anfrage" />
 
     <div>
       <label for="adresse" class="etikett">{{ t('erfassen.adresse') }}</label>

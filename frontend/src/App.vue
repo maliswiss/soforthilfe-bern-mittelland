@@ -4,7 +4,6 @@ import { useRoute, useRouter, RouterLink, RouterView } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useKonto } from './stores/konto';
 import { sitzungAbgelaufen } from './api/klient';
-import RegionAuswahl from './components/RegionAuswahl.vue';
 
 const konto = useKonto();
 const router = useRouter();
@@ -67,8 +66,6 @@ function abmelden() {
       <RouterLink :to="{ name: 'startseite' }" class="font-titel text-lg font-bold text-tanne">
         {{ t('kopf.marke') }} <span class="font-medium text-grau">{{ konto.regionName }}</span>
       </RouterLink>
-
-      <RegionAuswahl v-if="!konto.angemeldet" kennung="region-kopf" kompakt />
 
       <nav class="flex flex-wrap items-center gap-4 text-sm">
         <RouterLink :to="{ name: 'ablauf' }" class="hover:text-tanne-hell">{{ t('kopf.ablauf') }}</RouterLink>

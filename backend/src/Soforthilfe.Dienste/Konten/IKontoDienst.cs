@@ -8,7 +8,7 @@ public interface IKontoDienst
     // Registriert ein Konto in der Region der laufenden Anfrage.
     Task<KontoErgebnis> RegistrierenAsync(RegistrierungsDaten daten, CancellationToken abbruch);
 
-    // Liefert null, wenn E-Mail-Adresse oder Passwort nicht stimmen oder das Konto nicht zur gewählten Region gehört.
+    // Liefert null, wenn E-Mail-Adresse oder Passwort nicht stimmen oder das Konto nicht zur angegebenen Region gehört.
     Task<KontoInfo?> AnmeldenAsync(string eMail, string passwort, string? region, CancellationToken abbruch);
 
     // Liest ein Konto der aktuellen Region.

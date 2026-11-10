@@ -4,8 +4,8 @@
 
 | Schnittstelle | Zweck |
 |---|---|
-| `POST /api/auth/registrierung` | Konto in der gewählten Region (`mandant`) anlegen; `kontoart` 0 Hilfe suchen, 1 Hilfe anbieten; liefert gleich ein Token |
-| `POST /api/auth/anmeldung` | Anmeldung mit E-Mail-Adresse, Passwort und Region; liefert ein Token (JWT) |
+| `POST /api/auth/registrierung` | Konto in der Region `mandant` anlegen, die die Oberfläche aus der Postleitzahl bestimmt; `kontoart` 0 Hilfe suchen, 1 Hilfe anbieten; liefert gleich ein Token |
+| `POST /api/auth/anmeldung` | Anmeldung mit E-Mail-Adresse und Passwort in der Region des Kontos; liefert ein Token (JWT) |
 | `GET /api/auth/ich` | Eigenes Konto, nur mit Token |
 
 | Thema | Umsetzung |
@@ -22,7 +22,7 @@
 
 | Schnittstelle | Hilfesuchende | Helfende | Koordination | Mandantenadministration | Plattformbetrieb |
 |---|---|---|---|---|---|
-| `GET /api/mandanten`, `GET /api/kategorien`, `GET /api/skills`, `POST /api/anfragen/verstehen` | ja | ja | ja | ja | ja |
+| `GET /api/mandanten`, `GET /api/kategorien`, `GET /api/skills`, `GET /api/orte`, `POST /api/anfragen/verstehen` | ja | ja | ja | ja | ja |
 | `GET /api/auth/ich` | ja | ja | ja | ja | ja |
 | `POST /api/anfragen`, `GET /api/anfragen/meine` | ja | nein | nein | nein | nein |
 | `GET /api/anfragen`, `GET /api/anfragen/{id}` | eigene | nein | eigene Region | eigene Region | alle Regionen |

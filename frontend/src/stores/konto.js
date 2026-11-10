@@ -15,7 +15,7 @@ export const useKonto = defineStore('konto', {
     token: null,
     benutzer: null,
     geladen: false,
-    // Regionen (Mandanten). Vor der Anmeldung wählbar, danach fest durch das Konto bestimmt.
+    // Regionen (Mandanten). Vor der Anmeldung folgt die Region aus der Postleitzahl, danach aus dem Konto.
     regionen: [],
     gewaehlteRegion: standardregion
   }),
@@ -25,7 +25,7 @@ export const useKonto = defineStore('konto', {
     istHelfende: (state) => state.benutzer?.rollen?.includes('Helfende') ?? false,
     istHilfesuchende: (state) => state.benutzer?.rollen?.includes('Hilfesuchende') ?? false,
 
-    /// Schlüssel der wirksamen Region: die des Kontos oder vor der Anmeldung die gewählte.
+    /// Schlüssel der wirksamen Region: die des Kontos oder vor der Anmeldung die aus der Postleitzahl bestimmte.
     region: (state) => state.benutzer?.mandantSchluessel ?? state.gewaehlteRegion,
 
     regionName(state) {
@@ -34,9 +34,7 @@ export const useKonto = defineStore('konto', {
       }
       const gefunden = state.regionen.find((r) => r.schluessel === state.gewaehlteRegion);
       return regionKurzname(gefunden?.name);
-    },
-
-    mehrereRegionen: (state) => state.regionen.length > 1
+    }
   },
 
   actions: {
@@ -99,10 +97,12 @@ export const useKonto = defineStore('konto', {
       this.sichern(antwort.gueltigBis);
     },
 
+    /// Ohne Angabe einer Region meldet die Schnittstelle in der Region des Kontos an.
     async anmelden(eMail, passwort) {
-      this.uebernehmen(
-        await senden('/auth/anmeldung', { eMail, passwort, mandant: this.gewaehlteRegion })
-      );
+      this.uebernehmen(await senden('/auth/anmeldung', { eMail, passwort }));
+      if (this.benutzer?.mandantSchluessel) {
+        this.regionWaehlen(this.benutzer.mandantSchluessel);
+      }
     },
 
     async registrieren(daten) {

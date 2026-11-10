@@ -25,10 +25,14 @@ test('Angemeldet gilt die Region des Kontos; ein abweichender Kopf wird abgewies
   assert.equal((await aufruf('GET', '/api/auth/ich', { token, region: BERN })).status, 200);
 });
 
-test('Anmeldung nur in der Region des Kontos', { skip: OHNE_TESTPASSWORT }, async () => {
+test('Anmeldung nur in der Region des Kontos; ohne Angabe gilt diese Region', { skip: OHNE_TESTPASSWORT }, async () => {
   const daten = (mandant) => ({ daten: { eMail: 'emil.exempel@beispiel.invalid', passwort: TESTPASSWORT, mandant } });
   assert.equal((await aufruf('POST', '/api/auth/anmeldung', daten(BERN))).status, 401);
   assert.equal((await aufruf('POST', '/api/auth/anmeldung', daten(BIEL))).status, 200);
+
+  const ohneRegion = await aufruf('POST', '/api/auth/anmeldung', daten(undefined));
+  assert.equal(ohneRegion.status, 200);
+  assert.equal(ohneRegion.inhalt.benutzer.mandantSchluessel, BIEL);
 });
 
 test('Koordination und Mandantenadministration sehen nur Konten der eigenen Region', { skip: OHNE_TESTPASSWORT }, async () => {

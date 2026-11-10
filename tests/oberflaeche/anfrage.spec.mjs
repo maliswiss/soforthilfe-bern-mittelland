@@ -32,7 +32,10 @@ test('Anfrage ohne Konto beginnen, registrieren und erfassen', async ({ page }) 
   await page.getByRole('button', { name: 'Anfrage senden' }).click();
   await expect(page.getByRole('alert')).toHaveText('Bitte eine vierstellige Postleitzahl eingeben.');
 
+  // Zur Postleitzahl ergänzt das Ortschaftenverzeichnis den Ort
   await page.getByLabel('Postleitzahl').fill('3011');
+  await expect(page.getByLabel('Ort', { exact: true })).toHaveValue('Bern');
+  await page.getByLabel('Ort', { exact: true }).fill('');
   await page.getByRole('button', { name: 'Anfrage senden' }).click();
   await expect(page.getByRole('alert')).toHaveText('Bitte den Ort eingeben.');
 
@@ -62,7 +65,7 @@ test('Anfrage per Kategorie zeigt die gewählte Kategorie und ob sie kostenlos i
   await page.getByRole('button', { name: 'Hilfe finden' }).click();
   await expect(page.getByText('Anliegen: Nachbarschaftshilfe')).toBeVisible();
   await page.getByLabel('Postleitzahl').fill('3110');
-  await page.getByLabel('Ort', { exact: true }).fill('Münsingen');
+  await expect(page.getByLabel('Ort', { exact: true })).toHaveValue('Münsingen');
   await page.getByRole('button', { name: 'Anfrage senden' }).click();
 
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Nachbarschaftshilfe');
@@ -91,14 +94,31 @@ test('Neue Adresse ohne Konto kann sich nicht anmelden', async ({ page }) => {
   await expect(page.getByRole('alert')).toContainText('E-Mail-Adresse oder Passwort ist falsch.');
 });
 
-test('Testkonto sieht seine Anfrage, nur in der eigenen Region', { tag: '@testdaten' }, async ({ page }) => {
+test('Hinweis bei einer Postleitzahl über mehrere Gemeinden, Anfrage nur in der eigenen Region', async ({ page }) => {
+  await page.goto('/registrierung');
+  await registrieren(page);
+  await expect(page).toHaveURL(/\/anfragen$/);
+
+  await page.goto('/');
+  await page.getByRole('button', { name: /Nachbarschaftshilfe/ }).click();
+  await page.getByRole('button', { name: 'Hilfe finden' }).click();
+
+  await page.getByLabel('Postleitzahl').fill('3174');
+  await expect(page.getByLabel('Ort', { exact: true })).toHaveValue('Thörishaus');
+  await expect(page.locator('[data-test="plz-mehrere-gemeinden"]')).toBeVisible();
+
+  await page.getByLabel('Postleitzahl').fill('8001');
+  await expect(page.getByLabel('Ort', { exact: true })).toHaveValue('Zürich');
+  await expect(page.locator('[data-test="plz-mehrere-gemeinden"]')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Anfrage senden' }).click();
+  await expect(page.getByRole('alert')).toHaveText('Diese Postleitzahl liegt ausserhalb der Region Ihres Kontos.');
+});
+
+test('Testkonto meldet sich ohne Regionswahl in seiner Region an und sieht seine Anfrage', { tag: '@testdaten' }, async ({ page }) => {
   test.skip(OHNE_TESTPASSWORT, 'TESTDATEN_PASSWORT ist nicht gesetzt');
 
-  // Emil gehört zur Region Biel/Seeland: in Bern/Mittelland wird er abgewiesen
-  await anmelden(page, 'emil.exempel@beispiel.invalid', TESTPASSWORT, 'bern-mittelland');
-  await expect(page.getByRole('alert')).toContainText('E-Mail-Adresse oder Passwort ist falsch.');
-
-  await anmelden(page, 'emil.exempel@beispiel.invalid', TESTPASSWORT, 'biel-seeland');
+  // Emil gehört zur Region Biel/Seeland; die Region kommt aus dem Konto
+  await anmelden(page, 'emil.exempel@beispiel.invalid', TESTPASSWORT);
   await expect(page).toHaveURL(/\/anfragen$/);
   await expect(page.getByRole('banner')).toContainText('Biel/Seeland');
   await expect(page.locator('main')).toContainText('2502 Biel/Bienne');
