@@ -1,6 +1,15 @@
+using System.ComponentModel.DataAnnotations;
 using Soforthilfe.Dienste.Orte;
 
 namespace Soforthilfe.Api.Modelle;
+
+/// <summary>
+/// Freigegebener Standort für die Bestimmung von Postleitzahl und Ort. Er steht bewusst im Rumpf und nicht in der Adresse,
+/// damit Koordinaten nicht in Zugriffsprotokollen landen; gespeichert wird er nicht.
+/// </summary>
+public sealed record StandortAnfrage(
+    [Required, Range(-90, 90)] double? Breitengrad,
+    [Required, Range(-180, 180)] double? Laengengrad);
 
 /// <summary>
 /// Ortschaft zu einer Postleitzahl. <c>Region</c> ist die Kennung der zuständigen Region, leer ausserhalb der Regionen;

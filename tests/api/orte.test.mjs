@@ -1,4 +1,5 @@
-// Schnittstellentests: Postleitzahl-Zuordnung über das amtliche Ortschaftenverzeichnis und Region aus der Postleitzahl.
+// Schnittstellentests: Postleitzahl-Zuordnung über das amtliche Ortschaftenverzeichnis, Region aus der Postleitzahl
+// und Standortfreigabe nur über die eigene Schnittstelle.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -79,4 +80,44 @@ test('Eine Anfrage braucht eine bekannte Postleitzahl in der Region des Kontos',
   // Grenzfall: eine Postleitzahl, die auch eine Gemeinde der Region berührt, ist erlaubt.
   assert.equal((await anfrage('3053', 'Münchenbuchsee')).status, 201);
   assert.equal((await anfrage('3174', 'Thörishaus')).status, 201);
+});
+
+const umgebung = (daten) => aufruf('POST', '/api/orte/umgebung', { daten });
+
+test('Freigegebener Standort ergibt Postleitzahl, Ort und Region, ohne Anmeldung', async () => {
+  const bundesplatz = await umgebung({ breitengrad: 46.9466, laengengrad: 7.444 });
+  assert.equal(bundesplatz.status, 200);
+  assert.equal(bundesplatz.inhalt.plz, '3011');
+  assert.equal(bundesplatz.inhalt.ort, 'Bern');
+  assert.equal(bundesplatz.inhalt.region, BERN);
+
+  const muensingen = await umgebung({ breitengrad: 46.873, laengengrad: 7.5615 });
+  assert.equal(muensingen.inhalt.plz, '3110');
+  assert.equal(muensingen.inhalt.ort, 'Münsingen');
+
+  // Die Antwort enthält keine Koordinaten.
+  assert.deepEqual(Object.keys(bundesplatz.inhalt).sort(), ['gemeinde', 'kanton', 'ort', 'plz', 'plzUeberMehrereGemeinden', 'region']);
+});
+
+test('Standort ausserhalb der Schweiz liefert 404 mit Hinweis', async () => {
+  const paris = await umgebung({ breitengrad: 48.8566, laengengrad: 2.3522 });
+  assert.equal(paris.status, 404);
+  assert.match(paris.inhalt.fehler, /keine Schweizer Postleitzahl/);
+});
+
+test('Ungültige oder fehlende Koordinaten werden abgewiesen', async () => {
+  for (const daten of [
+    { breitengrad: 91, laengengrad: 7.4 },
+    { breitengrad: 46.9, laengengrad: -181 },
+    { breitengrad: 46.9 },
+    { laengengrad: 7.4 },
+    {},
+  ]) {
+    assert.equal((await umgebung(daten)).status, 400, JSON.stringify(daten));
+  }
+});
+
+test('Koordinaten werden nur im Rumpf angenommen, nie in der Adresse', async () => {
+  const { status } = await aufruf('GET', '/api/orte/umgebung?breitengrad=46.9466&laengengrad=7.444');
+  assert.equal(status, 405);
 });

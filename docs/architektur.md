@@ -134,6 +134,7 @@ Vue 3 mit Vite, Tailwind CSS und PWA, Zustand mit Pinia, Texte über vue-i18n. A
 
 - Sicherheitsprüfung nach den OWASP Top 10 (Ausgabe 2025), Paketprüfung und ZAP-Scans
 - Geheimnisse nur in der lokalen `.env`, Prüfung mit Gitleaks vor jedem Commit und in der CI
+- Standort nur nach Freigabe im Browser und nur über die eigene Schnittstelle, ohne Speicherung: [orte-und-standort.md](orte-und-standort.md)
 - Aufbewahrungsfristen mit automatischer Bereinigung, Auskunft und Löschung auf Anfrage
 
 ## Tests

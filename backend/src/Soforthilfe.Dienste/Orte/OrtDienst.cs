@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Soforthilfe.Datenzugriff;
 using Soforthilfe.Datenzugriff.Modell;
+using Soforthilfe.Datenzugriff.Ortschaften;
 
 namespace Soforthilfe.Dienste.Orte;
 
@@ -15,6 +16,9 @@ public sealed class OrtDienst(SoforthilfeDbContext datenbank) : IOrtDienst
     /// Kleinere Anteile sind Splitter am Rand und würden den Hinweis fast überall anzeigen.
     /// </summary>
     public const double MindestanteilProzent = 3;
+
+    /// <summary>Weiter entfernte Standorte gelten als ausserhalb des Verzeichnisses, zum Beispiel im Ausland.</summary>
+    public const double HoechstabstandMeter = 15_000;
 
     public async Task<IReadOnlyList<OrtInfo>> NachPlzAsync(string plz, CancellationToken abbruch)
     {
@@ -41,6 +45,28 @@ public sealed class OrtDienst(SoforthilfeDbContext datenbank) : IOrtDienst
                     RegionVon(haupt.BfsNummer, regionen));
             })
             .ToList();
+    }
+
+    public async Task<OrtInfo?> NaechsteAsync(double breitengrad, double laengengrad, CancellationToken abbruch)
+    {
+        // Der Punkt lebt nur für diese Abfrage; er wird weder gespeichert noch protokolliert.
+        var punkt = Ortschaftenverzeichnis.Punkt(breitengrad, laengengrad);
+
+        // Abstand auf dem Erdellipsoid in Metern (PostGIS, Spalte vom Typ geography).
+        var naechste = await datenbank.Ortschaften
+            .AsNoTracking()
+            .OrderBy(o => o.Standort.Distance(punkt))
+            .Select(o => new { o.Postleitzahl, o.Name, Abstand = o.Standort.Distance(punkt) })
+            .FirstOrDefaultAsync(abbruch);
+
+        if (naechste is null || naechste.Abstand > HoechstabstandMeter)
+        {
+            return null;
+        }
+
+        // Gemeinde, Region und Hinweis wie bei der Eingabe der Postleitzahl.
+        var orte = await NachPlzAsync(naechste.Postleitzahl, abbruch);
+        return orte.FirstOrDefault(o => o.Ort == naechste.Name) ?? orte.FirstOrDefault();
     }
 
     public async Task<PlzPruefung> PruefeFuerRegionAsync(string plz, Guid regionId, CancellationToken abbruch)

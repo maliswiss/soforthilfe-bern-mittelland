@@ -15,6 +15,7 @@ Die Schnittstelle ist eine REST-API unter `/api`. Sie spricht JSON; Feldnamen be
 | GET | `/api/kategorien` | offen | Kategorien der Startseite; `?bezahlpflichtig=false` oder `=true` filtert |
 | GET | `/api/skills` | offen | Fähigkeiten, die Helfende anbieten können |
 | GET | `/api/orte?plz=` | offen | Ortschaften zu einer Postleitzahl mit Gemeinde, Kanton, Region und Hinweis auf mehrere Gemeinden |
+| POST | `/api/orte/umgebung` | offen | Postleitzahl und Ort zum freigegebenen Standort; Koordinaten nur im Rumpf, nicht gespeichert |
 | POST | `/api/anfragen/verstehen` | offen | Verständnis-Schritt vor dem Erfassen, zuerst immer die Notfallprüfung |
 | POST | `/api/anfragen` | Hilfesuchende | Anfrage erfassen; bei einem gesundheitlichen Notfall `451` statt Speicherung |
 | GET | `/api/anfragen/meine` | Hilfesuchende | eigene Anfragen, neueste zuerst |
@@ -90,7 +91,16 @@ Antwort `200`, je Ortschaft ein Eintrag; bei unbekannter Postleitzahl eine leere
     "plzUeberMehrereGemeinden": true, "region": "bern-mittelland" } ]
 ```
 
-`gemeinde` ist die Gemeinde mit dem grössten Anteil der Adressen, `region` die zuständige Region oder `null` ausserhalb der Regionen. Eine Postleitzahl, die nicht vierstellig ist oder mit 0 beginnt, ergibt `400` mit `"feld": "plz"`. Details: [orte-und-standort.md](orte-und-standort.md).
+`gemeinde` ist die Gemeinde mit dem grössten Anteil der Adressen, `region` die zuständige Region oder `null` ausserhalb der Regionen. Eine Postleitzahl, die nicht vierstellig ist oder mit 0 beginnt, ergibt `400` mit `"feld": "plz"`.
+
+```
+POST /api/orte/umgebung
+Content-Type: application/json
+
+{ "breitengrad": 46.9466, "laengengrad": 7.444 }
+```
+
+Antwort `200` mit einem Eintrag wie oben (hier `3011` Bern), ohne Koordinaten. Liegt keine Ortschaft näher als 15 km, folgt `404`; Breitengrad ausserhalb von −90 bis 90, Längengrad ausserhalb von −180 bis 180 oder fehlende Werte ergeben `400`. `GET` auf diesen Pfad ergibt `405`, damit Koordinaten nie in einer Adresse stehen. Details: [orte-und-standort.md](orte-und-standort.md).
 
 ## Notfall-Stopp
 
@@ -156,6 +166,7 @@ Jeder Fehler ist ein Problem-Dokument (`application/problem+json`) mit zwei zus�
 | `401` | nicht angemeldet, Token ungültig oder Anmeldung fehlgeschlagen |
 | `403` | Rolle fehlt oder Kopf `X-Region` passt nicht zum Konto |
 | `404` | nicht vorhanden, auch für Daten einer fremden Region |
+| `405` | Methode nicht erlaubt, zum Beispiel Koordinaten per `GET` |
 | `409` | E-Mail-Adresse oder Region besteht bereits |
 | `451` | Notfall-Stopp: Hinweis auf einen gesundheitlichen Notfall, die Anfrage wird nicht vermittelt |
 | `500` | interner Fehler, ohne technische Details, mit Verfolgungsnummer |

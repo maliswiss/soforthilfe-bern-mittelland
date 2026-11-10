@@ -64,6 +64,7 @@ Die Eingabe der Startseite bleibt während Anmeldung oder Registrierung im Entwu
 | Registrierung | Postleitzahl im Ortschaftenverzeichnis und in einer Region der Plattform | «Für die Postleitzahl … gibt es noch keine Region auf der Plattform.» |
 | Anmeldung | gleiche Meldung für falsches Passwort und unbekannte Adresse | «E-Mail-Adresse oder Passwort ist falsch.» |
 | Postleitzahl und Ort | Ort aus dem Ortschaftenverzeichnis ergänzt, weitere Ortschaften zur Auswahl | Hinweis, wenn die Postleitzahl mehrere Gemeinden umfasst |
+| Standort verwenden | nur auf Klick und nach Freigabe im Browser; übernommen werden Postleitzahl und Ort | «Standort übernommen: … Bitte prüfen»; ohne Freigabe, im Ausland oder ohne sichere Verbindung ein Hinweis, die Felder von Hand auszufüllen |
 | Wo und wann? | vierstellige Postleitzahl, Ort ausgefüllt, Postleitzahl in der Region des Kontos | Hinweis über dem Knopf |
 
 Massgebend bleibt die Schnittstelle; ihre Meldungen (Feld `fehler`) erscheinen unverändert in der Oberfläche.

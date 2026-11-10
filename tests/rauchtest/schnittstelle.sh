@@ -31,6 +31,8 @@ erwarte "Regionen auflisten" 200 "$(status "$BASIS/api/mandanten")"
 erwarte "Region Bern/Mittelland in der Liste" true "$(jq 'map(.schluessel) | index("bern-mittelland") != null' "$ANTWORT")"
 erwarte "Unbekannte Region im Kopf X-Region" 404 "$(status -H 'X-Region: gibt-es-nicht' "$BASIS/api/kategorien")"
 
+json=(-H 'Content-Type: application/json')
+
 echo "== Orte und Postleitzahlen"
 erwarte "Ortschaften zur Postleitzahl 3011" 200 "$(status "$BASIS/api/orte?plz=3011")"
 erwarte "Ort zur Postleitzahl" Bern "$(jq -r '.[0].ort' "$ANTWORT")"
@@ -39,6 +41,11 @@ erwarte "Hinweis auf mehrere Gemeinden" true "$(status "$BASIS/api/orte?plz=3174
 erwarte "Postleitzahl ausserhalb der Regionen" null "$(status "$BASIS/api/orte?plz=8001" > /dev/null; jq -r '.[0].region' "$ANTWORT")"
 erwarte "Unbekannte Postleitzahl" 0 "$(status "$BASIS/api/orte?plz=3000" > /dev/null; jq 'length' "$ANTWORT")"
 erwarte "Ungültige Postleitzahl" 400 "$(status "$BASIS/api/orte?plz=abcd")"
+standort='{"breitengrad":46.9466,"laengengrad":7.444}'
+erwarte "Postleitzahl zum freigegebenen Standort" 200 "$(status "${json[@]}" -d "$standort" "$BASIS/api/orte/umgebung")"
+erwarte "Standort Bundesplatz ergibt 3011" 3011 "$(jq -r '.plz' "$ANTWORT")"
+erwarte "Standort im Ausland" 404 "$(status "${json[@]}" -d '{"breitengrad":48.8566,"laengengrad":2.3522}' "$BASIS/api/orte/umgebung")"
+erwarte "Koordinaten nicht in der Adresse" 405 "$(status "$BASIS/api/orte/umgebung?breitengrad=46.9466&laengengrad=7.444")"
 
 echo "== Registrierung und Anmeldung"
 # Zufällige Adresse und zufälliges Passwort je Lauf; die Domain «.invalid» kann es nicht geben.
@@ -50,7 +57,6 @@ fremde_region="$(jq -n --arg e "rauchtest.$(date +%s%N)@beispiel.invalid" --arg 
   '{eMail: $e, passwort: $p, anzeigename: "Rauchtest Person", mandant: "gibt-es-nicht"}')"
 anmeldung="$(jq -n --arg e "$adresse" --arg p "$kennwort" '{eMail: $e, passwort: $p, mandant: "bern-mittelland"}')"
 falsch="$(jq -n --arg e "$adresse" '{eMail: $e, passwort: "falsches-passwort-123", mandant: "bern-mittelland"}')"
-json=(-H 'Content-Type: application/json')
 
 erwarte "Registrierung in unbekannter Region" 400 "$(status "${json[@]}" -d "$fremde_region" "$BASIS/api/auth/registrierung")"
 erwarte "Feld der Fehlermeldung" mandant "$(jq -r '.feld' "$ANTWORT")"

@@ -64,7 +64,17 @@
     "plz": "Postleitzahl",
     "plzTitel": "Vierstellige Postleitzahl",
     "ort": "Ort",
-    "mehrereGemeinden": "Diese Postleitzahl umfasst mehrere Gemeinden. Bitte prüfen Sie den Ort."
+    "standortVerwenden": "Standort verwenden",
+    "standortLaeuft": "Standort wird ermittelt …",
+    "standortHinweis": "Der Standort wird nur nach Ihrer Freigabe im Browser an diese Plattform gesendet, in Postleitzahl und Ort übersetzt und nicht gespeichert.",
+    "mehrereGemeinden": "Diese Postleitzahl umfasst mehrere Gemeinden. Mit «Standort verwenden» finden wir Hilfe in Ihrer Nähe genauer.",
+    "uebernommen": "Standort übernommen: {plz} {ort}. Bitte prüfen und bei Bedarf anpassen.",
+    "uebernommenUngenau": "Standort übernommen: {plz} {ort}. Der Standort ist ungenau (ca. {km} km), bitte prüfen.",
+    "fehlerVerweigert": "Der Zugriff auf den Standort wurde verweigert. Bitte im Browser erlauben oder Postleitzahl und Ort eintragen.",
+    "fehlerNichtVerfuegbar": "Der Standort ist zurzeit nicht verfügbar. Bitte Postleitzahl und Ort eintragen.",
+    "fehlerZeit": "Die Standortermittlung hat zu lange gedauert. Bitte Postleitzahl und Ort eintragen.",
+    "fehlerUnsicher": "Der Standort ist nur über eine sichere Verbindung (HTTPS oder localhost) verfügbar. Bitte Postleitzahl und Ort eintragen.",
+    "fehlerBrowser": "Dieser Browser kann den Standort nicht ermitteln. Bitte Postleitzahl und Ort eintragen."
   },
   "telefon": {
     "kostenpflichtig": "Nummern mit 0900 (sowie 0901 und 0906) sind kostenpflichtig und werden nicht akzeptiert."
