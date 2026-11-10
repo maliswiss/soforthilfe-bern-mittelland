@@ -67,6 +67,18 @@ erDiagram
     text Prioritaet
     text Status
   }
+  ORTSCHAFT {
+    int Id PK
+    text Postleitzahl
+    text Zusatzziffer
+    text Name
+    text Gemeinde
+    int BfsNummer
+    text Kanton
+    double Adressenanteil
+    text Sprache
+    geography Standort
+  }
   PROTOKOLLEINTRAG {
     bigint Id PK
     uuid RegionId FK
@@ -90,6 +102,7 @@ erDiagram
 | `HelferprofilSkills` | Zuordnung Profil zu Fähigkeit | über das Profil |
 | `Anfragen` | Anliegen mit Kategorie und/oder Freitext, Ort, Zeitfenster, Dringlichkeit und Status | genau eine |
 | `Protokoll` | Sicherheitsrelevante Vorgänge wie der Notfall-Stopp, ohne Personendaten | eine oder keine (vor der Regionswahl) |
+| `Ortschaften` | Amtliches Ortschaftenverzeichnis von swisstopo: Postleitzahl, Ortschaft, Gemeinde mit Adressenanteil, Kanton und Punkt | für alle Regionen gleich |
 
 ## Stammdaten
 
@@ -117,6 +130,7 @@ Weitere Regionen entstehen im laufenden Betrieb als Daten (`POST /api/mandanten`
 | 7 | Eine E-Mail-Adresse gehört plattformweit zu genau einem Konto | eindeutige Anmeldung, keine Verwechslung zwischen Regionen |
 | 8 | Nur der Passwort-Hash wird gespeichert | kein Klartext, auch nicht in Testdaten |
 | 9 | `Protokoll` ohne Konto, IP-Adresse und Eingaben; das Detail nennt nur den Begriff aus der festen Liste | Nachvollziehbarkeit ohne Personendaten; Einträge ohne Region sieht nur der Plattformbetrieb |
+| 10 | `Ortschaften` übernimmt jede Zeile des Verzeichnisses, auch mehrere Gemeinden je Ortschaft | der Adressenanteil zeigt, ob eine Postleitzahl mehrere Gemeinden berührt; Punkte als `geography` mit räumlichem Index |
 
 ## Testdaten
 

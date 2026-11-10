@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Soforthilfe.Datenzugriff;
 
@@ -304,6 +305,66 @@ namespace Soforthilfe.Datenzugriff.Migrations
                     b.HasIndex("RegionId");
 
                     b.ToTable("Konten", (string)null);
+                });
+
+            modelBuilder.Entity("Soforthilfe.Datenzugriff.Modell.Ortschaft", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<double>("Adressenanteil")
+                        .HasColumnType("double precision");
+
+                    b.Property<int>("BfsNummer")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Gemeinde")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("Kanton")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<string>("Postleitzahl")
+                        .IsRequired()
+                        .HasMaxLength(4)
+                        .HasColumnType("character varying(4)");
+
+                    b.Property<string>("Sprache")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
+
+                    b.Property<Point>("Standort")
+                        .IsRequired()
+                        .HasColumnType("geography (Point, 4326)");
+
+                    b.Property<string>("Zusatzziffer")
+                        .IsRequired()
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Standort");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Standort"), "gist");
+
+                    b.HasIndex("Postleitzahl", "Zusatzziffer", "BfsNummer")
+                        .IsUnique();
+
+                    b.ToTable("Ortschaften", (string)null);
                 });
 
             modelBuilder.Entity("Soforthilfe.Datenzugriff.Modell.Protokolleintrag", b =>

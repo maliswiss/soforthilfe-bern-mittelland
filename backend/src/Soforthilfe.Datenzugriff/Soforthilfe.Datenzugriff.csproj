@@ -11,4 +11,12 @@
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="10.0.3" />
   </ItemGroup>
 
+  <!-- Amtliches Ortschaftenverzeichnis (swisstopo); wird beim Start eingelesen -->
+  <ItemGroup>
+    <None Update="Daten\*.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

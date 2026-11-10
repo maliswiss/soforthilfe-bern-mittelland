@@ -50,7 +50,8 @@
     "datenschutz": "Datenschutzerklärung nach revDSG",
     "agb": "Allgemeine Geschäftsbedingungen",
     "region": "Region",
-    "sprache": "Sprache: {sprache}"
+    "sprache": "Sprache: {sprache}",
+    "ortsdaten": "Ortsdaten: Amtliches Ortschaftenverzeichnis © swisstopo"
   },
   "sprache": {
     "de": "Deutsch"

@@ -77,7 +77,7 @@ erDiagram
   HELFERPROFIL }o--o{ SKILL : bietet
 ```
 
-Jede Region ist ein Mandant; Konten, Helferprofile und Anfragen gehören zu genau einer Region, nur der Plattformbetrieb arbeitet regionsübergreifend. Die Region Bern/Mittelland, zehn Kategorien und ihre Fähigkeiten kommen als Stammdaten mit den Migrationen; weitere Regionen entstehen im laufenden Betrieb. Kategorien sind entweder kostenlos oder kostenpflichtig. Eine Anfrage hält Postleitzahl und Ort getrennt von der genauen Adresse. Tabellen, Stammdaten und Entscheide: [docs/datenmodell.md](docs/datenmodell.md).
+Jede Region ist ein Mandant; Konten, Helferprofile und Anfragen gehören zu genau einer Region, nur der Plattformbetrieb arbeitet regionsübergreifend. Die Region Bern/Mittelland, zehn Kategorien und ihre Fähigkeiten kommen als Stammdaten mit den Migrationen; weitere Regionen entstehen im laufenden Betrieb. Kategorien sind entweder kostenlos oder kostenpflichtig. Eine Anfrage hält Postleitzahl und Ort getrennt von der genauen Adresse. Tabellen, Stammdaten und Entscheide: [docs/datenmodell.md](docs/datenmodell.md). Orte und Postleitzahlen kommen aus dem amtlichen Ortschaftenverzeichnis von swisstopo, das beim ersten Start eingelesen wird: [docs/orte-und-standort.md](docs/orte-und-standort.md).
 
 ## Technische Basis
 

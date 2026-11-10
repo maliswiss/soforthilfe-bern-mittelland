@@ -48,6 +48,11 @@ test('Regionswahl bietet die aktiven Regionen an und merkt sich die Auswahl', as
   await page.locator('#region-kopf').selectOption('bern-mittelland');
 });
 
+test('Fusszeile nennt die Quelle der Ortsdaten', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('contentinfo')).toContainText('Amtliches Ortschaftenverzeichnis © swisstopo');
+});
+
 test('Geschützte Seiten führen zur Anmeldung und merken sich das Ziel', async ({ page }) => {
   await page.goto('/anfragen');
   await expect(page).toHaveURL(/\/anmeldung\?weiter=%2Fanfragen|\/anmeldung\?weiter=\/anfragen/);

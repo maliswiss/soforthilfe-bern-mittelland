@@ -6,6 +6,7 @@ using Soforthilfe.Api.Fehlerbehandlung;
 using Soforthilfe.Api.Konfiguration;
 using Soforthilfe.Api.Mandanten;
 using Soforthilfe.Dienste;
+using Soforthilfe.Dienste.Orte;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -89,6 +90,9 @@ if (app.Configuration.GetValue<bool>("Datenbank:MigrationBeimStart"))
 {
     await app.Services.MigriereDatenbankAsync();
 }
+
+// Amtliches Ortschaftenverzeichnis (swisstopo): Referenzdaten, in jeder Umgebung einmal eingelesen.
+await app.Services.LeseOrtschaftenEinAsync(app.Configuration);
 
 // Testdaten mit fiktiven Personen nur auf ausdrücklichen Wunsch laden (Testdaten__Laden=true).
 if (app.Configuration.GetValue<bool>("Testdaten:Laden"))

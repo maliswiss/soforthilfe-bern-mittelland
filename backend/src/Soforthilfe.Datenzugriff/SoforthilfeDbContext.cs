@@ -32,6 +32,8 @@ public sealed class SoforthilfeDbContext : DbContext
 
     public DbSet<Protokolleintrag> Protokoll => Set<Protokolleintrag>();
 
+    public DbSet<Ortschaft> Ortschaften => Set<Ortschaft>();
+
     protected override void OnModelCreating(ModelBuilder modell)
     {
         // PostGIS wird über die Migrationen in der Datenbank aktiviert, nicht von Hand.
@@ -137,6 +139,25 @@ public sealed class SoforthilfeDbContext : DbContext
 
             // Einträge ohne Region sieht nur der Plattformbetrieb.
             eintrag.HasQueryFilter(p => _mandant.Uebergreifend || p.RegionId == _mandant.RegionId);
+        });
+
+        // Referenzdaten von swisstopo, für alle Regionen gleich und darum ohne Mandantenfilter.
+        modell.Entity<Ortschaft>(ortschaft =>
+        {
+            ortschaft.ToTable("Ortschaften");
+            ortschaft.Property(o => o.Postleitzahl).HasMaxLength(4);
+            ortschaft.Property(o => o.Zusatzziffer).HasMaxLength(2);
+            ortschaft.Property(o => o.Name).HasMaxLength(120);
+            ortschaft.Property(o => o.Gemeinde).HasMaxLength(120);
+            ortschaft.Property(o => o.Kanton).HasMaxLength(2);
+            ortschaft.Property(o => o.Sprache).HasMaxLength(10);
+            ortschaft.Property(o => o.Standort).HasColumnType("geography (Point, 4326)");
+
+            // Eine Zeile je Postleitzahl, Zusatzziffer und Gemeinde.
+            ortschaft.HasIndex(o => new { o.Postleitzahl, o.Zusatzziffer, o.BfsNummer }).IsUnique();
+
+            // Räumlicher Index für die Suche nach der nächsten Ortschaft.
+            ortschaft.HasIndex(o => o.Standort).HasMethod("gist");
         });
     }
 

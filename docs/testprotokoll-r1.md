@@ -60,7 +60,7 @@ Die Ergebnisse stammen aus dem CI-Lauf vom 06.11.2026 nach dem Commit der Oberfl
 | 2 | 04.11.2026 | Backend-Job der CI schlägt nach den Aufgaben 1.11 bis 1.13 fehl | Schnittstelle, Rauchtest und Tests in Aufgabe 1.14 bereinigt | erledigt |
 | 3 | 05.11.2026 | Schnittstellentest findet 8 statt 10 Fähigkeiten: beim Löschen alter Kategorien entfernte die Löschweitergabe zwei weiterverwendete Fähigkeiten | neue feste Kennungen für beide Fähigkeiten, Migration neu erzeugt, vor dem Push behoben | erledigt |
 | 4 | 05.11.2026 | Paketprüfung meldet `glob` und `minimatch` (mittel) im Build-Werkzeug Workbox | `glob` 14.0.3 für Workbox festgelegt (`overrides` in `frontend/package.json`) | erledigt |
-| 5 | 05.11.2026 | Paketprüfung meldet `deepmerge` (tief) im Build-Werkzeug Workbox; es gibt keine korrigierte Version | betrifft nur den Build, nicht die ausgelieferte Oberfläche; Beobachtung über Dependabot | akzeptiert |
+| 5 | 05.11.2026 | Paketprüfung meldet `deepmerge` (tief) im Build-Werkzeug Workbox; es gibt keine korrigierte Version | bewertet: betrifft nur den Build und verarbeitet nur die eigene Konfiguration, nicht die ausgelieferte Oberfläche; Meldung am 10.11.2026 mit Begründung geschlossen, erneute Paketprüfung in Release 3 | erledigt |
 | 6 | 05.11.2026 | Lokale Testläufe legen jedes Mal neue Konten und Regionen an | Datenbank bei Bedarf mit `docker compose down -v` zurücksetzen; die CI beginnt immer mit einer leeren Datenbank | bekannt |
 
 ## Ausführen

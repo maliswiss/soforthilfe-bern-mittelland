@@ -27,7 +27,7 @@
 
 | Punkt | Behandlung |
 |---|---|
-| Paketprüfung meldet `deepmerge` (tief) im Build-Werkzeug Workbox, ohne korrigierte Version | betrifft nur den Build; Beobachtung über Dependabot (Testprotokoll, Befund 5) |
+| Paketprüfung meldet `deepmerge` (tief) im Build-Werkzeug Workbox, ohne korrigierte Version | betrifft nur den Build; bewertet und geschlossen (Testprotokoll, Befund 5) |
 | Lokale Testläufe hinterlassen Testkonten und Testregionen | lokale Datenbank bei Bedarf zurücksetzen (Testprotokoll, Befund 6) |
 
 ## Übergabe an Release 2

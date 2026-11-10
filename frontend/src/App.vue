@@ -113,6 +113,7 @@ function abmelden() {
         <h2 class="mb-2 text-base">{{ t('fuss.region') }}</h2>
         <p>{{ konto.regionName }}</p>
         <p>{{ t('fuss.sprache', { sprache: spracheName }) }}</p>
+        <p class="mt-2 text-xs">{{ t('fuss.ortsdaten') }}</p>
       </div>
     </div>
   </footer>

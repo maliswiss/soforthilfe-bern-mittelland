@@ -59,7 +59,7 @@ PostGIS läuft als Erweiterung des Datenbankdienstes im eigenen Container und is
 
 | Quelle | Zweck | Bedingung | Link |
 |---|---|---|---|
-| Amtliches Ortschaftenverzeichnis, swisstopo | Orte und Postleitzahlen | frei nutzbar mit Quellenangabe «© swisstopo» | https://www.swisstopo.admin.ch |
+| Amtliches Ortschaftenverzeichnis, swisstopo (Ausgabe 01.09.2026, CSV WGS84) | Orte, Postleitzahlen, Gemeinden und Punkte | freie Nutzung, Quellenangabe Pflicht: «© swisstopo» in der Fusszeile | https://www.swisstopo.admin.ch/de/amtliches-ortschaftenverzeichnis, https://opendata.swiss/de/dataset/amtliches-ortschaftenverzeichnis-mit-postleitzahl-und-perimeter |
 
 ## Dienste
 
