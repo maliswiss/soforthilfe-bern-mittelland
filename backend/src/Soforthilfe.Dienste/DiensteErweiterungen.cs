@@ -2,12 +2,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Soforthilfe.Datenzugriff;
 using Soforthilfe.Dienste.Anfragen;
+using Soforthilfe.Dienste.Helfende;
 using Soforthilfe.Dienste.Info;
 using Soforthilfe.Dienste.Kategorien;
 using Soforthilfe.Dienste.Konten;
-using Soforthilfe.Dienste.Helfende;
 using Soforthilfe.Dienste.Notfall;
 using Soforthilfe.Dienste.Orte;
+using Soforthilfe.Dienste.Preise;
 using Soforthilfe.Dienste.Protokoll;
 using Soforthilfe.Dienste.Regionen;
 using Soforthilfe.Dienste.Verstaendnis;
@@ -37,6 +38,13 @@ public static class DiensteErweiterungen
 
         // Die Notfallprüfung arbeitet nur mit festen Regeln und ist zustandslos.
         dienste.AddSingleton<INotfallPruefung, NotfallPruefung>();
+
+        // Preisberechnung (Anforderung A9): MWST-Satz und Nachtzeit aus dem Abschnitt «Preise», sonst Standardwerte.
+        dienste.AddSingleton(new PreisEinstellungen(
+            konfiguration.GetValue("Preise:MwstSatzProzent", 8.1m),
+            konfiguration.GetValue("Preise:NachtVonStunde", 20),
+            konfiguration.GetValue("Preise:NachtBisStunde", 7)));
+        dienste.AddSingleton<IPreisrechner, Preisrechner>();
 
         // Das Protokoll schreibt in die Region der laufenden Anfrage.
         dienste.AddScoped<IProtokollDienst, ProtokollDienst>();

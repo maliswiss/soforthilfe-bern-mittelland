@@ -1,5 +1,6 @@
 using Soforthilfe.Datenzugriff.Modell;
 using Soforthilfe.Dienste.Kategorien;
+using Soforthilfe.Dienste.Preise;
 
 namespace Soforthilfe.Dienste.Helfende;
 
@@ -14,7 +15,8 @@ public sealed record HelferprofilDaten(
     string Ort,
     int RadiusKm,
     IReadOnlyList<Guid> SkillIds,
-    string? Adresse);
+    string? Adresse,
+    Preisangaben Preise);
 
 /// <summary>
 /// Helferprofil, wie es die helfende Person selbst sieht.
@@ -33,7 +35,9 @@ public sealed record HelferprofilInfo(
     int AnzahlBewertungen,
     int AnzahlEinsaetze,
     IReadOnlyList<SkillInfo> Skills,
-    string? Adresse);
+    string? Adresse,
+    Preisangaben Preise,
+    bool PreiseErforderlich);
 
 /// <summary>
 /// Gründe, warum ein Helferprofil nicht gespeichert wird.
@@ -47,6 +51,7 @@ public enum HelferprofilFehler
     OrtFehlt,
     PostleitzahlUnbekannt,
     PostleitzahlAusserhalbRegion,
+    PreiseFehlen,
 }
 
 /// <summary>

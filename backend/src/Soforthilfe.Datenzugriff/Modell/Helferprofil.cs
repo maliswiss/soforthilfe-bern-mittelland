@@ -40,6 +40,21 @@ public sealed class Helferprofil
     // Gibt an, ob die Person derzeit Anfragen annimmt.
     public bool Einsatzbereit { get; set; } = true;
 
+    // Preisangaben (Anforderung A9), vor der Zusage sichtbar. Pflicht bei bezahlpflichtigen Fähigkeiten.
+    // Anfahrt als Pauschale je Einsatz; Zuschläge in Prozent auf den Stundenansatz.
+    public decimal? AnfahrtChf { get; set; }
+
+    public decimal? StundenansatzChf { get; set; }
+
+    // Nachtzuschlag, Standard von 20 bis 7 Uhr.
+    public int? NachtzuschlagProzent { get; set; }
+
+    // Wochenendzuschlag für Samstag und Sonntag.
+    public int? WochenendzuschlagProzent { get; set; }
+
+    // Preise verstehen sich ohne MWST; bei MWST-Pflicht kommt sie im Richtpreis hinzu.
+    public bool MwstPflichtig { get; set; }
+
     // Partner-Abo; wirkt im Matching nur bei gleichwertigen Vorschlägen.
     public bool Partner { get; set; }
 

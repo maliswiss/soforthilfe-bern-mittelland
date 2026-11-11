@@ -99,6 +99,11 @@ erwarte "Helferprofil vor dem Anlegen" 404 "$(status -H "Authorization: Bearer $
 erwarte "Helferprofil als Hilfesuchende" 403 "$(status -H "Authorization: Bearer $token" "$BASIS/api/helferprofil")"
 erwarte "Helferprofil anlegen" 200 "$(status -X PUT "${json[@]}" -H "Authorization: Bearer $token_helfende" -d "$profil" "$BASIS/api/helferprofil")"
 erwarte "Fähigkeit im Profil" nachbarschaftshilfe "$(jq -r '.skills[0].code' "$ANTWORT")"
+richtpreis='{"anfahrtChf":40,"stundenansatzChf":95,"nachtzuschlagProzent":50,"wochenendzuschlagProzent":25,"mwstPflichtig":true,"zeitpunkte":["2026-11-11T22:00:00+01:00"]}'
+erwarte "Richtpreis berechnen" 200 "$(status "${json[@]}" -d "$richtpreis" "$BASIS/api/preise/richtpreis")"
+erwarte "Richtpreis nachts mit MWST in Rappen" 19730 "$(jq '.[0].richtpreisErsteStunde * 100 | round' "$ANTWORT")"
+skill_bezahlt="$(status "$BASIS/api/skills" > /dev/null; jq -r 'map(select(.code == "sanitaer-elektro")) | .[0].id' "$ANTWORT")"
+erwarte "Bezahlpflichtige Fähigkeit ohne Preise" 400 "$(status -X PUT "${json[@]}" -H "Authorization: Bearer $token_helfende" -d "$(jq -n --arg s "$skill_bezahlt" '{typ: 0, plz: "3011", ort: "Bern", radiusKm: 5, skillIds: [$s]}')" "$BASIS/api/helferprofil")"
 erwarte "Verfügbarkeit ausschalten" false "$(status -X PUT "${json[@]}" -H "Authorization: Bearer $token_helfende" -d '{"jetztVerfuegbar":false}' "$BASIS/api/helferprofil/verfuegbarkeit" > /dev/null; jq '.jetztVerfuegbar' "$ANTWORT")"
 
 echo "== Notfall-Stopp"

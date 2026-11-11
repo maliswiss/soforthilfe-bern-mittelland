@@ -33,7 +33,7 @@ Hilfesuchende beschreiben ihre Lage in eigenen Worten. Die Plattform erkennt den
 | Containerplattform mit Docker Compose und Traefik | R1 | umgesetzt |
 | Notfall-Stopp mit Hinweis «144 anrufen» und Protokolleintrag ohne Personendaten | R2 | umgesetzt |
 | Orte über das Ortschaftenverzeichnis von swisstopo, Region aus der Postleitzahl, Standortfreigabe | R2 | umgesetzt |
-| Helferprofile mit Verifizierung und Preisangaben | R2 | in Arbeit ([docs/helferprofil.md](docs/helferprofil.md)) |
+| Helferprofile mit Verifizierung und Preisangaben | R2 | in Arbeit ([docs/helferprofil.md](docs/helferprofil.md), [docs/preise.md](docs/preise.md)) |
 | Verständniskette: Kategorie, Regeln, TF-IDF-Klassifikator, Sprachmodell | R2 | geplant |
 | Mehrsprachigkeit Deutsch und Französisch, Sprachimport ohne Deployment | R2 | geplant |
 | Smart-Matching mit nachvollziehbarer Begründung | R2 | geplant |

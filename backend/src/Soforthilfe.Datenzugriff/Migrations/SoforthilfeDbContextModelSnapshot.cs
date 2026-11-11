@@ -110,6 +110,10 @@ namespace Soforthilfe.Datenzugriff.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
 
+                    b.Property<decimal?>("AnfahrtChf")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("numeric(8,2)");
+
                     b.Property<int>("AnzahlBewertungen")
                         .HasColumnType("integer");
 
@@ -136,6 +140,12 @@ namespace Soforthilfe.Datenzugriff.Migrations
                     b.Property<Guid>("KontoId")
                         .HasColumnType("uuid");
 
+                    b.Property<bool>("MwstPflichtig")
+                        .HasColumnType("boolean");
+
+                    b.Property<int?>("NachtzuschlagProzent")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Ort")
                         .IsRequired()
                         .HasMaxLength(120)
@@ -155,11 +165,18 @@ namespace Soforthilfe.Datenzugriff.Migrations
                     b.Property<Point>("Standort")
                         .HasColumnType("geography (Point, 4326)");
 
+                    b.Property<decimal?>("StundenansatzChf")
+                        .HasPrecision(8, 2)
+                        .HasColumnType("numeric(8,2)");
+
                     b.Property<string>("Typ")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
                         .HasDefaultValue("Privatperson");
+
+                    b.Property<int?>("WochenendzuschlagProzent")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 

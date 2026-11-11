@@ -5,6 +5,7 @@ using Soforthilfe.Datenzugriff.Mandanten;
 using Soforthilfe.Datenzugriff.Modell;
 using Soforthilfe.Dienste.Kategorien;
 using Soforthilfe.Dienste.Orte;
+using Soforthilfe.Dienste.Preise;
 using Soforthilfe.Dienste.Protokoll;
 
 namespace Soforthilfe.Dienste.Helfende;
@@ -47,6 +48,13 @@ public sealed partial class HelferprofilDienst(
         if (skills.Count == 0 || skills.Count != skillIds.Count)
         {
             return Fehler(HelferprofilFehler.SkillFehlt);
+        }
+
+        // Anforderung A9: Wer bezahlpflichtige Leistungen anbietet, nennt Anfahrt und Stundenansatz,
+        // damit Anfragende den Preis vor der Zusage kennen.
+        if (skills.Any(s => s.Kategorie?.Kostenpflichtig == true) && !daten.Preise.Vollstaendig)
+        {
+            return Fehler(HelferprofilFehler.PreiseFehlen);
         }
 
         var betriebsname = Leer(daten.Betriebsname);
@@ -94,6 +102,11 @@ public sealed partial class HelferprofilDienst(
         profil.Postleitzahl = plz;
         profil.Ort = ort;
         profil.EinsatzradiusKm = daten.RadiusKm;
+        profil.AnfahrtChf = daten.Preise.AnfahrtChf;
+        profil.StundenansatzChf = daten.Preise.StundenansatzChf;
+        profil.NachtzuschlagProzent = daten.Preise.NachtzuschlagProzent;
+        profil.WochenendzuschlagProzent = daten.Preise.WochenendzuschlagProzent;
+        profil.MwstPflichtig = daten.Preise.MwstPflichtig;
         profil.Skills.Clear();
         profil.Skills.AddRange(skills);
 
@@ -130,6 +143,10 @@ public sealed partial class HelferprofilDienst(
 
     private static string? Leer(string? text) => string.IsNullOrWhiteSpace(text) ? null : text.Trim();
 
+    /// <summary>Preisangaben eines gespeicherten Profils, zum Beispiel für den Richtpreis in Vorschlägen.</summary>
+    public static Preisangaben Preise(Helferprofil p) =>
+        new(p.AnfahrtChf, p.StundenansatzChf, p.NachtzuschlagProzent, p.WochenendzuschlagProzent, p.MwstPflichtig);
+
     private static HelferprofilInfo Info(Helferprofil p) => new(
         p.Id,
         p.Typ,
@@ -148,5 +165,7 @@ public sealed partial class HelferprofilDienst(
             .ThenBy(s => s.Bezeichnung, StringComparer.Ordinal)
             .Select(s => new SkillInfo(s.Id, s.Kennung, s.Bezeichnung, s.Kategorie?.Kostenpflichtig ?? false))
             .ToList(),
-        p.Adresse);
+        p.Adresse,
+        Preise(p),
+        p.Skills.Any(s => s.Kategorie?.Kostenpflichtig == true));
 }

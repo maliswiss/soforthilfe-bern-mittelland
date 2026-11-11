@@ -26,6 +26,7 @@ Die Schnittstelle ist eine REST-API unter `/api`. Sie spricht JSON; Feldnamen be
 | GET | `/api/helferprofil` | Helfende | Eigenes Helferprofil |
 | PUT | `/api/helferprofil` | Helfende | Helferprofil anlegen oder ersetzen ([helferprofil.md](helferprofil.md)) |
 | PUT | `/api/helferprofil/verfuegbarkeit` | Helfende | «jetzt verfügbar» umschalten |
+| POST | `/api/preise/richtpreis` | offen | Richtpreis für die erste Stunde zu bis zu zehn Zeitpunkten ([preise.md](preise.md)) |
 | GET | `/api/protokoll` | Koordination, Mandantenadministration, Plattformbetrieb | Neueste Protokolleinträge der eigenen Region, für den Plattformbetrieb aller Regionen; Filter `aktion`, Anzahl `anzahl` (Standard 100, höchstens 500) |
 | GET | `/health/live` | intern | Prozess läuft |
 | GET | `/health/ready` | intern | Anwendung bereit, Datenbank erreichbar |

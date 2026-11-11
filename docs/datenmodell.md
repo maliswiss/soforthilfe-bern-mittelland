@@ -58,6 +58,11 @@ erDiagram
     text Ort
     geography Standort
     int EinsatzradiusKm
+    decimal AnfahrtChf
+    decimal StundenansatzChf
+    int NachtzuschlagProzent
+    int WochenendzuschlagProzent
+    bool MwstPflichtig
     bool Einsatzbereit
     bool Partner
     double Bewertungsschnitt
@@ -143,7 +148,8 @@ Weitere Regionen entstehen im laufenden Betrieb als Daten (`POST /api/mandanten`
 | 10 | `Ortschaften` übernimmt jede Zeile des Verzeichnisses, auch mehrere Gemeinden je Ortschaft | der Adressenanteil zeigt, ob eine Postleitzahl mehrere Gemeinden berührt; Punkte als `geography` mit räumlichem Index |
 | 11 | `Regionen.Gemeinden` als Liste von BFS-Gemeindenummern; eine Gemeinde gehört zu höchstens einer Region | die Postleitzahl bestimmt über ihre Gemeinden die Region; keine Regionswahl in der Oberfläche |
 | 12 | `Helferprofile.Standort` ist der Punkt der Postleitzahl, nie ein genauer Standort | Entfernungen ohne Ortung der Person; ändert sich der Ort, wird der Punkt neu bestimmt |
+| 13 | Preise als `numeric(8,2)` ohne MWST, Zuschläge als ganze Prozent | genaue Beträge ohne Rundungsfehler; der Richtpreis wird berechnet und nicht gespeichert ([preise.md](preise.md)) |
 
 ## Testdaten
 
-Mit `Testdaten__Laden=true` lädt die Schnittstelle beim Start fiktive Daten in eine Datenbank ohne Konten: acht Konten auf `beispiel.invalid` in beiden Regionen und im Plattformbetrieb, drei Helferprofile und zwei Anfragen. Die CI prüft die Anzahl der Zeilen je Tabelle.
+Mit `Testdaten__Laden=true` lädt die Schnittstelle beim Start fiktive Daten in eine Datenbank ohne Konten: acht Konten auf `beispiel.invalid` in beiden Regionen und im Plattformbetrieb, drei Helferprofile, zwei davon mit Preisangaben, und zwei Anfragen. Die CI prüft die Anzahl der Zeilen je Tabelle.

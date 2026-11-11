@@ -96,6 +96,8 @@ public sealed class SoforthilfeDbContext : DbContext
             profil.Property(h => h.Beschreibung).HasMaxLength(1000);
             profil.Property(h => h.Adresse).HasMaxLength(250);
             profil.Property(h => h.Standort).HasColumnType("geography (Point, 4326)");
+            profil.Property(h => h.AnfahrtChf).HasPrecision(8, 2);
+            profil.Property(h => h.StundenansatzChf).HasPrecision(8, 2);
 
             // Als Text speichern; bestehende Profile gelten als Privatperson.
             profil.Property(h => h.Typ).HasConversion<string>().HasMaxLength(20)

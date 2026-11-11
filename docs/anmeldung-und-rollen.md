@@ -22,7 +22,7 @@
 
 | Schnittstelle | Hilfesuchende | Helfende | Koordination | Mandantenadministration | Plattformbetrieb |
 |---|---|---|---|---|---|
-| `GET /api/mandanten`, `GET /api/kategorien`, `GET /api/skills`, `GET /api/orte`, `POST /api/orte/umgebung`, `POST /api/anfragen/verstehen` | ja | ja | ja | ja | ja |
+| `GET /api/mandanten`, `GET /api/kategorien`, `GET /api/skills`, `GET /api/orte`, `POST /api/orte/umgebung`, `POST /api/anfragen/verstehen`, `POST /api/preise/richtpreis` | ja | ja | ja | ja | ja |
 | `GET /api/auth/ich` | ja | ja | ja | ja | ja |
 | `POST /api/anfragen`, `GET /api/anfragen/meine` | ja | nein | nein | nein | nein |
 | `GET`, `PUT /api/helferprofil`, `PUT /api/helferprofil/verfuegbarkeit` | nein | eigenes Profil | nein | nein | nein |

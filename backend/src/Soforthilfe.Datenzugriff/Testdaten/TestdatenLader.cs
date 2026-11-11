@@ -87,6 +87,11 @@ public static class TestdatenLader
                 Ort = "Bern",
                 EinsatzradiusKm = 15,
                 Skills = [skills["sanitaer-elektro"], skills["kleine-reparatur"]],
+                AnfahrtChf = 40m,
+                StundenansatzChf = 95m,
+                NachtzuschlagProzent = 50,
+                WochenendzuschlagProzent = 25,
+                MwstPflichtig = true,
             },
             new Helferprofil
             {
@@ -105,6 +110,9 @@ public static class TestdatenLader
                 Ort = "Biel/Bienne",
                 EinsatzradiusKm = 20,
                 Skills = [skills["it-soforthilfe"]],
+                AnfahrtChf = 20m,
+                StundenansatzChf = 70m,
+                WochenendzuschlagProzent = 20,
             });
 
         datenbank.Anfragen.AddRange(

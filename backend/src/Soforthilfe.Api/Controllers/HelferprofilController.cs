@@ -32,7 +32,7 @@ public sealed class HelferprofilController(IHelferprofilDienst profile) : Contro
     {
         var ergebnis = await profile.SpeichernAsync(KontoId(), new HelferprofilDaten(
             eingabe.Typ, eingabe.Betriebsname, eingabe.Beschreibung, eingabe.Plz, eingabe.Ort, eingabe.RadiusKm,
-            eingabe.SkillIds, eingabe.Adresse), abbruch);
+            eingabe.SkillIds, eingabe.Adresse, eingabe.Preise()), abbruch);
 
         return ergebnis.Fehler switch
         {
@@ -45,6 +45,9 @@ public sealed class HelferprofilController(IHelferprofilDienst profile) : Contro
             HelferprofilFehler.PostleitzahlUngueltig => Ungueltig("Postleitzahl ungültig",
                 "Bitte eine vierstellige Postleitzahl angeben.", "plz"),
             HelferprofilFehler.OrtFehlt => Ungueltig("Ort fehlt", "Bitte den Ort angeben.", "ort"),
+            HelferprofilFehler.PreiseFehlen => Ungueltig("Preisangaben fehlen",
+                "Für bezahlpflichtige Leistungen sind Anfahrt und Stundenansatz anzugeben, damit Anfragende den Preis vor der Zusage kennen.",
+                "preise"),
             HelferprofilFehler.PostleitzahlUnbekannt => Ungueltig("Postleitzahl unbekannt",
                 "Diese Postleitzahl steht nicht im amtlichen Ortschaftenverzeichnis.", "plz"),
             _ => Ungueltig("Postleitzahl ausserhalb der Region",
