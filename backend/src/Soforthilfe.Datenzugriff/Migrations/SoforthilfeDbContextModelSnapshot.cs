@@ -106,6 +106,27 @@ namespace Soforthilfe.Datenzugriff.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Adresse")
+                        .HasMaxLength(250)
+                        .HasColumnType("character varying(250)");
+
+                    b.Property<int>("AnzahlBewertungen")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("AnzahlEinsaetze")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("Beschreibung")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Betriebsname")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<double>("Bewertungsschnitt")
+                        .HasColumnType("double precision");
+
                     b.Property<bool>("Einsatzbereit")
                         .HasColumnType("boolean");
 
@@ -117,8 +138,11 @@ namespace Soforthilfe.Datenzugriff.Migrations
 
                     b.Property<string>("Ort")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)");
+
+                    b.Property<bool>("Partner")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Postleitzahl")
                         .IsRequired()
@@ -127,6 +151,15 @@ namespace Soforthilfe.Datenzugriff.Migrations
 
                     b.Property<Guid>("RegionId")
                         .HasColumnType("uuid");
+
+                    b.Property<Point>("Standort")
+                        .HasColumnType("geography (Point, 4326)");
+
+                    b.Property<string>("Typ")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("Privatperson");
 
                     b.HasKey("Id");
 

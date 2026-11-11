@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using NetTopologySuite.Geometries;
 using Soforthilfe.Datenzugriff;
 using Soforthilfe.Datenzugriff.Modell;
 using Soforthilfe.Datenzugriff.Ortschaften;
@@ -67,6 +68,18 @@ public sealed class OrtDienst(SoforthilfeDbContext datenbank) : IOrtDienst
         // Gemeinde, Region und Hinweis wie bei der Eingabe der Postleitzahl.
         var orte = await NachPlzAsync(naechste.Postleitzahl, abbruch);
         return orte.FirstOrDefault(o => o.Ort == naechste.Name) ?? orte.FirstOrDefault();
+    }
+
+    public async Task<Point?> PunktZuPlzAsync(string plz, string? ort, CancellationToken abbruch)
+    {
+        var zeilen = await ZeilenAsync(plz, abbruch);
+        var gesucht = ort?.Trim();
+        var passend = zeilen.Where(z => string.Equals(z.Name, gesucht, StringComparison.OrdinalIgnoreCase)).ToList();
+
+        return (passend.Count > 0 ? passend : zeilen)
+            .OrderByDescending(z => z.Adressenanteil)
+            .Select(z => z.Standort)
+            .FirstOrDefault();
     }
 
     public async Task<PlzPruefung> PruefeFuerRegionAsync(string plz, Guid regionId, CancellationToken abbruch)

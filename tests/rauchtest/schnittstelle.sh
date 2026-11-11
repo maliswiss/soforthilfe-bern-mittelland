@@ -87,6 +87,20 @@ erwarte "Erfasste Anfrage ist offen" 1 "$(jq -r '.status' "$ANTWORT")"
 erwarte "Eigene Anfragen auflisten" 200 "$(status -H "Authorization: Bearer $token" "$BASIS/api/anfragen/meine")"
 erwarte "Eine eigene Anfrage" 1 "$(jq 'length' "$ANTWORT")"
 
+echo "== Helferprofil"
+helfende="$(jq -n --arg e "rauchtest.helfende.$(date +%s%N)@beispiel.invalid" --arg p "$kennwort" \
+  '{eMail: $e, passwort: $p, anzeigename: "Rauchtest Helfende", kontoart: 1, mandant: "bern-mittelland"}')"
+status "${json[@]}" -d "$helfende" "$BASIS/api/auth/registrierung" > /dev/null
+token_helfende="$(jq -r '.token' "$ANTWORT")"
+status "$BASIS/api/skills" > /dev/null
+skill_frei="$(jq -r 'map(select(.code == "nachbarschaftshilfe")) | .[0].id' "$ANTWORT")"
+profil="$(jq -n --arg s "$skill_frei" '{typ: 0, plz: "3011", ort: "Bern", radiusKm: 5, skillIds: [$s]}')"
+erwarte "Helferprofil vor dem Anlegen" 404 "$(status -H "Authorization: Bearer $token_helfende" "$BASIS/api/helferprofil")"
+erwarte "Helferprofil als Hilfesuchende" 403 "$(status -H "Authorization: Bearer $token" "$BASIS/api/helferprofil")"
+erwarte "Helferprofil anlegen" 200 "$(status -X PUT "${json[@]}" -H "Authorization: Bearer $token_helfende" -d "$profil" "$BASIS/api/helferprofil")"
+erwarte "Fähigkeit im Profil" nachbarschaftshilfe "$(jq -r '.skills[0].code' "$ANTWORT")"
+erwarte "Verfügbarkeit ausschalten" false "$(status -X PUT "${json[@]}" -H "Authorization: Bearer $token_helfende" -d '{"jetztVerfuegbar":false}' "$BASIS/api/helferprofil/verfuegbarkeit" > /dev/null; jq '.jetztVerfuegbar' "$ANTWORT")"
+
 echo "== Notfall-Stopp"
 notfall_text='{"freitext":"Mein Mann ist bewusstlos auf dem Boden."}'
 erwarte "Notfallprüfung ohne Anmeldung" 200 "$(status "${json[@]}" -d "$notfall_text" "$BASIS/api/anfragen/verstehen")"

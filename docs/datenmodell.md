@@ -50,10 +50,19 @@ erDiagram
     uuid Id PK
     uuid KontoId FK
     uuid RegionId FK
+    text Typ
+    text Betriebsname
+    text Beschreibung
+    text Adresse
     text Postleitzahl
     text Ort
+    geography Standort
     int EinsatzradiusKm
     bool Einsatzbereit
+    bool Partner
+    double Bewertungsschnitt
+    int AnzahlBewertungen
+    int AnzahlEinsaetze
   }
   ANFRAGE {
     uuid Id PK
@@ -99,7 +108,7 @@ erDiagram
 | `Konten` | Personen mit Rolle, E-Mail-Adresse, Passwort-Hash und freiwilliger Telefonnummer | genau eine; der Plattformbetrieb hat keine |
 | `Kategorien` | Kategorien der Startseite, kostenlos oder kostenpflichtig | für alle Regionen gleich |
 | `Skills` | Fähigkeiten je Kategorie | für alle Regionen gleich |
-| `Helferprofile` | Einsatzgebiet, Radius und Fähigkeiten helfender Personen | genau eine |
+| `Helferprofile` | Privatperson oder Betrieb, Einsatzgebiet, Radius, Fähigkeiten und Verfügbarkeit helfender Personen ([helferprofil.md](helferprofil.md)) | genau eine |
 | `HelferprofilSkills` | Zuordnung Profil zu Fähigkeit | über das Profil |
 | `Anfragen` | Anliegen mit Kategorie und/oder Freitext, Ort, Zeitfenster, Dringlichkeit und Status | genau eine |
 | `Protokoll` | Sicherheitsrelevante Vorgänge wie der Notfall-Stopp, ohne Personendaten | eine oder keine (ohne Anmeldung) |
@@ -133,6 +142,7 @@ Weitere Regionen entstehen im laufenden Betrieb als Daten (`POST /api/mandanten`
 | 9 | `Protokoll` ohne Konto, IP-Adresse und Eingaben; das Detail nennt nur den Begriff aus der festen Liste | Nachvollziehbarkeit ohne Personendaten; Einträge ohne Region sieht nur der Plattformbetrieb |
 | 10 | `Ortschaften` übernimmt jede Zeile des Verzeichnisses, auch mehrere Gemeinden je Ortschaft | der Adressenanteil zeigt, ob eine Postleitzahl mehrere Gemeinden berührt; Punkte als `geography` mit räumlichem Index |
 | 11 | `Regionen.Gemeinden` als Liste von BFS-Gemeindenummern; eine Gemeinde gehört zu höchstens einer Region | die Postleitzahl bestimmt über ihre Gemeinden die Region; keine Regionswahl in der Oberfläche |
+| 12 | `Helferprofile.Standort` ist der Punkt der Postleitzahl, nie ein genauer Standort | Entfernungen ohne Ortung der Person; ändert sich der Ort, wird der Punkt neu bestimmt |
 
 ## Testdaten
 

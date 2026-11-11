@@ -1,3 +1,5 @@
+using NetTopologySuite.Geometries;
+
 namespace Soforthilfe.Datenzugriff.Modell;
 
 /// <summary>
@@ -16,14 +18,36 @@ public sealed class Helferprofil
 
     public Region? Region { get; set; }
 
+    public Helfertyp Typ { get; set; } = Helfertyp.Privatperson;
+
+    // Name des Betriebs; nur bei Typ «Betrieb».
+    public string? Betriebsname { get; set; }
+
+    public string? Beschreibung { get; set; }
+
+    // Strasse und Nummer. Sieht nur die anfragende Person, und erst nach der Zusage.
+    public string? Adresse { get; set; }
+
     public required string Postleitzahl { get; set; }
 
     public required string Ort { get; set; }
+
+    // Punkt der Postleitzahl aus dem Ortschaftenverzeichnis (WGS84), nie ein genauer Standort.
+    public Point? Standort { get; set; }
 
     public int EinsatzradiusKm { get; set; } = 10;
 
     // Gibt an, ob die Person derzeit Anfragen annimmt.
     public bool Einsatzbereit { get; set; } = true;
+
+    // Partner-Abo; wirkt im Matching nur bei gleichwertigen Vorschlägen.
+    public bool Partner { get; set; }
+
+    public double Bewertungsschnitt { get; set; }
+
+    public int AnzahlBewertungen { get; set; }
+
+    public int AnzahlEinsaetze { get; set; }
 
     public List<Skill> Skills { get; set; } = [];
 }

@@ -91,7 +91,15 @@ public sealed class SoforthilfeDbContext : DbContext
         {
             profil.ToTable("Helferprofile");
             profil.Property(h => h.Postleitzahl).HasMaxLength(4);
-            profil.Property(h => h.Ort).HasMaxLength(100);
+            profil.Property(h => h.Ort).HasMaxLength(120);
+            profil.Property(h => h.Betriebsname).HasMaxLength(200);
+            profil.Property(h => h.Beschreibung).HasMaxLength(1000);
+            profil.Property(h => h.Adresse).HasMaxLength(250);
+            profil.Property(h => h.Standort).HasColumnType("geography (Point, 4326)");
+
+            // Als Text speichern; bestehende Profile gelten als Privatperson.
+            profil.Property(h => h.Typ).HasConversion<string>().HasMaxLength(20)
+                .HasDefaultValue(Helfertyp.Privatperson).ValueGeneratedNever();
 
             // Ein Konto hat höchstens ein Helferprofil.
             profil.HasOne(h => h.Konto).WithOne().HasForeignKey<Helferprofil>(h => h.KontoId).OnDelete(DeleteBehavior.Cascade);

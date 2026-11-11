@@ -5,6 +5,7 @@ using Soforthilfe.Dienste.Anfragen;
 using Soforthilfe.Dienste.Info;
 using Soforthilfe.Dienste.Kategorien;
 using Soforthilfe.Dienste.Konten;
+using Soforthilfe.Dienste.Helfende;
 using Soforthilfe.Dienste.Notfall;
 using Soforthilfe.Dienste.Orte;
 using Soforthilfe.Dienste.Protokoll;
@@ -44,6 +45,7 @@ public static class DiensteErweiterungen
         dienste.AddScoped<IKategorienDienst, KategorienDienst>();
         dienste.AddScoped<IOrtDienst, OrtDienst>();
         dienste.AddScoped<IAnfrageDienst, AnfrageDienst>();
+        dienste.AddScoped<IHelferprofilDienst, HelferprofilDienst>();
         dienste.AddScoped<IVerstaendnisDienst, VerstaendnisDienst>();
 
         return dienste;

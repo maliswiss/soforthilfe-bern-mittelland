@@ -23,6 +23,9 @@ Die Schnittstelle ist eine REST-API unter `/api`. Sie spricht JSON; Feldnamen be
 | GET | `/api/anfragen/{id}` | wie oben | einzelne Anfrage; fremde Anfragen liefern `404` |
 | GET | `/api/konten` | Koordination, Mandantenadministration, Plattformbetrieb | Konten der Region, ohne Telefonnummern |
 | PUT | `/api/konten/{id}/rolle` | Mandantenadministration, Plattformbetrieb | Rolle eines Kontos ändern |
+| GET | `/api/helferprofil` | Helfende | Eigenes Helferprofil |
+| PUT | `/api/helferprofil` | Helfende | Helferprofil anlegen oder ersetzen ([helferprofil.md](helferprofil.md)) |
+| PUT | `/api/helferprofil/verfuegbarkeit` | Helfende | «jetzt verfügbar» umschalten |
 | GET | `/api/protokoll` | Koordination, Mandantenadministration, Plattformbetrieb | Neueste Protokolleinträge der eigenen Region, für den Plattformbetrieb aller Regionen; Filter `aktion`, Anzahl `anzahl` (Standard 100, höchstens 500) |
 | GET | `/health/live` | intern | Prozess läuft |
 | GET | `/health/ready` | intern | Anwendung bereit, Datenbank erreichbar |

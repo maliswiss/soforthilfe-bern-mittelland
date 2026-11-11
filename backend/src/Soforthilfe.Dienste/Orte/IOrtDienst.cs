@@ -1,3 +1,5 @@
+using NetTopologySuite.Geometries;
+
 namespace Soforthilfe.Dienste.Orte;
 
 /// <summary>
@@ -13,6 +15,12 @@ public interface IOrtDienst
     /// <see cref="OrtDienst.HoechstabstandMeter"/> liegt (zum Beispiel im Ausland). Der Standort wird nicht gespeichert.
     /// </summary>
     Task<OrtInfo?> NaechsteAsync(double breitengrad, double laengengrad, CancellationToken abbruch);
+
+    /// <summary>
+    /// Punkt einer Ortschaft aus dem Verzeichnis: die Ortschaft mit passendem Namen, sonst die mit dem grössten
+    /// Anteil der Adressen; null bei unbekannter Postleitzahl.
+    /// </summary>
+    Task<Point?> PunktZuPlzAsync(string plz, string? ort, CancellationToken abbruch);
 
     /// <summary>Prüft, ob eine Postleitzahl zur angegebenen Region passt.</summary>
     Task<PlzPruefung> PruefeFuerRegionAsync(string plz, Guid regionId, CancellationToken abbruch);
