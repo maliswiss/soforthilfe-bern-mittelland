@@ -14,7 +14,7 @@ Helfende Personen und Betriebe beschreiben im Helferprofil, was sie anbieten, wo
 | Adresse | freiwillig; sieht nur die anfragende Person, und erst nach der Zusage |
 | Preisangaben | Anfahrt, Stundenansatz, Nacht- und Wochenendzuschlag, MWST-Pflicht; Pflicht bei bezahlpflichtigen Fähigkeiten ([preise.md](preise.md)) |
 | Verfügbarkeit | «jetzt verfügbar» lässt sich jederzeit umschalten, ohne das Profil neu zu speichern |
-| Verifizierung | Stand der Prüfung durch die Koordination; Nachweise ohne Ausweisdokumente ([verifizierung.md](verifizierung.md)) |
+| Verifizierung | Stand der Prüfung durch die Koordination; Nachweise ohne Ausweisdokumente, Freigabe durch die Koordination der Region ([verifizierung.md](verifizierung.md)) |
 | Bewertung, Einsätze, Partner | führt die Plattform; nicht über das Profil änderbar |
 
 ## Standort

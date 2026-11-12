@@ -49,14 +49,31 @@ stateDiagram-v2
     Verifiziert --> Gesperrt: Koordination sperrt
 ```
 
+Ein abgelehnter Zusatznachweis ändert ein verifiziertes Profil nicht; solange weitere Nachweise offen sind, bleibt das Profil in Prüfung.
+
 | Regel | Umsetzung |
 |---|---|
 | Status des Profils | `verifizierung` im Helferprofil: 0 unverifiziert, 1 in Prüfung, 2 verifiziert, 3 abgelehnt, 4 gesperrt |
 | Einreichen | setzt den Nachweis und das Profil auf «in Prüfung» |
 | Erneut einreichen | ein offener Nachweis derselben Art wird ersetzt, nicht verdoppelt |
-| Prüfrelevante Änderung | ändern sich Typ, Betriebsname, Postleitzahl, Ort, Adresse oder Fähigkeiten eines verifizierten Profils, steht es wieder in Prüfung; Preise, Beschreibung und Radius nicht |
-| Gesperrt | ein gesperrtes Profil kann keine Nachweise einreichen (`403`) |
-| Freigabe | prüft und entscheidet die Koordination der Region |
+| Prüfrelevante Änderung | ändern sich Typ, Betriebsname, Postleitzahl, Ort, Adresse oder Fähigkeiten eines verifizierten Profils, steht es wieder in Prüfung, und die freigegebenen Nachweise liegen der Koordination erneut vor; Preise, Beschreibung und Radius nicht |
+| Gesperrt | ein gesperrtes Profil kann keine Nachweise einreichen (`403`); ein Entscheid hebt die Sperre nicht auf |
+| Freigabe | die Koordination der Region gibt einen offenen Nachweis frei; das Profil ist damit verifiziert |
+| Ablehnung | ohne weitere offene Nachweise und ohne anderen freigegebenen Nachweis ist das Profil abgelehnt; ein neuer Nachweis bringt es wieder in Prüfung |
+| Bemerkung | freiwillig, höchstens 500 Zeichen; die helfende Person sieht sie bei ihren Nachweisen |
+| Einmal entscheiden | ein bereits entschiedener Nachweis ergibt `409` |
+
+## Prüfung durch die Koordination
+
+| Nachweis | Was die Koordination prüft |
+|---|---|
+| UID-Nummer | Eintrag im UID-Register: Name und Sitz passen zu Betriebsname und Ort im Profil |
+| Handelsregister | Eintrag im Handelsregister (Zefix), aktiv und zum Betrieb passend |
+| Telefonnummer | Rückruf an die angegebene Nummer |
+| E-Mail-Adresse | Nachricht an die Adresse des Kontos und Antwort darauf |
+| Referenz | Rückfrage bei der genannten Organisation oder Gemeinde |
+
+Die Liste der offenen Nachweise zeigt dafür zu jedem Nachweis Typ, Betriebsname, Postleitzahl und Ort des Profils sowie dessen Stand.
 
 ## Datenschutz
 
@@ -65,7 +82,7 @@ stateDiagram-v2
 | Keine Ausweisdokumente | die Schnittstelle nimmt nur JSON an; ein Upload (`multipart/form-data`) ergibt `415`, nichts wird gespeichert |
 | Nur nötige Angaben | gespeichert werden Art, normalisierter Wert, Status, Zeitpunkte und eine Bemerkung der Koordination |
 | Mandantentrennung | jeder Nachweis trägt die Region des Profils; die Koordination sieht nur ihre Region |
-| Protokoll | `Verifizierung.Eingereicht` mit Kennung und Art, ohne den Wert |
+| Protokoll | `Verifizierung.Eingereicht`, `Verifizierung.Freigegeben` und `Verifizierung.Abgelehnt` mit Kennung und Art, ohne den Wert und ohne die Bemerkung |
 
 ## Schnittstelle
 
@@ -73,6 +90,8 @@ stateDiagram-v2
 |---|---|---|---|
 | POST | `/api/verifizierungen` | Helfende | Nachweis einreichen |
 | GET | `/api/verifizierungen/meine` | Helfende | eigene Nachweise, neueste zuerst |
+| GET | `/api/verifizierungen/offen` | Koordination | offene Nachweise der eigenen Region, älteste zuerst |
+| POST | `/api/verifizierungen/{id}/entscheid` | Koordination | freigeben oder ablehnen |
 
 ```
 POST /api/verifizierungen
@@ -91,11 +110,31 @@ Antwort `200`:
 
 Ohne Helferprofil folgt `400`; ein fehlender oder ungültiger Wert ergibt `400` mit `"feld": "nachweiswert"`.
 
+```
+POST /api/verifizierungen/{id}/entscheid
+Authorization: Bearer <token der Koordination>
+Content-Type: application/json
+
+{ "freigeben": true, "bemerkung": "Eintrag im Handelsregister geprüft" }
+```
+
+Antwort `200` mit dem Nachweis (`status` 2 oder 3, `geprueftAm`). In der Liste `GET /api/verifizierungen/offen` stehen zusätzlich `typ`, `betriebsname`, `plz`, `ort` und `profilstatus`.
+
 ## Tests
 
 | Test | Prüft |
 |---|---|
 | Einheitentests `UidTests` | gültige Schreibweisen, Normalisierung, Prüfziffer 0, falsche Prüfziffer, nicht vergebene Nummern (Rechnung 10), falsche Formate |
 | Einheitentests `NachweiswerteTests` | Telefonnummer in allen Schreibweisen, ungültige Nummern, Referenz vereinheitlichen, Mindest- und Höchstlänge |
+| Einheitentests `ProfilstatusTests` | Stand des Profils nach Freigabe und Ablehnung, mit offenen oder freigegebenen weiteren Nachweisen, Sperre bleibt |
+| Schnittstellentests `tests/api/freigabe.test.mjs` | Rollen, Liste mit Profilangaben und Reihenfolge, Freigabe mit Bemerkung und Protokoll ohne Wert, Ablehnung, Zusatznachweis, erneute Prüfung nach prüfrelevanter Änderung, fremde Region `404`, zweiter Entscheid `409`, Länge der Bemerkung |
 | Schnittstellentests `tests/api/verifizierung.test.mjs` | Rollen, ohne Profil, UID und Handelsregister, Telefonnummer aus dem Konto oder angegeben, Mehrwertnummern, E-Mail-Adresse nur die des Kontos, Referenz, Profil in Prüfung, ungültige Nachweise ohne Speicherung, Ersetzen statt Verdoppeln, Upload abgewiesen (`415`), Protokoll ohne Wert |
-| Rauchtest | UID einreichen und normalisieren, falsche Prüfziffer, Upload abgewiesen, Referenz, Mehrwertnummer abgewiesen |
+| Rauchtest | UID einreichen und normalisieren, falsche Prüfziffer, Upload abgewiesen, Referenz, Mehrwertnummer abgewiesen, offene Nachweise nur für die Koordination, Freigabe, Profil verifiziert, zweiter Entscheid, fremde Region |
+
+## Testdaten
+
+| Konto | Profil | Nachweis |
+|---|---|---|
+| Bruno Muster | verifiziert | E-Mail-Adresse, freigegeben durch die Koordination Bern/Mittelland |
+| Clara Fiktiv | in Prüfung | Referenz, offen |
+| Fritz Platzhalter | nicht verifiziert | keiner |

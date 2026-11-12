@@ -9,14 +9,16 @@ using Soforthilfe.Dienste.Nachweise;
 namespace Soforthilfe.Api.Controllers;
 
 /// <summary>
-/// Nachweise zum eigenen Helferprofil. Angenommen wird nur JSON mit überprüfbaren Angaben; Uploads gibt es nicht.
+/// Nachweise zum Helferprofil. Helfende reichen sie ein, die Koordination ihrer Region prüft und entscheidet.
+/// Angenommen wird nur JSON mit überprüfbaren Angaben; Uploads gibt es nicht.
 /// </summary>
 [ApiController]
 [Route("api/verifizierungen")]
-[Authorize(Roles = Rollen.Helfende)]
+[Authorize]
 public sealed class VerifizierungenController(IVerifizierungDienst nachweise) : ControllerBase
 {
     [HttpPost]
+    [Authorize(Roles = Rollen.Helfende)]
     [Consumes("application/json")]
     public async Task<IActionResult> Einreichen(VerifizierungAnfrage eingabe, CancellationToken abbruch)
     {
@@ -47,8 +49,33 @@ public sealed class VerifizierungenController(IVerifizierungDienst nachweise) : 
     }
 
     [HttpGet("meine")]
+    [Authorize(Roles = Rollen.Helfende)]
     public async Task<ActionResult<IReadOnlyList<VerifizierungAntwort>>> Meine(CancellationToken abbruch) =>
         Ok((await nachweise.MeineAsync(KontoId(), abbruch)).Select(VerifizierungAntwort.Aus).ToList());
+
+    // Offene Nachweise der eigenen Region, älteste zuerst.
+    [HttpGet("offen")]
+    [Authorize(Roles = Rollen.Koordination)]
+    public async Task<ActionResult<IReadOnlyList<PruefungAntwort>>> Offen(CancellationToken abbruch) =>
+        Ok((await nachweise.OffeneAsync(abbruch)).Select(PruefungAntwort.Aus).ToList());
+
+    // Freigabe oder Ablehnung; ein Nachweis einer anderen Region gilt als nicht vorhanden.
+    [HttpPost("{id:guid}/entscheid")]
+    [Authorize(Roles = Rollen.Koordination)]
+    [Consumes("application/json")]
+    public async Task<IActionResult> Entscheiden(Guid id, VerifizierungEntscheidAnfrage eingabe, CancellationToken abbruch)
+    {
+        var ergebnis = await nachweise.EntscheidenAsync(id, KontoId(), eingabe.Freigeben, eingabe.Bemerkung, abbruch);
+
+        return ergebnis.Fehler switch
+        {
+            null => Ok(VerifizierungAntwort.Aus(ergebnis.Nachweis!)),
+            EntscheidFehler.NichtGefunden => this.Fehler(StatusCodes.Status404NotFound, "Nachweis nicht gefunden",
+                "Dieser Nachweis ist nicht vorhanden."),
+            _ => this.Fehler(StatusCodes.Status409Conflict, "Bereits entschieden",
+                "Über diesen Nachweis ist bereits entschieden."),
+        };
+    }
 
     private Guid KontoId() => Guid.TryParse(User.FindFirstValue("sub"), out var id) ? id : Guid.Empty;
 

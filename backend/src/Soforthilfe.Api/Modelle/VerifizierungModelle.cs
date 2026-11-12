@@ -30,3 +30,32 @@ public sealed record VerifizierungAntwort(
     public static VerifizierungAntwort Aus(VerifizierungInfo v) => new(v.Id, v.HelferProfilId, v.Anzeigename, v.Art,
         v.Nachweiswert, v.Status, v.Bemerkung, v.EingereichtAm, v.GeprueftAm);
 }
+
+/// <summary>
+/// Entscheid der Koordination: freigeben oder ablehnen, mit einer Bemerkung für die helfende Person.
+/// </summary>
+public sealed record VerifizierungEntscheidAnfrage(bool Freigeben, [StringLength(500)] string? Bemerkung);
+
+/// <summary>
+/// Offener Nachweis für die Koordination, mit Typ, Betriebsname, Postleitzahl, Ort und Stand des Profils.
+/// </summary>
+public sealed record PruefungAntwort(
+    Guid Id,
+    Guid HelferProfilId,
+    string Anzeigename,
+    Nachweisart Art,
+    string? Nachweiswert,
+    Verifizierungsstatus Status,
+    string? Bemerkung,
+    DateTimeOffset EingereichtAm,
+    DateTimeOffset? GeprueftAm,
+    Helfertyp Typ,
+    string? Betriebsname,
+    string Plz,
+    string Ort,
+    Verifizierungsstatus Profilstatus)
+{
+    public static PruefungAntwort Aus(PruefungInfo p) => new(p.Nachweis.Id, p.Nachweis.HelferProfilId,
+        p.Nachweis.Anzeigename, p.Nachweis.Art, p.Nachweis.Nachweiswert, p.Nachweis.Status, p.Nachweis.Bemerkung,
+        p.Nachweis.EingereichtAm, p.Nachweis.GeprueftAm, p.Typ, p.Betriebsname, p.Postleitzahl, p.Ort, p.Profilstatus);
+}

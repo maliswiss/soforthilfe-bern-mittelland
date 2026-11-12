@@ -28,6 +28,8 @@ Die Schnittstelle ist eine REST-API unter `/api`. Sie spricht JSON; Feldnamen be
 | PUT | `/api/helferprofil/verfuegbarkeit` | Helfende | «jetzt verfügbar» umschalten |
 | POST | `/api/verifizierungen` | Helfende | Nachweis ohne Ausweisdokumente einreichen: UID-Nummer, Handelsregister, Telefonnummer, E-Mail-Adresse des Kontos oder Referenz ([verifizierung.md](verifizierung.md)) |
 | GET | `/api/verifizierungen/meine` | Helfende | Eigene Nachweise mit Stand der Prüfung |
+| GET | `/api/verifizierungen/offen` | Koordination | Offene Nachweise der eigenen Region mit Angaben zum Profil, älteste zuerst |
+| POST | `/api/verifizierungen/{id}/entscheid` | Koordination | Nachweis freigeben oder ablehnen; fremde Region `404`, bereits entschieden `409` |
 | POST | `/api/preise/richtpreis` | offen | Richtpreis für die erste Stunde zu bis zu zehn Zeitpunkten ([preise.md](preise.md)) |
 | GET | `/api/protokoll` | Koordination, Mandantenadministration, Plattformbetrieb | Neueste Protokolleinträge der eigenen Region, für den Plattformbetrieb aller Regionen; Filter `aktion`, Anzahl `anzahl` (Standard 100, höchstens 500) |
 | GET | `/health/live` | intern | Prozess läuft |

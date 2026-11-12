@@ -81,6 +81,90 @@ public sealed class VerifizierungDienst(SoforthilfeDbContext datenbank, IProtoko
                 v.Nachweiswert, v.Status, v.Bemerkung, v.EingereichtAm, v.GeprueftAm))
             .ToListAsync(abbruch);
 
+    // Die Region ergibt sich aus dem Filter des Datenbankkontexts: die Koordination sieht nur ihre Region.
+    public async Task<IReadOnlyList<PruefungInfo>> OffeneAsync(CancellationToken abbruch) =>
+        await datenbank.Verifizierungen
+            .AsNoTracking()
+            .Where(v => v.Status == Verifizierungsstatus.InPruefung)
+            .OrderBy(v => v.EingereichtAm)
+            .Select(v => new PruefungInfo(
+                new VerifizierungInfo(v.Id, v.HelferprofilId, v.Helferprofil!.Konto!.Anzeigename, v.Art,
+                    v.Nachweiswert, v.Status, v.Bemerkung, v.EingereichtAm, v.GeprueftAm),
+                v.Helferprofil!.Typ,
+                v.Helferprofil!.Betriebsname,
+                v.Helferprofil!.Postleitzahl,
+                v.Helferprofil!.Ort,
+                v.Helferprofil!.Verifizierung))
+            .ToListAsync(abbruch);
+
+    public async Task<EntscheidErgebnis> EntscheidenAsync(Guid nachweisId, Guid pruefendeId, bool freigeben,
+        string? bemerkung, CancellationToken abbruch)
+    {
+        // Ein Nachweis einer anderen Region wird vom Filter ausgeblendet und gilt als nicht vorhanden.
+        var nachweis = await datenbank.Verifizierungen
+            .Include(v => v.Helferprofil!)
+            .ThenInclude(p => p.Verifizierungen)
+            .FirstOrDefaultAsync(v => v.Id == nachweisId, abbruch);
+        if (nachweis is null)
+        {
+            return new EntscheidErgebnis(null, EntscheidFehler.NichtGefunden);
+        }
+
+        if (nachweis.Status != Verifizierungsstatus.InPruefung)
+        {
+            return new EntscheidErgebnis(null, EntscheidFehler.BereitsEntschieden);
+        }
+
+        nachweis.Status = freigeben ? Verifizierungsstatus.Verifiziert : Verifizierungsstatus.Abgelehnt;
+        nachweis.Bemerkung = string.IsNullOrWhiteSpace(bemerkung) ? null : bemerkung.Trim();
+        nachweis.GeprueftVonId = pruefendeId;
+        nachweis.GeprueftAm = DateTimeOffset.UtcNow;
+
+        var profil = nachweis.Helferprofil!;
+        profil.Verifizierung = Profilstatus(profil, nachweis);
+        await datenbank.SaveChangesAsync(abbruch);
+
+        // Im Protokoll stehen Entscheid und Art, nicht der Wert und nicht die Bemerkung.
+        await protokoll.SchreibenAsync(freigeben ? "Verifizierung.Freigegeben" : "Verifizierung.Abgelehnt",
+            "Verifizierung", nachweis.Id.ToString(), nachweis.Art.ToString(), abbruch);
+
+        var info = await datenbank.Verifizierungen
+            .AsNoTracking()
+            .Where(v => v.Id == nachweis.Id)
+            .Select(v => new VerifizierungInfo(v.Id, v.HelferprofilId, v.Helferprofil!.Konto!.Anzeigename, v.Art,
+                v.Nachweiswert, v.Status, v.Bemerkung, v.EingereichtAm, v.GeprueftAm))
+            .FirstAsync(abbruch);
+        return new EntscheidErgebnis(info, null);
+    }
+
+    /// <summary>
+    /// Stand des Profils nach einem Entscheid. Eine Sperre bleibt bestehen. Mit einer Freigabe ist das Profil
+    /// verifiziert. Nach einer Ablehnung bleibt es in Prüfung, solange weitere Nachweise offen sind, und bleibt
+    /// verifiziert, wenn schon ein anderer Nachweis freigegeben ist; sonst ist es abgelehnt.
+    /// </summary>
+    public static Verifizierungsstatus Profilstatus(Helferprofil profil, Verifizierung entschieden)
+    {
+        if (profil.Verifizierung == Verifizierungsstatus.Gesperrt)
+        {
+            return Verifizierungsstatus.Gesperrt;
+        }
+
+        if (entschieden.Status == Verifizierungsstatus.Verifiziert)
+        {
+            return Verifizierungsstatus.Verifiziert;
+        }
+
+        var andere = profil.Verifizierungen.Where(v => v.Id != entschieden.Id).ToList();
+        if (andere.Any(v => v.Status == Verifizierungsstatus.InPruefung))
+        {
+            return Verifizierungsstatus.InPruefung;
+        }
+
+        return andere.Any(v => v.Status == Verifizierungsstatus.Verifiziert)
+            ? Verifizierungsstatus.Verifiziert
+            : Verifizierungsstatus.Abgelehnt;
+    }
+
     /// <summary>Prüft die Angabe je nach Art und liefert sie in der gespeicherten Form.</summary>
     private static (string? Wert, VerifizierungFehler? Fehler) WertPruefen(Nachweisart art, string? eingabe, Konto konto)
     {

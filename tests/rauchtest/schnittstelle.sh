@@ -108,6 +108,7 @@ erwarte "Verfügbarkeit ausschalten" false "$(status -X PUT "${json[@]}" -H "Aut
 erwarte "UID-Nummer einreichen" 200 "$(status "${json[@]}" -H "Authorization: Bearer $token_helfende" -d '{"art":0,"nachweiswert":"CHE 123 456 788"}' "$BASIS/api/verifizierungen")"
 erwarte "UID normalisiert" CHE-123.456.788 "$(jq -r '.nachweiswert' "$ANTWORT")"
 erwarte "Nachweis in Prüfung" 1 "$(jq '.status' "$ANTWORT")"
+uid_nachweis="$(jq -r '.id' "$ANTWORT")"
 erwarte "Falsche Prüfziffer" 400 "$(status "${json[@]}" -H "Authorization: Bearer $token_helfende" -d '{"art":0,"nachweiswert":"CHE-123.456.789"}' "$BASIS/api/verifizierungen")"
 erwarte "Kein Upload von Dokumenten" 415 "$(status -H "Authorization: Bearer $token_helfende" -F art=0 -F "dokument=@/dev/null;filename=ausweis.pdf" "$BASIS/api/verifizierungen")"
 erwarte "Referenz einreichen" 200 "$(status "${json[@]}" -H "Authorization: Bearer $token_helfende" -d '{"art":4,"nachweiswert":"Gemeinde  Muri, Frau Muster"}' "$BASIS/api/verifizierungen")"
@@ -161,6 +162,17 @@ else
   erwarte "Rolle in fremder Region setzen" 404 "$(status -X PUT "${json[@]}" -H "Authorization: Bearer $admin_biel" -d "$rolle" "$BASIS/api/konten/$bruno/rolle")"
   erwarte "Rolle in eigener Region setzen" 204 "$(status -X PUT "${json[@]}" -H "Authorization: Bearer $admin_biel" -d "$rolle" "$BASIS/api/konten/$fritz/rolle")"
   erwarte "Plattformbetrieb vergeben" 400 "$(status -X PUT "${json[@]}" -H "Authorization: Bearer $admin_biel" -d '{"rolle": "Plattformbetrieb"}' "$BASIS/api/konten/$fritz/rolle")"
+
+  erwarte "Offene Nachweise als Hilfesuchende" 403 "$(status -H "Authorization: Bearer $hilfesuchende" "$BASIS/api/verifizierungen/offen")"
+  erwarte "Offene Nachweise als Koordination" 200 "$(status -H "Authorization: Bearer $koordination_bern" "$BASIS/api/verifizierungen/offen")"
+  erwarte "UID des Rauchtests liegt zur Prüfung vor" true "$(jq --arg id "$uid_nachweis" 'any(.id == $id)' "$ANTWORT")"
+  erwarte "Nachweis freigeben" 200 "$(status "${json[@]}" -H "Authorization: Bearer $koordination_bern" -d '{"freigeben":true,"bemerkung":"Rauchtest"}' "$BASIS/api/verifizierungen/$uid_nachweis/entscheid")"
+  erwarte "Nachweis verifiziert" 2 "$(jq '.status' "$ANTWORT")"
+  erwarte "Profil verifiziert" 2 "$(status -H "Authorization: Bearer $token_helfende" "$BASIS/api/helferprofil" > /dev/null; jq '.verifizierung' "$ANTWORT")"
+  erwarte "Zweiter Entscheid" 409 "$(status "${json[@]}" -H "Authorization: Bearer $koordination_bern" -d '{"freigeben":false}' "$BASIS/api/verifizierungen/$uid_nachweis/entscheid")"
+  # Fritz ist seit dem Rollenwechsel oben Koordination in Biel/Seeland.
+  koordination_biel="$(anmelden fritz.platzhalter@beispiel.invalid biel-seeland)"
+  erwarte "Entscheid in fremder Region" 404 "$(status "${json[@]}" -H "Authorization: Bearer $koordination_biel" -d '{"freigeben":true}' "$BASIS/api/verifizierungen/$uid_nachweis/entscheid")"
 
   erwarte "Protokoll als Koordination Bern/Mittelland" 200 "$(status -H "Authorization: Bearer $koordination_bern" "$BASIS/api/protokoll?aktion=Notfall.Stopp")"
   erwarte "Notfall-Stopp der Anfrage protokolliert" true "$(jq 'any(.objekt == "Anfrage" and .detail == "Erkanntes Schlüsselwort: bewusstlos")' "$ANTWORT")"

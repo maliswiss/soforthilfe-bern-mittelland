@@ -85,6 +85,7 @@ public sealed partial class HelferprofilDienst(
 
         var profil = await datenbank.Helferprofile
             .Include(p => p.Skills)
+            .Include(p => p.Verifizierungen)
             .FirstOrDefaultAsync(p => p.KontoId == kontoId, abbruch);
         var neu = profil is null;
         if (profil is null)
@@ -119,10 +120,20 @@ public sealed partial class HelferprofilDienst(
         profil.Skills.Clear();
         profil.Skills.AddRange(skills);
 
-        // Ein freigegebenes Profil muss nach prüfrelevanten Änderungen erneut geprüft werden.
+        // Ein freigegebenes Profil muss nach prüfrelevanten Änderungen erneut geprüft werden. Die freigegebenen
+        // Nachweise liegen der Koordination dafür wieder zur Prüfung vor.
         if (pruefrelevantGeaendert && profil.Verifizierung == Verifizierungsstatus.Verifiziert)
         {
             profil.Verifizierung = Verifizierungsstatus.InPruefung;
+            var jetzt = DateTimeOffset.UtcNow;
+            foreach (var nachweis in profil.Verifizierungen.Where(v => v.Status == Verifizierungsstatus.Verifiziert))
+            {
+                nachweis.Status = Verifizierungsstatus.InPruefung;
+                nachweis.Bemerkung = null;
+                nachweis.GeprueftVonId = null;
+                nachweis.GeprueftAm = null;
+                nachweis.EingereichtAm = jetzt;
+            }
         }
 
         // Für Entfernungen gilt der Punkt der Postleitzahl; ein genauer Standort wird nie gespeichert.

@@ -78,30 +78,37 @@ public static class TestdatenLader
 
         datenbank.Konten.AddRange(anna, bruno, clara, dora, emil, fritz, greta, hans);
 
+        var profilBruno = new Helferprofil
+        {
+            Id = Guid.NewGuid(),
+            KontoId = bruno.Id,
+            RegionId = bern,
+            Postleitzahl = "3012",
+            Ort = "Bern",
+            EinsatzradiusKm = 15,
+            Skills = [skills["sanitaer-elektro"], skills["kleine-reparatur"]],
+            AnfahrtChf = 40m,
+            StundenansatzChf = 95m,
+            NachtzuschlagProzent = 50,
+            WochenendzuschlagProzent = 25,
+            MwstPflichtig = true,
+            Verifizierung = Verifizierungsstatus.Verifiziert,
+        };
+        var profilClara = new Helferprofil
+        {
+            Id = Guid.NewGuid(),
+            KontoId = clara.Id,
+            RegionId = bern,
+            Postleitzahl = "3110",
+            Ort = "Münsingen",
+            EinsatzradiusKm = 5,
+            Skills = [skills["nachbarschaftshilfe"], skills["begleitung"]],
+            Verifizierung = Verifizierungsstatus.InPruefung,
+        };
+
         datenbank.Helferprofile.AddRange(
-            new Helferprofil
-            {
-                KontoId = bruno.Id,
-                RegionId = bern,
-                Postleitzahl = "3012",
-                Ort = "Bern",
-                EinsatzradiusKm = 15,
-                Skills = [skills["sanitaer-elektro"], skills["kleine-reparatur"]],
-                AnfahrtChf = 40m,
-                StundenansatzChf = 95m,
-                NachtzuschlagProzent = 50,
-                WochenendzuschlagProzent = 25,
-                MwstPflichtig = true,
-            },
-            new Helferprofil
-            {
-                KontoId = clara.Id,
-                RegionId = bern,
-                Postleitzahl = "3110",
-                Ort = "Münsingen",
-                EinsatzradiusKm = 5,
-                Skills = [skills["nachbarschaftshilfe"], skills["begleitung"]],
-            },
+            profilBruno,
+            profilClara,
             new Helferprofil
             {
                 KontoId = fritz.Id,
@@ -113,6 +120,31 @@ public static class TestdatenLader
                 AnfahrtChf = 20m,
                 StundenansatzChf = 70m,
                 WochenendzuschlagProzent = 20,
+            });
+
+        // Nachweise: Bruno ist verifiziert, Claras Referenz wartet auf die Prüfung durch die Koordination.
+        datenbank.Verifizierungen.AddRange(
+            new Verifizierung
+            {
+                Id = Guid.NewGuid(),
+                RegionId = bern,
+                HelferprofilId = profilBruno.Id,
+                Art = Nachweisart.EMailBestaetigt,
+                Nachweiswert = bruno.EMail,
+                Status = Verifizierungsstatus.Verifiziert,
+                GeprueftVonId = dora.Id,
+                EingereichtAm = jetzt,
+                GeprueftAm = jetzt,
+            },
+            new Verifizierung
+            {
+                Id = Guid.NewGuid(),
+                RegionId = bern,
+                HelferprofilId = profilClara.Id,
+                Art = Nachweisart.Referenz,
+                Nachweiswert = "Kirchgemeinde Münsingen, Frau Beispiel",
+                Status = Verifizierungsstatus.InPruefung,
+                EingereichtAm = jetzt,
             });
 
         datenbank.Anfragen.AddRange(
