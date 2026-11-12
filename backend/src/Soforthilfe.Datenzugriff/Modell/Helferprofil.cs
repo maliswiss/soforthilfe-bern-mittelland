@@ -55,6 +55,11 @@ public sealed class Helferprofil
     // Preise verstehen sich ohne MWST; bei MWST-Pflicht kommt sie im Richtpreis hinzu.
     public bool MwstPflichtig { get; set; }
 
+    // Stand der Prüfung durch die Koordination; Änderungen an prüfrelevanten Angaben verlangen eine neue Prüfung.
+    public Verifizierungsstatus Verifizierung { get; set; } = Verifizierungsstatus.Unverifiziert;
+
+    public List<Verifizierung> Verifizierungen { get; set; } = [];
+
     // Partner-Abo; wirkt im Matching nur bei gleichwertigen Vorschlägen.
     public bool Partner { get; set; }
 

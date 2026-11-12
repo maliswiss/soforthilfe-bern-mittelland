@@ -26,6 +26,8 @@ Die Schnittstelle ist eine REST-API unter `/api`. Sie spricht JSON; Feldnamen be
 | GET | `/api/helferprofil` | Helfende | Eigenes Helferprofil |
 | PUT | `/api/helferprofil` | Helfende | Helferprofil anlegen oder ersetzen ([helferprofil.md](helferprofil.md)) |
 | PUT | `/api/helferprofil/verfuegbarkeit` | Helfende | «jetzt verfügbar» umschalten |
+| POST | `/api/verifizierungen` | Helfende | Nachweis ohne Ausweisdokumente einreichen: UID-Nummer oder Handelsregister ([verifizierung.md](verifizierung.md)) |
+| GET | `/api/verifizierungen/meine` | Helfende | Eigene Nachweise mit Stand der Prüfung |
 | POST | `/api/preise/richtpreis` | offen | Richtpreis für die erste Stunde zu bis zu zehn Zeitpunkten ([preise.md](preise.md)) |
 | GET | `/api/protokoll` | Koordination, Mandantenadministration, Plattformbetrieb | Neueste Protokolleinträge der eigenen Region, für den Plattformbetrieb aller Regionen; Filter `aktion`, Anzahl `anzahl` (Standard 100, höchstens 500) |
 | GET | `/health/live` | intern | Prozess läuft |
@@ -172,6 +174,7 @@ Jeder Fehler ist ein Problem-Dokument (`application/problem+json`) mit zwei zus�
 | `404` | nicht vorhanden, auch für Daten einer fremden Region |
 | `405` | Methode nicht erlaubt, zum Beispiel Koordinaten per `GET` |
 | `409` | E-Mail-Adresse oder Region besteht bereits |
+| `415` | Medientyp nicht unterstützt, zum Beispiel ein Upload statt JSON |
 | `451` | Notfall-Stopp: Hinweis auf einen gesundheitlichen Notfall, die Anfrage wird nicht vermittelt |
 | `500` | interner Fehler, ohne technische Details, mit Verfolgungsnummer |
 

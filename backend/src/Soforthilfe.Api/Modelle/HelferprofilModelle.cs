@@ -42,6 +42,7 @@ public sealed record HelferprofilAntwort(
     string Ort,
     int RadiusKm,
     bool JetztVerfuegbar,
+    Verifizierungsstatus Verifizierung,
     bool Partner,
     double Bewertungsschnitt,
     int AnzahlBewertungen,
@@ -56,7 +57,7 @@ public sealed record HelferprofilAntwort(
     bool PreiseErforderlich)
 {
     public static HelferprofilAntwort Aus(HelferprofilInfo p) => new(
-        p.Id, p.Typ, p.Betriebsname, p.Beschreibung, p.Plz, p.Ort, p.RadiusKm, p.JetztVerfuegbar, p.Partner,
+        p.Id, p.Typ, p.Betriebsname, p.Beschreibung, p.Plz, p.Ort, p.RadiusKm, p.JetztVerfuegbar, p.Verifizierung, p.Partner,
         p.Bewertungsschnitt, p.AnzahlBewertungen, p.AnzahlEinsaetze, p.Skills.Select(SkillAntwort.Aus).ToList(),
         p.Adresse, p.Preise.AnfahrtChf, p.Preise.StundenansatzChf, p.Preise.NachtzuschlagProzent,
         p.Preise.WochenendzuschlagProzent, p.Preise.MwstPflichtig, p.PreiseErforderlich);

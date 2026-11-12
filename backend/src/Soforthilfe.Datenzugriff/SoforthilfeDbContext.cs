@@ -6,7 +6,7 @@ namespace Soforthilfe.Datenzugriff;
 
 /// <summary>
 /// Datenbankkontext der Plattform (PostgreSQL mit PostGIS).
-/// Konten, Helferprofile, Anfragen und Protokolleinträge sind strikt nach Region (Mandant) getrennt.
+/// Konten, Helferprofile, Verifizierungen, Anfragen und Protokolleinträge sind strikt nach Region (Mandant) getrennt.
 /// </summary>
 public sealed class SoforthilfeDbContext : DbContext
 {
@@ -27,6 +27,8 @@ public sealed class SoforthilfeDbContext : DbContext
     public DbSet<Skill> Skills => Set<Skill>();
 
     public DbSet<Helferprofil> Helferprofile => Set<Helferprofil>();
+
+    public DbSet<Verifizierung> Verifizierungen => Set<Verifizierung>();
 
     public DbSet<Anfrage> Anfragen => Set<Anfrage>();
 
@@ -102,6 +104,8 @@ public sealed class SoforthilfeDbContext : DbContext
             // Als Text speichern; bestehende Profile gelten als Privatperson.
             profil.Property(h => h.Typ).HasConversion<string>().HasMaxLength(20)
                 .HasDefaultValue(Helfertyp.Privatperson).ValueGeneratedNever();
+            profil.Property(h => h.Verifizierung).HasConversion<string>().HasMaxLength(20)
+                .HasDefaultValue(Verifizierungsstatus.Unverifiziert).ValueGeneratedNever();
 
             // Ein Konto hat höchstens ein Helferprofil.
             profil.HasOne(h => h.Konto).WithOne().HasForeignKey<Helferprofil>(h => h.KontoId).OnDelete(DeleteBehavior.Cascade);
@@ -111,6 +115,24 @@ public sealed class SoforthilfeDbContext : DbContext
             profil.HasMany(h => h.Skills).WithMany().UsingEntity(zuordnung => zuordnung.ToTable("HelferprofilSkills"));
 
             profil.HasQueryFilter(h => _mandant.Uebergreifend || h.RegionId == _mandant.RegionId);
+        });
+
+        modell.Entity<Verifizierung>(nachweis =>
+        {
+            nachweis.ToTable("Verifizierungen");
+            nachweis.Property(v => v.Art).HasConversion<string>().HasMaxLength(30);
+            nachweis.Property(v => v.Status).HasConversion<string>().HasMaxLength(20);
+            nachweis.Property(v => v.Nachweiswert).HasMaxLength(200);
+            nachweis.Property(v => v.Bemerkung).HasMaxLength(500);
+
+            // Die Koordination liest offene Nachweise je Region, älteste zuerst.
+            nachweis.HasIndex(v => new { v.RegionId, v.Status, v.EingereichtAm });
+
+            nachweis.HasOne(v => v.Helferprofil).WithMany(p => p.Verifizierungen).HasForeignKey(v => v.HelferprofilId)
+                .OnDelete(DeleteBehavior.Cascade);
+            nachweis.HasOne<Region>().WithMany().HasForeignKey(v => v.RegionId).OnDelete(DeleteBehavior.Restrict);
+
+            nachweis.HasQueryFilter(v => _mandant.Uebergreifend || v.RegionId == _mandant.RegionId);
         });
 
         modell.Entity<Anfrage>(anfrage =>
@@ -209,6 +231,9 @@ public sealed class SoforthilfeDbContext : DbContext
                     break;
                 case Anfrage anfrage:
                     region = anfrage.RegionId;
+                    break;
+                case Verifizierung nachweis:
+                    region = nachweis.RegionId;
                     break;
                 case Protokolleintrag protokoll:
                     // Ein Notfall-Stopp ohne Anmeldung und Referenzdaten werden ohne Region protokolliert.

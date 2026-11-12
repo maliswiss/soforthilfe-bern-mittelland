@@ -14,6 +14,7 @@ Helfende Personen und Betriebe beschreiben im Helferprofil, was sie anbieten, wo
 | Adresse | freiwillig; sieht nur die anfragende Person, und erst nach der Zusage |
 | Preisangaben | Anfahrt, Stundenansatz, Nacht- und Wochenendzuschlag, MWST-Pflicht; Pflicht bei bezahlpflichtigen Fähigkeiten ([preise.md](preise.md)) |
 | Verfügbarkeit | «jetzt verfügbar» lässt sich jederzeit umschalten, ohne das Profil neu zu speichern |
+| Verifizierung | Stand der Prüfung durch die Koordination; Nachweise ohne Ausweisdokumente ([verifizierung.md](verifizierung.md)) |
 | Bewertung, Einsätze, Partner | führt die Plattform; nicht über das Profil änderbar |
 
 ## Standort
@@ -43,7 +44,7 @@ Content-Type: application/json
   "wochenendzuschlagProzent": null, "mwstPflichtig": false }
 ```
 
-Antwort `200` mit dem gespeicherten Profil: `id`, `typ`, `betriebsname`, `beschreibung`, `plz`, `ort`, `radiusKm`, `jetztVerfuegbar`, `partner`, `bewertungsschnitt`, `anzahlBewertungen`, `anzahlEinsaetze`, `skills`, `adresse`, die Preisangaben und `preiseErforderlich`. Ungültige Angaben ergeben `400` mit `feld`: `skillIds`, `preise`, `betriebsname`, `plz` oder `ort`.
+Antwort `200` mit dem gespeicherten Profil: `id`, `typ`, `betriebsname`, `beschreibung`, `plz`, `ort`, `radiusKm`, `jetztVerfuegbar`, `verifizierung`, `partner`, `bewertungsschnitt`, `anzahlBewertungen`, `anzahlEinsaetze`, `skills`, `adresse`, die Preisangaben und `preiseErforderlich`. Ungültige Angaben ergeben `400` mit `feld`: `skillIds`, `preise`, `betriebsname`, `plz` oder `ort`.
 
 ## Protokoll
 

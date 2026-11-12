@@ -175,6 +175,12 @@ namespace Soforthilfe.Datenzugriff.Migrations
                         .HasColumnType("character varying(20)")
                         .HasDefaultValue("Privatperson");
 
+                    b.Property<string>("Verifizierung")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("Unverifiziert");
+
                     b.Property<int?>("WochenendzuschlagProzent")
                         .HasColumnType("integer");
 
@@ -597,6 +603,54 @@ namespace Soforthilfe.Datenzugriff.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Soforthilfe.Datenzugriff.Modell.Verifizierung", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Art")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<string>("Bemerkung")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<DateTimeOffset>("EingereichtAm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTimeOffset?>("GeprueftAm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("GeprueftVonId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("HelferprofilId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Nachweiswert")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<Guid>("RegionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HelferprofilId");
+
+                    b.HasIndex("RegionId", "Status", "EingereichtAm");
+
+                    b.ToTable("Verifizierungen", (string)null);
+                });
+
             modelBuilder.Entity("HelferprofilSkill", b =>
                 {
                     b.HasOne("Soforthilfe.Datenzugriff.Modell.Helferprofil", null)
@@ -686,6 +740,28 @@ namespace Soforthilfe.Datenzugriff.Migrations
                         .IsRequired();
 
                     b.Navigation("Kategorie");
+                });
+
+            modelBuilder.Entity("Soforthilfe.Datenzugriff.Modell.Verifizierung", b =>
+                {
+                    b.HasOne("Soforthilfe.Datenzugriff.Modell.Helferprofil", "Helferprofil")
+                        .WithMany("Verifizierungen")
+                        .HasForeignKey("HelferprofilId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Soforthilfe.Datenzugriff.Modell.Region", null)
+                        .WithMany()
+                        .HasForeignKey("RegionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Helferprofil");
+                });
+
+            modelBuilder.Entity("Soforthilfe.Datenzugriff.Modell.Helferprofil", b =>
+                {
+                    b.Navigation("Verifizierungen");
                 });
 
             modelBuilder.Entity("Soforthilfe.Datenzugriff.Modell.Kategorie", b =>

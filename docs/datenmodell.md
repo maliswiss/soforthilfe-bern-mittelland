@@ -9,6 +9,7 @@ erDiagram
   REGION |o--o{ KONTO : "gehört zu"
   REGION ||--o{ HELFERPROFIL : "gehört zu"
   REGION ||--o{ ANFRAGE : "gehört zu"
+  HELFERPROFIL ||--o{ VERIFIZIERUNG : "hat"
   REGION |o--o{ PROTOKOLLEINTRAG : "gehört zu"
   KONTO ||--o| HELFERPROFIL : hat
   KONTO ||--o{ ANFRAGE : stellt
@@ -64,6 +65,7 @@ erDiagram
     int WochenendzuschlagProzent
     bool MwstPflichtig
     bool Einsatzbereit
+    text Verifizierung
     bool Partner
     double Bewertungsschnitt
     int AnzahlBewertungen
@@ -94,6 +96,18 @@ erDiagram
     text Sprache
     geography Standort
   }
+  VERIFIZIERUNG {
+    uuid Id PK
+    uuid RegionId FK
+    uuid HelferprofilId FK
+    text Art
+    text Nachweiswert
+    text Status
+    text Bemerkung
+    uuid GeprueftVonId
+    timestamptz EingereichtAm
+    timestamptz GeprueftAm
+  }
   PROTOKOLLEINTRAG {
     bigint Id PK
     uuid RegionId FK
@@ -114,6 +128,7 @@ erDiagram
 | `Kategorien` | Kategorien der Startseite, kostenlos oder kostenpflichtig | für alle Regionen gleich |
 | `Skills` | Fähigkeiten je Kategorie | für alle Regionen gleich |
 | `Helferprofile` | Privatperson oder Betrieb, Einsatzgebiet, Radius, Fähigkeiten und Verfügbarkeit helfender Personen ([helferprofil.md](helferprofil.md)) | genau eine |
+| `Verifizierungen` | Nachweise zu Helferprofilen ohne Ausweisdokumente: Art, normalisierter Wert, Stand der Prüfung ([verifizierung.md](verifizierung.md)) | genau eine |
 | `HelferprofilSkills` | Zuordnung Profil zu Fähigkeit | über das Profil |
 | `Anfragen` | Anliegen mit Kategorie und/oder Freitext, Ort, Zeitfenster, Dringlichkeit und Status | genau eine |
 | `Protokoll` | Sicherheitsrelevante Vorgänge wie der Notfall-Stopp, ohne Personendaten | eine oder keine (ohne Anmeldung) |
@@ -136,7 +151,7 @@ Weitere Regionen entstehen im laufenden Betrieb als Daten (`POST /api/mandanten`
 
 | Nr. | Entscheid | Begründung |
 |---|---|---|
-| 1 | Konten, Helferprofile und Anfragen tragen eine `RegionId` | Mandantentrennung auf Datenebene, Filter und Schreibprüfung im Datenbankkontext |
+| 1 | Konten, Helferprofile, Verifizierungen und Anfragen tragen eine `RegionId` | Mandantentrennung auf Datenebene, Filter und Schreibprüfung im Datenbankkontext |
 | 2 | Kategorien und Fähigkeiten gelten für alle Regionen | eine gemeinsame Auswahl, keine Doppelungen |
 | 3 | `Adresse` getrennt von `Postleitzahl` und `Ort` | die genaue Adresse wird später erst nach der Zusage ausgeliefert |
 | 4 | `Kostenpflichtig` je Kategorie | strikte Trennung kostenloser und kostenpflichtiger Angebote (Anforderung A12) |
@@ -149,6 +164,7 @@ Weitere Regionen entstehen im laufenden Betrieb als Daten (`POST /api/mandanten`
 | 11 | `Regionen.Gemeinden` als Liste von BFS-Gemeindenummern; eine Gemeinde gehört zu höchstens einer Region | die Postleitzahl bestimmt über ihre Gemeinden die Region; keine Regionswahl in der Oberfläche |
 | 12 | `Helferprofile.Standort` ist der Punkt der Postleitzahl, nie ein genauer Standort | Entfernungen ohne Ortung der Person; ändert sich der Ort, wird der Punkt neu bestimmt |
 | 13 | Preise als `numeric(8,2)` ohne MWST, Zuschläge als ganze Prozent | genaue Beträge ohne Rundungsfehler; der Richtpreis wird berechnet und nicht gespeichert ([preise.md](preise.md)) |
+| 14 | `Verifizierungen` speichern nur überprüfbare Angaben, keine Dateien | Datenschutz: keine Ausweisdokumente; die Koordination prüft die Angaben in öffentlichen Registern |
 
 ## Testdaten
 

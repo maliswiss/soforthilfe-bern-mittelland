@@ -30,6 +30,7 @@ public sealed record HelferprofilInfo(
     string Ort,
     int RadiusKm,
     bool JetztVerfuegbar,
+    Verifizierungsstatus Verifizierung,
     bool Partner,
     double Bewertungsschnitt,
     int AnzahlBewertungen,

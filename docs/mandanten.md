@@ -1,6 +1,6 @@
 # Mandantenfähigkeit
 
-Jede Region ist ein Mandant. Konten, Helferprofile und Anfragen gehören zu genau einer Region und sind strikt von den Daten anderer Regionen getrennt.
+Jede Region ist ein Mandant. Konten, Helferprofile, Verifizierungen und Anfragen gehören zu genau einer Region und sind strikt von den Daten anderer Regionen getrennt.
 
 ## Festlegen der Region
 

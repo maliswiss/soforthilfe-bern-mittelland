@@ -95,8 +95,17 @@ public sealed partial class HelferprofilDienst(
 
         var ortGeaendert = neu || profil.Postleitzahl != plz || profil.Ort != ort;
 
+        // Prüfrelevant sind Angaben zur Person oder zum Betrieb, zum Ort und zu den Fähigkeiten.
+        // Preise, Beschreibung und Radius lassen sich ohne neue Prüfung anpassen.
+        var neuerBetriebsname = daten.Typ == Helfertyp.Betrieb ? betriebsname : null;
+        var pruefrelevantGeaendert = !neu && (ortGeaendert
+            || profil.Typ != daten.Typ
+            || profil.Betriebsname != neuerBetriebsname
+            || profil.Adresse != Leer(daten.Adresse)
+            || !profil.Skills.Select(s => s.Id).Order().SequenceEqual(skills.Select(s => s.Id).Order()));
+
         profil.Typ = daten.Typ;
-        profil.Betriebsname = daten.Typ == Helfertyp.Betrieb ? betriebsname : null;
+        profil.Betriebsname = neuerBetriebsname;
         profil.Beschreibung = Leer(daten.Beschreibung);
         profil.Adresse = Leer(daten.Adresse);
         profil.Postleitzahl = plz;
@@ -109,6 +118,12 @@ public sealed partial class HelferprofilDienst(
         profil.MwstPflichtig = daten.Preise.MwstPflichtig;
         profil.Skills.Clear();
         profil.Skills.AddRange(skills);
+
+        // Ein freigegebenes Profil muss nach prüfrelevanten Änderungen erneut geprüft werden.
+        if (pruefrelevantGeaendert && profil.Verifizierung == Verifizierungsstatus.Verifiziert)
+        {
+            profil.Verifizierung = Verifizierungsstatus.InPruefung;
+        }
 
         // Für Entfernungen gilt der Punkt der Postleitzahl; ein genauer Standort wird nie gespeichert.
         if (ortGeaendert)
@@ -156,6 +171,7 @@ public sealed partial class HelferprofilDienst(
         p.Ort,
         p.EinsatzradiusKm,
         p.Einsatzbereit,
+        p.Verifizierung,
         p.Partner,
         p.Bewertungsschnitt,
         p.AnzahlBewertungen,

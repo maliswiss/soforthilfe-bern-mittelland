@@ -105,6 +105,11 @@ erwarte "Richtpreis nachts mit MWST in Rappen" 19730 "$(jq '.[0].richtpreisErste
 skill_bezahlt="$(status "$BASIS/api/skills" > /dev/null; jq -r 'map(select(.code == "sanitaer-elektro")) | .[0].id' "$ANTWORT")"
 erwarte "Bezahlpflichtige Fähigkeit ohne Preise" 400 "$(status -X PUT "${json[@]}" -H "Authorization: Bearer $token_helfende" -d "$(jq -n --arg s "$skill_bezahlt" '{typ: 0, plz: "3011", ort: "Bern", radiusKm: 5, skillIds: [$s]}')" "$BASIS/api/helferprofil")"
 erwarte "Verfügbarkeit ausschalten" false "$(status -X PUT "${json[@]}" -H "Authorization: Bearer $token_helfende" -d '{"jetztVerfuegbar":false}' "$BASIS/api/helferprofil/verfuegbarkeit" > /dev/null; jq '.jetztVerfuegbar' "$ANTWORT")"
+erwarte "UID-Nummer einreichen" 200 "$(status "${json[@]}" -H "Authorization: Bearer $token_helfende" -d '{"art":0,"nachweiswert":"CHE 123 456 788"}' "$BASIS/api/verifizierungen")"
+erwarte "UID normalisiert" CHE-123.456.788 "$(jq -r '.nachweiswert' "$ANTWORT")"
+erwarte "Nachweis in Prüfung" 1 "$(jq '.status' "$ANTWORT")"
+erwarte "Falsche Prüfziffer" 400 "$(status "${json[@]}" -H "Authorization: Bearer $token_helfende" -d '{"art":0,"nachweiswert":"CHE-123.456.789"}' "$BASIS/api/verifizierungen")"
+erwarte "Kein Upload von Dokumenten" 415 "$(status -H "Authorization: Bearer $token_helfende" -F art=0 -F "dokument=@/dev/null;filename=ausweis.pdf" "$BASIS/api/verifizierungen")"
 
 echo "== Notfall-Stopp"
 notfall_text='{"freitext":"Mein Mann ist bewusstlos auf dem Boden."}'

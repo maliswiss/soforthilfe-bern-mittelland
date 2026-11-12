@@ -26,6 +26,7 @@
 | `GET /api/auth/ich` | ja | ja | ja | ja | ja |
 | `POST /api/anfragen`, `GET /api/anfragen/meine` | ja | nein | nein | nein | nein |
 | `GET`, `PUT /api/helferprofil`, `PUT /api/helferprofil/verfuegbarkeit` | nein | eigenes Profil | nein | nein | nein |
+| `POST /api/verifizierungen`, `GET /api/verifizierungen/meine` | nein | eigene Nachweise | nein | nein | nein |
 | `GET /api/anfragen`, `GET /api/anfragen/{id}` | eigene | nein | eigene Region | eigene Region | alle Regionen |
 | `GET /api/konten` | nein | nein | eigene Region | eigene Region | alle Regionen |
 | `GET /api/protokoll` | nein | nein | eigene Region | eigene Region | alle Regionen und Einträge ohne Region |
