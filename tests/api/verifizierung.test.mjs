@@ -1,4 +1,5 @@
-// Schnittstellentests: Verifizierung ohne Ausweisdokumente über UID-Nummer und Handelsregister.
+// Schnittstellentests: Verifizierung ohne Ausweisdokumente über UID-Nummer, Handelsregister, Telefonnummer,
+// E-Mail-Adresse und Referenz.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -6,13 +7,16 @@ import { aufruf, BASIS, neuesKonto, testkonto, BERN, HELFENDE, OHNE_TESTPASSWORT
 
 const UID = 0;
 const HANDELSREGISTER = 1;
+const TELEFON = 2;
+const EMAIL = 3;
+const REFERENZ = 4;
 
 const einreichen = (token, art, nachweiswert) => aufruf('POST', '/api/verifizierungen', { token, daten: { art, nachweiswert } });
 const meine = async (token) => (await aufruf('GET', '/api/verifizierungen/meine', { token })).inhalt;
 
 // Helfende Person mit gespeichertem Profil (kostenlose Fähigkeit, damit keine Preise nötig sind).
-async function helfendeMitProfil() {
-  const konto = await neuesKonto(BERN, HELFENDE);
+async function helfendeMitProfil(zusatz = {}) {
+  const konto = await neuesKonto(BERN, HELFENDE, zusatz);
   const skills = (await aufruf('GET', '/api/skills')).inhalt;
   const begleitung = skills.find((s) => s.code === 'begleitung');
   const profil = await aufruf('PUT', '/api/helferprofil', {
@@ -87,6 +91,70 @@ test('Ein offener Nachweis derselben Art wird ersetzt, nicht verdoppelt', async 
   const liste = await meine(token);
   assert.equal(liste.length, 2);
   assert.equal(liste.find((v) => v.art === UID).nachweiswert, 'CHE-123.456.788');
+});
+
+test('Telefonnummer: ohne Angabe die des Kontos, sonst die angegebene, immer lesbar vereinheitlicht', async () => {
+  const { token } = await helfendeMitProfil({ telefon: '+41 31 123 45 67' });
+
+  const ausKonto = await einreichen(token, TELEFON, null);
+  assert.equal(ausKonto.status, 200);
+  assert.equal(ausKonto.inhalt.nachweiswert, '031 123 45 67');
+  assert.equal(ausKonto.inhalt.status, 1);
+
+  const andere = await einreichen(token, TELEFON, '0041 79 123 45 67');
+  assert.equal(andere.status, 200);
+  assert.equal(andere.inhalt.nachweiswert, '079 123 45 67');
+
+  // Der offene Nachweis wurde ersetzt
+  assert.equal((await meine(token)).length, 1);
+});
+
+test('Mehrwertnummern und ungültige Nummern werden abgewiesen, ohne Nummer im Konto fehlt der Wert', async () => {
+  const { token } = await helfendeMitProfil();
+  const fall = async (wert, meldung) => {
+    const { status, inhalt } = await einreichen(token, TELEFON, wert);
+    assert.equal(status, 400, String(wert));
+    assert.equal(inhalt.feld?.toLowerCase(), 'nachweiswert', String(wert));
+    assert.match(inhalt.fehler, meldung, String(wert));
+  };
+
+  await fall(null, /erforderlich/);
+  await fall('0900 123 456', /kostenpflichtig/);
+  await fall('+41 901 123 456', /kostenpflichtig/);
+  await fall('+49 30 1234567', /Schweizer Telefonnummer/);
+  await fall('031 123 45', /Schweizer Telefonnummer/);
+
+  assert.deepEqual(await meine(token), []);
+});
+
+test('E-Mail-Adresse: bestätigt wird immer die Adresse des Kontos', async () => {
+  const { token, adresse } = await helfendeMitProfil();
+
+  const ohneAngabe = await einreichen(token, EMAIL, null);
+  assert.equal(ohneAngabe.status, 200);
+  assert.equal(ohneAngabe.inhalt.nachweiswert, adresse);
+
+  assert.equal((await einreichen(token, EMAIL, adresse.toUpperCase())).status, 200);
+
+  const andere = await einreichen(token, EMAIL, 'andere.adresse@beispiel.invalid');
+  assert.equal(andere.status, 400);
+  assert.equal(andere.inhalt.feld?.toLowerCase(), 'nachweiswert');
+  assert.equal((await meine(token)).length, 1);
+});
+
+test('Referenz einer Organisation oder Gemeinde mit Kontaktperson', async () => {
+  const { token } = await helfendeMitProfil();
+
+  const antwort = await einreichen(token, REFERENZ, '  Gemeinde   Muri,\n Frau Muster ');
+  assert.equal(antwort.status, 200);
+  assert.equal(antwort.inhalt.art, REFERENZ);
+  assert.equal(antwort.inhalt.nachweiswert, 'Gemeinde Muri, Frau Muster');
+
+  for (const wert of [null, '   ', 'SRK']) {
+    const { status, inhalt } = await einreichen(token, REFERENZ, wert);
+    assert.equal(status, 400, String(wert));
+    assert.equal(inhalt.feld?.toLowerCase(), 'nachweiswert', String(wert));
+  }
 });
 
 test('Keine Ausweisdokumente: Uploads werden nicht angenommen', async () => {

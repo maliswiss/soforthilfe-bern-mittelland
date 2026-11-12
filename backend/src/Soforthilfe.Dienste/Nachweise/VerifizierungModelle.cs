@@ -26,6 +26,10 @@ public enum VerifizierungFehler
     ArtNichtUnterstuetzt,
     NachweiswertFehlt,
     UidUngueltig,
+    Mehrwertnummer,
+    TelefonUngueltig,
+    EMailNichtKonto,
+    ReferenzUngueltig,
 }
 
 /// <summary>

@@ -8,9 +8,11 @@ Helfende Personen und Betriebe weisen nach, wer sie sind, bevor die Koordination
 |---|---|---|---|
 | `0` UID-Nummer | `CHE-123.456.788` | Format und Prüfziffer | umgesetzt |
 | `1` Handelsregister | UID des eingetragenen Unternehmens, zum Beispiel `CHE-123.456.788 HR` | Format und Prüfziffer; den Eintrag prüft die Koordination im Handelsregister (Zefix) | umgesetzt |
-| `2` bestätigte Telefonnummer, `3` bestätigte E-Mail-Adresse, `4` Referenz | | | folgt |
+| `2` bestätigte Telefonnummer | `031 123 45 67`; ohne Angabe die Nummer des Kontos | Schweizer Nummer, keine Mehrwertnummer (Anforderung A10); die Koordination bestätigt sie mit einem Rückruf | umgesetzt |
+| `3` bestätigte E-Mail-Adresse | immer die Adresse des Kontos | eine andere Adresse wird abgewiesen; die Koordination bestätigt sie mit einer Nachricht an diese Adresse | umgesetzt |
+| `4` Referenz | Organisation oder Gemeinde mit Kontaktperson, zum Beispiel `Gemeinde Muri, Frau Muster` | 5 bis 200 Zeichen; die Koordination fragt bei der Referenz nach | umgesetzt |
 
-Arten, die noch nicht unterstützt sind, ergeben `400` mit `"feld": "art"`.
+Eine unbekannte Art ergibt `400` mit `"feld": "art"`.
 
 ## UID-Nummer
 
@@ -23,6 +25,16 @@ Die Unternehmens-Identifikationsnummer besteht aus «CHE» und neun Ziffern; die
 | Gespeichert | immer in der Form `CHE-123.456.788`, ohne Zusatz |
 
 Beispiel `CHE-123.456.788`: 1·5 + 2·4 + 3·3 + 4·2 + 5·7 + 6·6 + 7·5 + 8·4 = 168; 168 mod 11 = 3; 11 − 3 = 8.
+
+## Telefonnummer, E-Mail-Adresse und Referenz
+
+Bestätigungscodes per SMS oder E-Mail verschickt die Plattform nicht, weil sie im Pilot keinen Versand anbietet. Bestätigt sind Telefonnummer und E-Mail-Adresse, wenn die Koordination sie erreicht hat und den Nachweis freigibt.
+
+| Art | Regel | Gespeichert |
+|---|---|---|
+| Telefonnummer | `+41`, `0041` und übliche Trennzeichen sind erlaubt; Mehrwertnummern (`0900`, `0901`, `0906`) ergeben `400` mit dem Titel «Kostenpflichtige Telefonnummer»; ohne Angabe und ohne Nummer im Konto fehlt der Wert | `031 123 45 67` |
+| E-Mail-Adresse | ohne Angabe oder mit der Adresse des Kontos in beliebiger Schreibweise; eine andere Adresse ergibt `400` | Adresse des Kontos |
+| Referenz | Leerzeichen und Zeilenumbrüche werden zu einfachen Leerzeichen; unter 5 oder über 200 Zeichen ergibt `400` | vereinheitlichter Text |
 
 ## Ablauf
 
@@ -77,12 +89,13 @@ Antwort `200`:
   "status": 1, "bemerkung": null, "eingereichtAm": "…", "geprueftAm": null }
 ```
 
-Ohne Helferprofil folgt `400`; ein fehlender Wert oder eine ungültige UID ergibt `400` mit `"feld": "nachweiswert"`.
+Ohne Helferprofil folgt `400`; ein fehlender oder ungültiger Wert ergibt `400` mit `"feld": "nachweiswert"`.
 
 ## Tests
 
 | Test | Prüft |
 |---|---|
 | Einheitentests `UidTests` | gültige Schreibweisen, Normalisierung, Prüfziffer 0, falsche Prüfziffer, nicht vergebene Nummern (Rechnung 10), falsche Formate |
-| Schnittstellentests `tests/api/verifizierung.test.mjs` | Rollen, ohne Profil, UID und Handelsregister, Profil in Prüfung, ungültige Nachweise ohne Speicherung, Ersetzen statt Verdoppeln, Upload abgewiesen (`415`), Protokoll ohne Wert |
-| Rauchtest | UID einreichen und normalisieren, falsche Prüfziffer, Upload abgewiesen |
+| Einheitentests `NachweiswerteTests` | Telefonnummer in allen Schreibweisen, ungültige Nummern, Referenz vereinheitlichen, Mindest- und Höchstlänge |
+| Schnittstellentests `tests/api/verifizierung.test.mjs` | Rollen, ohne Profil, UID und Handelsregister, Telefonnummer aus dem Konto oder angegeben, Mehrwertnummern, E-Mail-Adresse nur die des Kontos, Referenz, Profil in Prüfung, ungültige Nachweise ohne Speicherung, Ersetzen statt Verdoppeln, Upload abgewiesen (`415`), Protokoll ohne Wert |
+| Rauchtest | UID einreichen und normalisieren, falsche Prüfziffer, Upload abgewiesen, Referenz, Mehrwertnummer abgewiesen |

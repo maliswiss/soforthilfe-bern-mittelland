@@ -26,7 +26,7 @@ Die Schnittstelle ist eine REST-API unter `/api`. Sie spricht JSON; Feldnamen be
 | GET | `/api/helferprofil` | Helfende | Eigenes Helferprofil |
 | PUT | `/api/helferprofil` | Helfende | Helferprofil anlegen oder ersetzen ([helferprofil.md](helferprofil.md)) |
 | PUT | `/api/helferprofil/verfuegbarkeit` | Helfende | «jetzt verfügbar» umschalten |
-| POST | `/api/verifizierungen` | Helfende | Nachweis ohne Ausweisdokumente einreichen: UID-Nummer oder Handelsregister ([verifizierung.md](verifizierung.md)) |
+| POST | `/api/verifizierungen` | Helfende | Nachweis ohne Ausweisdokumente einreichen: UID-Nummer, Handelsregister, Telefonnummer, E-Mail-Adresse des Kontos oder Referenz ([verifizierung.md](verifizierung.md)) |
 | GET | `/api/verifizierungen/meine` | Helfende | Eigene Nachweise mit Stand der Prüfung |
 | POST | `/api/preise/richtpreis` | offen | Richtpreis für die erste Stunde zu bis zu zehn Zeitpunkten ([preise.md](preise.md)) |
 | GET | `/api/protokoll` | Koordination, Mandantenadministration, Plattformbetrieb | Neueste Protokolleinträge der eigenen Region, für den Plattformbetrieb aller Regionen; Filter `aktion`, Anzahl `anzahl` (Standard 100, höchstens 500) |

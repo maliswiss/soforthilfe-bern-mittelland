@@ -11,9 +11,12 @@ public enum Nachweisart
     // Eintrag im Handelsregister, nachgewiesen über die UID des eingetragenen Unternehmens.
     Handelsregister = 1,
 
+    // Telefonnummer, bestätigt durch die Koordination, zum Beispiel mit einem Rückruf.
     TelefonBestaetigt = 2,
 
+    // E-Mail-Adresse des Kontos, bestätigt durch die Koordination.
     EMailBestaetigt = 3,
 
+    // Referenz einer Organisation oder Gemeinde mit Kontaktperson.
     Referenz = 4,
 }

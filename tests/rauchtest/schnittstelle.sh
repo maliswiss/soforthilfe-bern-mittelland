@@ -110,6 +110,9 @@ erwarte "UID normalisiert" CHE-123.456.788 "$(jq -r '.nachweiswert' "$ANTWORT")"
 erwarte "Nachweis in Prüfung" 1 "$(jq '.status' "$ANTWORT")"
 erwarte "Falsche Prüfziffer" 400 "$(status "${json[@]}" -H "Authorization: Bearer $token_helfende" -d '{"art":0,"nachweiswert":"CHE-123.456.789"}' "$BASIS/api/verifizierungen")"
 erwarte "Kein Upload von Dokumenten" 415 "$(status -H "Authorization: Bearer $token_helfende" -F art=0 -F "dokument=@/dev/null;filename=ausweis.pdf" "$BASIS/api/verifizierungen")"
+erwarte "Referenz einreichen" 200 "$(status "${json[@]}" -H "Authorization: Bearer $token_helfende" -d '{"art":4,"nachweiswert":"Gemeinde  Muri, Frau Muster"}' "$BASIS/api/verifizierungen")"
+erwarte "Referenz vereinheitlicht" "Gemeinde Muri, Frau Muster" "$(jq -r '.nachweiswert' "$ANTWORT")"
+erwarte "Mehrwertnummer als Nachweis" 400 "$(status "${json[@]}" -H "Authorization: Bearer $token_helfende" -d '{"art":2,"nachweiswert":"0900 123 456"}' "$BASIS/api/verifizierungen")"
 
 echo "== Notfall-Stopp"
 notfall_text='{"freitext":"Mein Mann ist bewusstlos auf dem Boden."}'

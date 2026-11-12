@@ -6,7 +6,8 @@ namespace Soforthilfe.Api.Modelle;
 
 /// <summary>
 /// Nachweis zur Prüfung. Es werden keine Dokumente hochgeladen, nur überprüfbare Angaben: Art 0 UID-Nummer,
-/// Art 1 Handelsregister (über die UID des eingetragenen Unternehmens).
+/// Art 1 Handelsregister (über die UID des eingetragenen Unternehmens), Art 2 Telefonnummer (ohne Angabe die des
+/// Kontos), Art 3 E-Mail-Adresse des Kontos, Art 4 Referenz einer Organisation oder Gemeinde.
 /// </summary>
 public sealed record VerifizierungAnfrage(
     [EnumDataType(typeof(Nachweisart))] Nachweisart Art,
