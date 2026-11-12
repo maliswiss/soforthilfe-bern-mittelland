@@ -74,6 +74,12 @@ function abmelden() {
           <RouterLink v-if="konto.istHilfesuchende" :to="{ name: 'meine-anfragen' }" class="hover:text-tanne-hell">
             {{ t('kopf.meineAnfragen') }}
           </RouterLink>
+          <RouterLink v-if="konto.istHelfende" :to="{ name: 'helferprofil' }" class="hover:text-tanne-hell">
+            {{ t('kopf.helferprofil') }}
+          </RouterLink>
+          <RouterLink v-if="konto.istKoordination" :to="{ name: 'koordination' }" class="hover:text-tanne-hell">
+            {{ t('kopf.koordination') }}
+          </RouterLink>
           <span class="text-grau">{{ name }}</span>
           <button type="button" class="underline underline-offset-2" @click="abmelden">{{ t('kopf.abmelden') }}</button>
         </template>

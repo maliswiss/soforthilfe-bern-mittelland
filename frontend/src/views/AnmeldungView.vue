@@ -21,8 +21,14 @@ async function anmelden() {
   laeuft.value = true;
   try {
     await konto.anmelden(eMail.value.trim(), passwort.value);
-    // Hilfesuchende landen bei ihren Anfragen, alle anderen auf der Startseite
-    const standardziel = konto.istHilfesuchende ? { name: 'meine-anfragen' } : { name: 'startseite' };
+    // Jede Rolle landet auf ihrer Arbeitsseite: Anfragen, Helferprofil oder Koordination
+    const standardziel = konto.istHilfesuchende
+      ? { name: 'meine-anfragen' }
+      : konto.istHelfende
+        ? { name: 'helferprofil' }
+        : konto.istKoordination
+          ? { name: 'koordination' }
+          : { name: 'startseite' };
     router.push(internesZiel(route.query.weiter) ?? standardziel);
   } catch (problem) {
     fehler.value = problem.message;

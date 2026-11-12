@@ -7,12 +7,13 @@ export const OHNE_TESTPASSWORT = TESTPASSWORT === '';
 
 export const neueAdresse = () => `oberflaeche.${Date.now()}.${Math.floor(Math.random() * 1e6)}@beispiel.invalid`;
 
-/// Sammelt Fehler aus der Browserkonsole; erwartete Antworten 400 und 401 der Schnittstelle zählen nicht.
-export function konsoleBeobachten(seite) {
+/// Sammelt Fehler aus der Browserkonsole; erwartete Antworten der Schnittstelle (Standard 400 und 401) zählen nicht.
+export function konsoleBeobachten(seite, erwartet = [400, 401]) {
   const fehler = [];
+  const muster = new RegExp(`status of (${erwartet.join('|')})`);
   seite.on('pageerror', (e) => fehler.push(e.message));
   seite.on('console', (meldung) => {
-    if (meldung.type() === 'error' && !/status of 40[01]/.test(meldung.text())) {
+    if (meldung.type() === 'error' && !muster.test(meldung.text())) {
       fehler.push(meldung.text());
     }
   });

@@ -64,7 +64,8 @@ async function registrieren() {
       eMail: formular.value.eMail.trim(),
       telefon: formular.value.telefon.trim() || null
     });
-    const standardziel = formular.value.kontoart === 1 ? { name: 'startseite' } : { name: 'meine-anfragen' };
+    // Helfende richten als Nächstes ihr Profil ein; ohne Profil erhalten sie keine Anfragen
+    const standardziel = formular.value.kontoart === 1 ? { name: 'helferprofil' } : { name: 'meine-anfragen' };
     router.push(internesZiel(route.query.weiter) ?? standardziel);
   } catch (problem) {
     fehler.value = problem.message;

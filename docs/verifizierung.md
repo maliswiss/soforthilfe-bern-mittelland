@@ -129,6 +129,7 @@ Antwort `200` mit dem Nachweis (`status` 2 oder 3, `geprueftAm`). In der Liste `
 | Einheitentests `ProfilstatusTests` | Stand des Profils nach Freigabe und Ablehnung, mit offenen oder freigegebenen weiteren Nachweisen, Sperre bleibt |
 | Schnittstellentests `tests/api/freigabe.test.mjs` | Rollen, Liste mit Profilangaben und Reihenfolge, Freigabe mit Bemerkung und Protokoll ohne Wert, Ablehnung, Zusatznachweis, erneute Prüfung nach prüfrelevanter Änderung, fremde Region `404`, zweiter Entscheid `409`, Länge der Bemerkung |
 | Schnittstellentests `tests/api/verifizierung.test.mjs` | Rollen, ohne Profil, UID und Handelsregister, Telefonnummer aus dem Konto oder angegeben, Mehrwertnummern, E-Mail-Adresse nur die des Kontos, Referenz, Profil in Prüfung, ungültige Nachweise ohne Speicherung, Ersetzen statt Verdoppeln, Upload abgewiesen (`415`), Protokoll ohne Wert |
+| Oberflächentests `tests/oberflaeche/helferprofil.spec.mjs` | Mehrwertnummer schon bei der Eingabe erkannt und nicht gesendet, Telefonnummer des Kontos als Nachweis, Liste mit Stand, Freigabe durch die Koordination mit Bemerkung, Seiten nur mit der passenden Rolle |
 | Rauchtest | UID einreichen und normalisieren, falsche Prüfziffer, Upload abgewiesen, Referenz, Mehrwertnummer abgewiesen, offene Nachweise nur für die Koordination, Freigabe, Profil verifiziert, zweiter Entscheid, fremde Region |
 
 ## Testdaten

@@ -1,6 +1,6 @@
 # Screenflow und Bildschirme
 
-Ablauf der Oberfläche von der Startseite über Anmeldung oder Registrierung bis zur erfassten Anfrage. Eine Regionswahl gibt es nicht: Die Region folgt bei der Registrierung aus der Postleitzahl und danach aus dem Konto.
+Ablauf der Oberfläche von der Startseite über Anmeldung oder Registrierung bis zur erfassten Anfrage, dazu das Helferprofil mit Nachweisen und die Prüfung durch die Koordination. Eine Regionswahl gibt es nicht: Die Region folgt bei der Registrierung aus der Postleitzahl und danach aus dem Konto.
 
 ## Grundsätze der Oberfläche
 
@@ -32,6 +32,20 @@ flowchart TD
 
 Die Eingabe der Startseite bleibt während Anmeldung oder Registrierung im Entwurf erhalten; danach geht es direkt zu «Wo und wann?».
 
+## Helferprofil und Freigabe
+
+```mermaid
+flowchart TD
+    R["Registrierung<br/>Hilfe anbieten"] --> P["Helferprofil<br/>Typ, Ort, Fähigkeiten, Preise"]
+    P --> V["Nachweis einreichen<br/>UID, Handelsregister, Telefon, E-Mail, Referenz"]
+    V --> K["Koordination<br/>offene Verifizierungen der Region"]
+    K -->|"Freigeben"| F["Profil verifiziert"]
+    K -->|"Ablehnen"| A["Bemerkung beim Nachweis"]
+    A --> V
+```
+
+Nach der Anmeldung landen Helfende im Helferprofil und die Koordination bei den offenen Verifizierungen.
+
 ## Bildschirme
 
 | Nr. | Bildschirm | Pfad | Zugriff | Zweck |
@@ -44,6 +58,8 @@ Die Eingabe der Startseite bleibt während Anmeldung oder Registrierung im Entwu
 | 06 | Meine Anfragen | `/anfragen` | angemeldet | eigene Anfragen, neueste zuerst |
 | 07 | So funktioniert es | `/so-funktioniert-es` | offen | Ablauf in vier Schritten und Abgrenzung |
 | 08 | Notfall | `/notfall` | offen | Notfall-Stopp: «Bitte sofort 144 anrufen», Anrufknopf und Abgrenzung |
+| 09 | Helferprofil | `/helfen/profil` | Helfende | Typ, Betriebsname, Postleitzahl und Ort, Adresse, Radius, Fähigkeiten, Preisangaben mit Vorschau des Richtpreises; Nachweise einreichen, Stand der Verifizierung und eingereichte Nachweise mit Bemerkung der Koordination |
+| 10 | Koordination | `/koordination` | Koordination | offene Verifizierungen der Region mit Profilangaben, Bemerkung, «Freigeben» und «Ablehnen»; Protokoll der Region |
 
 ## Navigation
 
@@ -51,7 +67,11 @@ Die Eingabe der Startseite bleibt während Anmeldung oder Registrierung im Entwu
 |---|---|
 | Ohne Anmeldung | Logo mit Region · So funktioniert es · Für Helfende · Anmelden |
 | Hilfesuchende | Logo mit Region · So funktioniert es · Meine Anfragen · Name · Abmelden |
+| Helfende | Logo mit Region · So funktioniert es · Helferprofil · Name · Abmelden |
+| Koordination | Logo mit Region · So funktioniert es · Koordination · Name · Abmelden |
 | Andere Rollen | Logo mit Region · So funktioniert es · Name · Abmelden |
+
+Seiten einer bestimmten Rolle führen ohne diese Rolle zur Startseite; die Schnittstelle prüft die Rolle zusätzlich.
 
 «Für Helfende» öffnet die Registrierung mit vorgewählter Kontoart «Hilfe anbieten».
 
@@ -66,6 +86,8 @@ Die Eingabe der Startseite bleibt während Anmeldung oder Registrierung im Entwu
 | Postleitzahl und Ort | Ort aus dem Ortschaftenverzeichnis ergänzt, weitere Ortschaften zur Auswahl | Hinweis, wenn die Postleitzahl mehrere Gemeinden umfasst |
 | Standort verwenden | nur auf Klick und nach Freigabe im Browser; übernommen werden Postleitzahl und Ort | «Standort übernommen: … Bitte prüfen»; ohne Freigabe, im Ausland oder ohne sichere Verbindung ein Hinweis, die Felder von Hand auszufüllen |
 | Wo und wann? | vierstellige Postleitzahl, Ort ausgefüllt, Postleitzahl in der Region des Kontos | Hinweis über dem Knopf |
+| Helferprofil | mindestens eine Fähigkeit; bei bezahlpflichtigen Fähigkeiten Anfahrt und Stundenansatz; Beträge in Franken, Zuschläge in ganzen Prozent | Hinweis über dem Formular |
+| Nachweis | Mehrwertnummer schon während der Eingabe erkannt (Anforderung A10); bei der E-Mail-Adresse gilt immer die des Kontos | roter Hinweis unter dem Feld, der Nachweis wird nicht gesendet |
 
 Massgebend bleibt die Schnittstelle; ihre Meldungen (Feld `fehler`) erscheinen unverändert in der Oberfläche.
 

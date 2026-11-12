@@ -46,6 +46,10 @@ Content-Type: application/json
 
 Antwort `200` mit dem gespeicherten Profil: `id`, `typ`, `betriebsname`, `beschreibung`, `plz`, `ort`, `radiusKm`, `jetztVerfuegbar`, `verifizierung`, `partner`, `bewertungsschnitt`, `anzahlBewertungen`, `anzahlEinsaetze`, `skills`, `adresse`, die Preisangaben und `preiseErforderlich`. Ungültige Angaben ergeben `400` mit `feld`: `skillIds`, `preise`, `betriebsname`, `plz` oder `ort`.
 
+## Oberfläche
+
+Helfende bearbeiten ihr Profil unter `/helfen/profil`; nach der Registrierung als «Hilfe anbieten» und nach jeder Anmeldung führt die Oberfläche dorthin. Die Vorschau zeigt den Richtpreis für die erste Stunde zu vier Beispielzeiten, gerechnet von der Schnittstelle. Darunter folgen die Nachweise mit dem Stand der Verifizierung ([screenflow.md](screenflow.md), [verifizierung.md](verifizierung.md)).
+
 ## Protokoll
 
 Anlegen und Ändern erzeugen die Einträge `Helferprofil.Erstellt` und `Helferprofil.Geaendert` mit der Kennung des Profils, ohne Personendaten.
@@ -56,3 +60,4 @@ Anlegen und Ändern erzeugen die Einträge `Helferprofil.Erstellt` und `Helferpr
 |---|---|
 | Schnittstellentests `tests/api/helferprofil.test.mjs` | Rollen, Anlegen, Lesen, Ändern mit ersetzten Fähigkeiten, Verfügbarkeit, ungültige Angaben ohne Speicherung, Protokoll ohne Personendaten |
 | Rauchtest | Profil anlegen, Rolle, Verfügbarkeit, Pflicht der Preisangaben |
+| Oberflächentests `tests/oberflaeche/helferprofil.spec.mjs` | Profil nach der Registrierung anlegen, Pflicht der Preise, Vorschau des Richtpreises, gespeicherte Angaben nach dem Neuladen |

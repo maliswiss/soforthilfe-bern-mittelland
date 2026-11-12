@@ -23,6 +23,18 @@ const routen = [
     component: () => import('../views/AnfrageView.vue'),
     meta: { anmeldung: true }
   },
+  {
+    path: '/helfen/profil',
+    name: 'helferprofil',
+    component: () => import('../views/HelferProfilView.vue'),
+    meta: { anmeldung: true, rolle: 'Helfende' }
+  },
+  {
+    path: '/koordination',
+    name: 'koordination',
+    component: () => import('../views/KoordinationView.vue'),
+    meta: { anmeldung: true, rolle: 'Koordination' }
+  },
   { path: '/so-funktioniert-es', name: 'ablauf', component: () => import('../views/AblaufView.vue') },
   { path: '/notfall', name: 'notfall', component: () => import('../views/NotfallView.vue') },
   // Unbekannte Pfade führen zur Startseite
@@ -35,13 +47,18 @@ const router = createRouter({
   scrollBehavior: () => ({ top: 0 })
 });
 
-// Geschützte Seiten: ohne Anmeldung zur Anmeldung, danach zurück zum gewünschten Ziel
+// Geschützte Seiten: ohne Anmeldung zur Anmeldung, danach zurück zum gewünschten Ziel.
+// Seiten einer bestimmten Rolle führen ohne diese Rolle zur Startseite; die Schnittstelle prüft zusätzlich.
 router.beforeEach((ziel) => {
   const konto = useKonto();
   konto.wiederherstellen();
 
   if (ziel.meta.anmeldung && !konto.angemeldet) {
     return { name: 'anmeldung', query: { weiter: ziel.fullPath } };
+  }
+
+  if (ziel.meta.rolle && !konto.benutzer?.rollen?.includes(ziel.meta.rolle)) {
+    return { name: 'startseite' };
   }
 
   return true;
