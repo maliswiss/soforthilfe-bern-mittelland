@@ -56,6 +56,8 @@ public static class DiensteErweiterungen
         dienste.AddScoped<IAnfrageDienst, AnfrageDienst>();
         dienste.AddScoped<IHelferprofilDienst, HelferprofilDienst>();
         dienste.AddScoped<IVerifizierungDienst, VerifizierungDienst>();
+        // Der Klassifikator wird beim Start einmal trainiert und danach nur noch gelesen.
+        dienste.AddSingleton<ITextKlassifikator, TfIdfKlassifikator>();
         dienste.AddScoped<IEinordnung, Einordnung>();
         dienste.AddScoped<IVerstaendnisDienst, VerstaendnisDienst>();
 

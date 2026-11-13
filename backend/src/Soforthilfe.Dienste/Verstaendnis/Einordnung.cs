@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using Soforthilfe.Datenzugriff;
 using Soforthilfe.Datenzugriff.Modell;
@@ -23,8 +24,8 @@ public sealed record EinordnungInfo(
     IReadOnlyList<KategorieVorschlag> Alternativen);
 
 /// <summary>
-/// Ordnet eine Anfrage einer Kategorie zu: zuerst die Wahl der anfragenden Person, dann eindeutige Schlüsselwörter.
-/// Die Notfallprüfung läuft vorher und gehört nicht dazu.
+/// Ordnet eine Anfrage einer Kategorie zu: zuerst die Wahl der anfragenden Person, dann eindeutige Schlüsselwörter,
+/// danach der TF-IDF-Klassifikator. Die Notfallprüfung läuft vorher und gehört nicht dazu.
 /// </summary>
 public interface IEinordnung
 {
@@ -44,9 +45,15 @@ public static class EinordnungTexte
     public static string Gewaehlt(string kategorie) => $"Kategorie durch die anfragende Person gewählt: {kategorie}.";
 
     public static string Regel(string wort) => $"Erkannt über das Schlüsselwort «{wort}».";
+
+    public static string MaschinellesLernen(double aehnlichkeit, string kategorie, double abstand) =>
+        string.Format(Kultur, "Klassifikation über maschinelles Lernen: Ähnlichkeit {0:0.00} zur Kategorie «{1}», "
+            + "Abstand zur zweitbesten Kategorie {2:0.00}.", aehnlichkeit, kategorie, abstand);
+
+    private static readonly CultureInfo Kultur = CultureInfo.GetCultureInfo("de-CH");
 }
 
-public sealed class Einordnung(SoforthilfeDbContext datenbank) : IEinordnung
+public sealed class Einordnung(SoforthilfeDbContext datenbank, ITextKlassifikator klassifikator) : IEinordnung
 {
     public async Task<EinordnungInfo> EinordnenAsync(Guid? kategorieId, string? freitext, CancellationToken abbruch)
     {
@@ -71,7 +78,23 @@ public sealed class Einordnung(SoforthilfeDbContext datenbank) : IEinordnung
                 EinordnungTexte.Regel(Textnormalisierung.Fundstelle(freitext, regel.Begriff)));
         }
 
-        return Ohne(EinordnungTexte.Unsicher);
+        // Stufe 3: maschinelles Lernen, nur mit genügend Ähnlichkeit und Abstand zur zweitbesten Kategorie.
+        var ml = klassifikator.Klassifizieren(freitext);
+        if (ml.Kennung is not null && kategorien.FirstOrDefault(k => k.Kennung == ml.Kennung) is { } ueberMl)
+        {
+            return Ergebnis(ueberMl, Erfassungsweg.MaschinellesLernen, ml.Aehnlichkeit,
+                EinordnungTexte.MaschinellesLernen(ml.Aehnlichkeit, ueberMl.Bezeichnung, ml.Abstand));
+        }
+
+        // Unsicher: die bis zu drei ähnlichsten Kategorien zur Auswahl anbieten.
+        var alternativen = ml.Rangfolge
+            .Take(3)
+            .Select(a => kategorien.FirstOrDefault(x => x.Kennung == a.Kennung) is { } k
+                ? new KategorieVorschlag(k.Id, k.Kennung, k.Bezeichnung, a.Aehnlichkeit)
+                : null)
+            .OfType<KategorieVorschlag>()
+            .ToList();
+        return Ohne(EinordnungTexte.Unsicher) with { Alternativen = alternativen };
     }
 
     private static EinordnungInfo Ergebnis(Kategorie kategorie, Erfassungsweg weg, double konfidenz, string begruendung) =>

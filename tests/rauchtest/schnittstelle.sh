@@ -130,6 +130,9 @@ erwarte "Einordnung über Schlüsselwort" 200 "$(status "${json[@]}" -d '{"freit
 erwarte "Kategorie aus den Regeln" "sanitaer-elektro" "$(jq -r '.code' "$ANTWORT")"
 erwarte "Weg Regeln" 1 "$(jq '.erfassungsweg' "$ANTWORT")"
 erwarte "Kein Notfall bei der Heizung" false "$(jq '.notfall' "$ANTWORT")"
+erwarte "Einordnung über maschinelles Lernen" 200 "$(status "${json[@]}" -d '{"freitext":"Bitte Milch, Brot und Früchte vorbeibringen"}' "$BASIS/api/anfragen/verstehen")"
+erwarte "Kategorie aus dem Klassifikator" "lieferdienst" "$(jq -r '.code' "$ANTWORT")"
+erwarte "Weg maschinelles Lernen" 2 "$(jq '.erfassungsweg' "$ANTWORT")"
 
 echo "== Rollen und Berechtigungen"
 if [ -z "${TESTDATEN_PASSWORT:-}" ]; then
