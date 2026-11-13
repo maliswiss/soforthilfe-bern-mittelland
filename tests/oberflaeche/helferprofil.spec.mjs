@@ -26,9 +26,12 @@ test('Helfende richten nach der Registrierung ihr Profil ein und reichen einen N
   await page.getByLabel('Anfahrt (CHF pauschal)').fill('40');
   await page.getByLabel('Stundenansatz (CHF)').fill('95');
   await page.getByLabel('Nachtzuschlag 20–7 Uhr (%)').fill('50');
+  // Die Vorschau zeigt die Preise so, wie Anfragende sie vor der Zusage sehen
   const vorschau = page.locator('[data-test=preisvorschau]');
-  await expect(vorschau).toContainText('ca. CHF 135.00');
-  await expect(vorschau).toContainText('(+50 %)');
+  await expect(vorschau).toContainText('Richtpreis erste Stunde: ca. CHF 135.00 (inklusive Anfahrt)');
+  await expect(vorschau).toContainText('Richtpreis erste Stunde: ca. CHF 182.50 (inklusive Anfahrt, Nachtzuschlag 50 %)');
+  await expect(vorschau).toContainText('CHF 95.00 pro Stunde');
+  await expect(vorschau).toContainText('nicht mehrwertsteuerpflichtig');
 
   await page.getByRole('button', { name: 'Profil speichern' }).click();
   await expect(page.getByRole('status')).toHaveText('Das Profil ist gespeichert.');

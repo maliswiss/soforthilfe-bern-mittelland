@@ -53,8 +53,8 @@ Nach der Anmeldung landen Helfende im Helferprofil und die Koordination bei den 
 | 01 | Startseite | `/` | offen | Einstieg: Kategorie aus zehn Kacheln oder Anliegen in eigenen Worten, Hinweise für Helfende und zu Vertrauen und Schutz |
 | 02 | Anmeldung | `/anmeldung` | offen | E-Mail-Adresse und Passwort, die Region kommt aus dem Konto; danach zurück zum gewünschten Ziel |
 | 03 | Registrierung | `/registrierung` | offen | «Hilfe suchen» oder «Hilfe anbieten», Name, E-Mail-Adresse, freiwillige Telefonnummer, Postleitzahl und Ort (bestimmen die Region), Passwort |
-| 04 | Wo und wann? | `/anfrage/erfassen` | angemeldet | Postleitzahl mit ergänztem Ort, Adresse und Zeitfenster zur Anfrage |
-| 05 | Anfrage | `/anfragen/:id` | angemeldet | Kategorie, Status, Dringlichkeit, Ort, Beschreibung, kostenlos oder kostenpflichtig |
+| 04 | Wo und wann? | `/anfrage/erfassen` | angemeldet | beim Freitext die erkannte Kategorie mit Begründung, änderbar oder bei Unsicherheit aus den ähnlichsten zu wählen; Preishinweis vor der Zusage oder «kostenlos»; Postleitzahl mit ergänztem Ort, Adresse und Zeitfenster zur Anfrage |
+| 05 | Anfrage | `/anfragen/:id` | angemeldet | Kategorie, Status, Dringlichkeit, Ort, Beschreibung, kostenlos oder kostenpflichtig mit Preishinweis |
 | 06 | Meine Anfragen | `/anfragen` | angemeldet | eigene Anfragen, neueste zuerst |
 | 07 | So funktioniert es | `/so-funktioniert-es` | offen | Ablauf in vier Schritten und Abgrenzung |
 | 08 | Notfall | `/notfall` | offen | Notfall-Stopp: «Bitte sofort 144 anrufen», Anrufknopf und Abgrenzung |

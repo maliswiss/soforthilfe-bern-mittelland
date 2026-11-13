@@ -60,6 +60,18 @@ Antwort `200`, je Zeitpunkt (höchstens zehn; ohne Angabe der aktuelle):
     "angewandterZuschlag": "nacht", "angewandterZuschlagProzent": 50 } ]
 ```
 
+## Oberfläche
+
+Die Preise sind vor der Zusage sichtbar, aber nur bei bezahlpflichtigen Kategorien (Anforderungen A9 und A12).
+
+| Stelle | Bezahlpflichtige Kategorie | Kostenlose Kategorie |
+|---|---|---|
+| «Wo und wann?» vor dem Absenden | Hinweis «Preise vor der Zusage»: Anfahrt und Stundenansatz, Zuschläge, Richtpreis der ersten Stunde, MWST; «Verbindlich wird erst Ihre Zusage.» | «Diese Hilfe ist kostenlos.» |
+| Anfrage nach dem Absenden | derselbe Hinweis unter den Angaben zur Anfrage | kein Preishinweis |
+| Helferprofil | Vorschau zu vier Beispielzeiten in der Darstellung, die Anfragende bei den Vorschlägen sehen | keine Preisangaben nötig |
+
+Beim Freitext bestimmt die [Verständniskette](verstaendniskette.md) die Kategorie und damit, ob der Preishinweis erscheint; die Person kann die Kategorie vor dem Absenden ändern. Die Preise einzelner Helfender zeigt die Komponente [`PreisAngaben.vue`](../frontend/src/components/PreisAngaben.vue): Richtpreis mit angewandtem Zuschlag und MWST, Anfahrt, Stundenansatz, beide Zuschläge und den MWST-Satz.
+
 ## Tests
 
 | Test | Prüft |
@@ -67,3 +79,5 @@ Antwort `200`, je Zeitpunkt (höchstens zehn; ohne Angabe der aktuelle):
 | Einheitentests `PreisrechnerTests` | Werktag, Nacht, Wochenende, höherer Zuschlag, Grenzen 20 und 7 Uhr, Ortszeit aus UTC, ohne MWST, fehlende Angaben, kostenlose Leistungen, Rundung auf 5 Rappen, einstellbarer MWST-Satz |
 | Schnittstellentests `tests/api/preise.test.mjs` | Richtpreis zu vier Zeitpunkten, ohne MWST, fehlende Angaben, höchstens zehn Zeitpunkte, ungültige Beträge, Pflicht bei bezahlpflichtigen Fähigkeiten, keine Pflicht bei kostenlosen |
 | Rauchtest | Richtpreis nachts mit MWST, Profil ohne Preise abgewiesen |
+| Oberflächentests `tests/oberflaeche/preise.spec.mjs` | Preishinweis bei erkannter bezahlpflichtiger Kategorie vor und nach dem Absenden, kein Preishinweis bei kostenloser Kategorie, Wahl aus den ähnlichsten Kategorien bestimmt den Preishinweis |
+| Oberflächentests `tests/oberflaeche/helferprofil.spec.mjs` | Vorschau im Helferprofil mit Richtpreis, Zuschlag, Stundenansatz und MWST |

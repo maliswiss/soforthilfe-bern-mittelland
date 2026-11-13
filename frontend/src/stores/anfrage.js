@@ -6,6 +6,10 @@ export const useAnfrageEntwurf = defineStore('anfrageEntwurf', {
   state: () => ({
     kategorieId: null,
     kategorieBezeichnung: null,
+    // Bezahlpflicht der gewählten Kategorie; null, solange keine Kategorie feststeht
+    bezahlpflichtig: null,
+    // Einordnung des Freitexts durch die Verständniskette: Kategorie, Begründung und Alternativen
+    einordnung: null,
     freitext: '',
     prioritaet: 1,
     plz: '',

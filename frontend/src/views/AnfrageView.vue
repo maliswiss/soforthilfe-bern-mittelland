@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n';
 import { holen } from '../api/klient';
 import { kultur } from '../i18n';
 import { useKonto } from '../stores/konto';
+import PreisHinweis from '../components/PreisHinweis.vue';
 import HinweisFeld from '../components/HinweisFeld.vue';
 import PrioritaetsMarke from '../components/PrioritaetsMarke.vue';
 import StatusMarke from '../components/StatusMarke.vue';
@@ -60,6 +61,8 @@ onMounted(async () => {
         {{ anfrage.bezahlpflichtig ? t('anfrage.kostenpflichtig') : t('anfrage.kostenlos') }}
       </p>
     </dl>
+
+    <PreisHinweis v-if="anfrage.bezahlpflichtig" :bezahlpflichtig="true" class="mt-4 max-w-2xl" />
 
     <RouterLink :to="{ name: 'meine-anfragen' }" class="knopf-leise mt-6">{{ t('anfrage.zurueck') }}</RouterLink>
   </div>

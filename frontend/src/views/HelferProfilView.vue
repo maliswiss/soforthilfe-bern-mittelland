@@ -3,11 +3,12 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { kultur } from '../i18n';
 import { holen, senden } from '../api/klient';
-import { betrag, betragLesen, prozentLesen } from '../api/betrag';
+import { betragLesen, prozentLesen } from '../api/betrag';
 import { istKostenpflichtig } from '../api/telefon';
 import { useKonto } from '../stores/konto';
 import HinweisFeld from '../components/HinweisFeld.vue';
 import OrtEingabe from '../components/OrtEingabe.vue';
+import PreisAngaben from '../components/PreisAngaben.vue';
 import Warnhinweis from '../components/Warnhinweis.vue';
 
 const konto = useKonto();
@@ -325,19 +326,13 @@ async function nachweisEinreichen() {
       </label>
       <p class="text-xs text-grau">{{ t('profil.zuschlagRegel') }}</p>
 
-      <div v-if="vorschau.length" class="bg-tanne-blass px-4 py-3 text-sm" data-test="preisvorschau">
+      <!-- Gleiche Darstellung wie bei den Vorschlägen für Anfragende -->
+      <div v-if="vorschau.length" class="space-y-3 bg-tanne-blass px-4 py-3 text-sm" data-test="preisvorschau">
         <p class="font-medium">{{ t('profil.vorschauTitel') }}</p>
-        <dl class="mt-1 grid grid-cols-[auto_1fr] gap-x-4">
-          <template v-for="eintrag in vorschau" :key="eintrag.schluessel">
-            <dt class="text-grau">{{ t(`profil.vorschau.${eintrag.schluessel}`) }}</dt>
-            <dd>
-              {{ t('preis.richtpreisWert', { betrag: betrag(eintrag.preis.richtpreisErsteStunde) }) }}
-              <span v-if="eintrag.preis.angewandterZuschlagProzent" class="text-grau">
-                (+{{ eintrag.preis.angewandterZuschlagProzent }} %)
-              </span>
-            </dd>
-          </template>
-        </dl>
+        <div v-for="(eintrag, i) in vorschau" :key="eintrag.schluessel">
+          <p class="text-xs text-grau">{{ t(`profil.vorschau.${eintrag.schluessel}`) }}</p>
+          <PreisAngaben :preis="eintrag.preis" :kompakt="i > 0" />
+        </div>
       </div>
     </fieldset>
 

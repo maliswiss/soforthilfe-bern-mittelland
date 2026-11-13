@@ -83,6 +83,8 @@ Antwort `200`:
   "begruendung": "Erkannt über das Schlüsselwort «Heizung».", "alternativen": [] }
 ```
 
+In der Oberfläche zeigt «Wo und wann?» die erkannte Kategorie mit Begründung; die Person kann sie ändern oder bei Unsicherheit eine der Alternativen wählen. Eine geänderte Kategorie gilt als Kategorieauswahl.
+
 Beim Erfassen ohne gewählte Kategorie (`POST /api/anfragen` nur mit Freitext) speichert die Anfrage die erkannte Kategorie; ohne sicheres Ergebnis bleibt sie leer.
 
 ## Tests

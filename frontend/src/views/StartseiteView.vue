@@ -43,6 +43,7 @@ async function hilfeFinden() {
   }
 
   laeuft.value = true;
+  let einordnung = null;
   try {
     const ergebnis = await senden('/anfragen/verstehen', {
       kategorieId: eingabeart.value === 'kategorie' ? gewaehlteKategorie.value : null,
@@ -55,6 +56,14 @@ async function hilfeFinden() {
       router.push({ name: 'notfall' });
       return;
     }
+
+    einordnung = {
+      kategorieId: ergebnis.kategorieId,
+      kategorie: ergebnis.kategorie,
+      bezahlpflichtig: ergebnis.bezahlpflichtig,
+      begruendung: ergebnis.begruendung,
+      alternativen: ergebnis.alternativen ?? []
+    };
   } catch (problem) {
     fehler.value = problem.message;
     return;
@@ -65,7 +74,10 @@ async function hilfeFinden() {
   const kategorie = kategorien.value.find((k) => k.id === gewaehlteKategorie.value);
   entwurf.kategorieId = eingabeart.value === 'kategorie' ? gewaehlteKategorie.value : null;
   entwurf.kategorieBezeichnung = eingabeart.value === 'kategorie' ? kategorie?.bezeichnung ?? null : null;
+  entwurf.bezahlpflichtig = eingabeart.value === 'kategorie' ? kategorie?.bezahlpflichtig ?? null : null;
   entwurf.freitext = eingabeart.value === 'freitext' ? freitext.value.trim() : '';
+  // Beim Freitext bleibt die Einordnung ein Vorschlag; die Person kann sie im nächsten Schritt ändern
+  entwurf.einordnung = eingabeart.value === 'freitext' ? einordnung : null;
 
   router.push({ name: 'anfrage-erfassen' });
 }
