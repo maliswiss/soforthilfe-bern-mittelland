@@ -28,7 +28,7 @@ public sealed class AnfragenController(IAnfrageDienst anfragen, IVerstaendnisDie
         }
 
         var ergebnis = await verstaendnis.VerstehenAsync(eingabe.KategorieId, eingabe.Freitext, abbruch);
-        return Ok(new VerstaendnisAntwort(ergebnis.Notfall, ergebnis.NotfallGrund, ergebnis.NotfallHinweis));
+        return Ok(VerstaendnisAntwort.Aus(ergebnis));
     }
 
     // Nur Hilfesuchende erfassen eine Anfrage.

@@ -1,8 +1,8 @@
 namespace Soforthilfe.Dienste.Verstaendnis;
 
 /// <summary>
-/// Verständnis-Schritt vor dem Erfassen einer Anfrage. Zuerst immer die Notfallprüfung;
-/// die Einordnung in eine Kategorie folgt mit der Verständniskette.
+/// Verständnis-Schritt vor dem Erfassen einer Anfrage. Zuerst immer die Notfallprüfung,
+/// danach die Einordnung in eine Kategorie.
 /// </summary>
 public interface IVerstaendnisDienst
 {

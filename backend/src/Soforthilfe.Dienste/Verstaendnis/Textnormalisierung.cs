@@ -35,6 +35,26 @@ public static class Textnormalisierung
         Normalisieren(eingabe).Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
     /// <summary>
+    /// Prüft, ob ein normalisierter Begriff im normalisierten Text vorkommt. Begriffe mit Leerzeichen gelten als
+    /// Wortfolge am Wortanfang; kurze Begriffe (bis 4 Zeichen) nur als ganzes Wort, mittlere (5 und 6 Zeichen) als
+    /// Wortanfang, längere auch innerhalb eines Worts, zum Beispiel «schluessel» in «hausschluessel».
+    /// </summary>
+    public static bool Enthaelt(string normalisierterText, string[] woerter, string begriff)
+    {
+        if (begriff.Contains(' '))
+        {
+            return $" {normalisierterText} ".Contains($" {begriff}", StringComparison.Ordinal);
+        }
+
+        return begriff.Length switch
+        {
+            <= 4 => woerter.Contains(begriff),
+            < 7 => woerter.Any(w => w.StartsWith(begriff, StringComparison.Ordinal)),
+            _ => woerter.Any(w => w.Contains(begriff, StringComparison.Ordinal)),
+        };
+    }
+
+    /// <summary>
     /// Stelle im ursprünglichen Text, an der ein normalisierter Begriff vorkommt, zum Beispiel «Bewusstlos»
     /// für «bewusstlos». So nennt die Begründung das Wort so, wie die Person es geschrieben hat.
     /// Ohne Fund bleibt der Begriff unverändert.

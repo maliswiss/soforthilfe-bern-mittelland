@@ -56,6 +56,7 @@ public static class DiensteErweiterungen
         dienste.AddScoped<IAnfrageDienst, AnfrageDienst>();
         dienste.AddScoped<IHelferprofilDienst, HelferprofilDienst>();
         dienste.AddScoped<IVerifizierungDienst, VerifizierungDienst>();
+        dienste.AddScoped<IEinordnung, Einordnung>();
         dienste.AddScoped<IVerstaendnisDienst, VerstaendnisDienst>();
 
         return dienste;

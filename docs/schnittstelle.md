@@ -16,7 +16,7 @@ Die Schnittstelle ist eine REST-API unter `/api`. Sie spricht JSON; Feldnamen be
 | GET | `/api/skills` | offen | Fähigkeiten, die Helfende anbieten können |
 | GET | `/api/orte?plz=` | offen | Ortschaften zu einer Postleitzahl mit Gemeinde, Kanton, Region und Hinweis auf mehrere Gemeinden |
 | POST | `/api/orte/umgebung` | offen | Postleitzahl und Ort zum freigegebenen Standort; Koordinaten nur im Rumpf, nicht gespeichert |
-| POST | `/api/anfragen/verstehen` | offen | Verständnis-Schritt vor dem Erfassen, zuerst immer die Notfallprüfung |
+| POST | `/api/anfragen/verstehen` | offen | Verständnis-Schritt vor dem Erfassen: zuerst immer die Notfallprüfung, danach die Einordnung in eine Kategorie ([verstaendniskette.md](verstaendniskette.md)) |
 | POST | `/api/anfragen` | Hilfesuchende | Anfrage erfassen; bei einem gesundheitlichen Notfall `451` statt Speicherung |
 | GET | `/api/anfragen/meine` | Hilfesuchende | eigene Anfragen, neueste zuerst |
 | GET | `/api/anfragen` | Hilfesuchende (eigene), Koordination, Mandantenadministration, Plattformbetrieb | Anfragen der Region |
@@ -126,7 +126,7 @@ Antwort `200`:
   "notfallHinweis": "Bitte sofort 144 anrufen. Diese Plattform vermittelt keine medizinischen Leistungen." }
 ```
 
-Ohne Hinweis auf einen Notfall sind `notfall` falsch und die beiden Texte `null`. Enthält der Freitext beim Erfassen (`POST /api/anfragen`) einen Notfallhinweis, wird die Anfrage nicht gespeichert; die Antwort ist `451` mit `notfall`, `hinweis` und `grund`. Der Status 451 steht dafür, dass die Plattform aus rechtlichen Gründen keine medizinischen Leistungen vermittelt. Regeln und Testfälle: [notfallpruefung.md](notfallpruefung.md).
+Ohne Hinweis auf einen Notfall sind `notfall` falsch und die beiden Texte `null`; dazu kommt die Einordnung mit Kategorie, Weg, Sicherheit und Begründung ([verstaendniskette.md](verstaendniskette.md)). Bei einem Notfall bleibt die Einordnung leer. Enthält der Freitext beim Erfassen (`POST /api/anfragen`) einen Notfallhinweis, wird die Anfrage nicht gespeichert; die Antwort ist `451` mit `notfall`, `hinweis` und `grund`. Der Status 451 steht dafür, dass die Plattform aus rechtlichen Gründen keine medizinischen Leistungen vermittelt. Regeln und Testfälle: [notfallpruefung.md](notfallpruefung.md).
 
 Jeder Notfall-Stopp wird ohne Personendaten protokolliert:
 

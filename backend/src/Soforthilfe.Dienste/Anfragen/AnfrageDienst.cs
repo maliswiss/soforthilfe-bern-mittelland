@@ -18,7 +18,8 @@ public sealed partial class AnfrageDienst(
     IMandantenKontext mandant,
     INotfallPruefung notfallPruefung,
     IProtokollDienst protokoll,
-    IOrtDienst orte) : IAnfrageDienst
+    IOrtDienst orte,
+    IEinordnung einordnung) : IAnfrageDienst
 {
     // Schweizer Postleitzahlen sind vierstellig und beginnen nicht mit 0.
     [GeneratedRegex("^[1-9][0-9]{3}$")]
@@ -81,6 +82,15 @@ public sealed partial class AnfrageDienst(
             if (kategorie is null)
             {
                 return new AnfrageErgebnis(null, AnfrageFehler.KategorieUnbekannt);
+            }
+        }
+        else
+        {
+            // Ohne gewählte Kategorie ordnet die Verständniskette den Freitext ein; ohne sicheres Ergebnis bleibt sie leer.
+            var eingeordnet = await einordnung.EinordnenAsync(null, freitext, abbruch);
+            if (eingeordnet.KategorieId is Guid erkannt)
+            {
+                kategorie = await datenbank.Kategorien.AsNoTracking().FirstAsync(k => k.Id == erkannt, abbruch);
             }
         }
 

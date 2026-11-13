@@ -91,7 +91,9 @@ test('Anfrage per Kategorie, per Freitext oder mit beidem', async () => {
     token, daten: { freitext: '  Die Heizung ist ausgefallen.  ', plz: '3012', ort: 'Bern', prioritaet: 2 },
   });
   assert.equal(perFreitext.status, 201);
-  assert.equal(perFreitext.inhalt.kategorieId, null);
+  // Ohne gewählte Kategorie ordnet die Verständniskette den Freitext ein
+  assert.equal(perFreitext.inhalt.kategorieBezeichnung, 'Sanitär, Heizung, Elektro');
+  assert.equal(perFreitext.inhalt.bezahlpflichtig, true);
   assert.equal(perFreitext.inhalt.freitext, 'Die Heizung ist ausgefallen.');
   assert.equal(perFreitext.inhalt.prioritaet, 2);
 

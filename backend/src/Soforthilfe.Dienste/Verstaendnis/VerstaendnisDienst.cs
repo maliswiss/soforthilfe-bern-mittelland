@@ -6,7 +6,8 @@ namespace Soforthilfe.Dienste.Verstaendnis;
 /// <summary>
 /// Führt den Verständnis-Schritt aus. Bei einem gesundheitlichen Notfall wird nicht eingeordnet und nicht vermittelt.
 /// </summary>
-public sealed class VerstaendnisDienst(INotfallPruefung notfallPruefung, IProtokollDienst protokoll) : IVerstaendnisDienst
+public sealed class VerstaendnisDienst(INotfallPruefung notfallPruefung, IProtokollDienst protokoll, IEinordnung einordnung)
+    : IVerstaendnisDienst
 {
     public async Task<VerstaendnisInfo> VerstehenAsync(Guid? kategorieId, string? freitext, CancellationToken abbruch)
     {
@@ -14,13 +15,13 @@ public sealed class VerstaendnisDienst(INotfallPruefung notfallPruefung, IProtok
         var notfall = notfallPruefung.Pruefen(freitext);
         if (!notfall.IstNotfall)
         {
-            return new VerstaendnisInfo(false, null, null);
+            return new VerstaendnisInfo(false, null, null, await einordnung.EinordnenAsync(kategorieId, freitext, abbruch));
         }
 
         // Jeder Notfall-Stopp wird protokolliert, nur mit dem Begriff aus der festen Liste.
         await protokoll.SchreibenAsync(ProtokollAktionen.NotfallStopp, ProtokollAktionen.ObjektVerstaendnis, null,
             NotfallTexte.Grund(notfall.Begriff), abbruch);
 
-        return new VerstaendnisInfo(true, NotfallTexte.Grund(notfall.Schluesselwort), NotfallTexte.Hinweis);
+        return new VerstaendnisInfo(true, NotfallTexte.Grund(notfall.Schluesselwort), NotfallTexte.Hinweis, null);
     }
 }

@@ -125,6 +125,12 @@ erwarte "Weiterhin eine einzige eigene Anfrage" 1 "$(status -H "Authorization: B
 erwarte "Protokoll ohne Anmeldung" 401 "$(status "$BASIS/api/protokoll")"
 erwarte "Protokoll als Hilfesuchende" 403 "$(status -H "Authorization: Bearer $token" "$BASIS/api/protokoll")"
 
+echo "== Verständniskette"
+erwarte "Einordnung über Schlüsselwort" 200 "$(status "${json[@]}" -d '{"freitext":"Die Heizung ist ausgefallen."}' "$BASIS/api/anfragen/verstehen")"
+erwarte "Kategorie aus den Regeln" "sanitaer-elektro" "$(jq -r '.code' "$ANTWORT")"
+erwarte "Weg Regeln" 1 "$(jq '.erfassungsweg' "$ANTWORT")"
+erwarte "Kein Notfall bei der Heizung" false "$(jq '.notfall' "$ANTWORT")"
+
 echo "== Rollen und Berechtigungen"
 if [ -z "${TESTDATEN_PASSWORT:-}" ]; then
   echo "übersprungen: TESTDATEN_PASSWORT ist nicht gesetzt"
