@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <!-- Anmeldung mit JWT -->
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.14" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.15" />
 
     <!-- Nur für die Werkzeuge (dotnet ef), wird nicht mit der Anwendung ausgeliefert. -->
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.14">
