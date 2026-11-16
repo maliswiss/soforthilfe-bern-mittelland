@@ -8,6 +8,11 @@
 #   Aufruf: https://localhost  (lokales Zertifikat, Warnung im Browser einmal bestätigen)
 #   Übersicht Lastverteiler: http://localhost:8081
 #
+# Lokales Sprachmodell (letzte Stufe der Verständniskette), eigenes Profil, weil Image und Modell gross sind:
+#   docker compose --profile sprachmodell up -d ollama            (für «dotnet run»)
+#   docker compose --profile plattform --profile sprachmodell up -d --build
+#   docker compose exec ollama ollama pull llama3.2:3b             (einmal, Modell etwa 2 GB)
+#
 # Alle Werte stammen aus der lokalen .env (Vorlage: .env.example). Passwörter gehören nie in diese Datei.
 
 name: soforthilfe-bern-mittelland
@@ -56,6 +61,20 @@ services:
       Datenbank__MigrationBeimStart: "true"
       Testdaten__Laden: ${Testdaten__Laden:-false}
       TESTDATEN_PASSWORT: ${TESTDATEN_PASSWORT:-}
+      # Sprachmodell im internen Netz; ohne laufendes Modell endet die Verständniskette beim maschinellen Lernen.
+      OLLAMA_BASE_URL: http://ollama:11434
+      OLLAMA_MODELL: ${OLLAMA_MODELL:-llama3.2:3b}
+      OLLAMA_ZEITLIMIT_SEKUNDEN: ${OLLAMA_ZEITLIMIT_SEKUNDEN:-10}
+
+  ollama:
+    image: ollama/ollama:0.40.16
+    profiles: [sprachmodell]
+    restart: unless-stopped
+    ports:
+      # Nur auf dem eigenen Rechner erreichbar; Freitexte verlassen den Rechner nicht.
+      - "127.0.0.1:${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - ollama:/root/.ollama
 
   frontend:
     build:
@@ -81,3 +100,4 @@ services:
 
 volumes:
   datenbank:
+  ollama:

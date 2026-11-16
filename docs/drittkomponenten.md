@@ -41,7 +41,8 @@ Verwendete oder geplante Fremdkomponenten mit Zweck, Lizenz und Quelle. Die gena
 | Docker Compose | Containerplattform | Apache-2.0 | https://github.com/docker/compose |
 | Prometheus | Kennzahlen | Apache-2.0 | https://github.com/prometheus/prometheus |
 | Alertmanager | Alarmierung | Apache-2.0 | https://github.com/prometheus/alertmanager |
-| Ollama | Sprachmodell als Rückfall | MIT | https://github.com/ollama/ollama |
+| Ollama (Container-Image `ollama/ollama:0.40.16`) | lokales Sprachmodell als letzte Stufe der Verständniskette | MIT | https://github.com/ollama/ollama |
+| Llama 3.2 3B (Modell in Ollama, nicht im Repository) | Einordnung unsicherer Freitexte | Llama 3.2 Community License | https://www.llama.com/llama3_2/license/ |
 
 PostGIS läuft als Erweiterung des Datenbankdienstes im eigenen Container und ist nicht in den Quelltext dieses Repositories eingebunden.
 

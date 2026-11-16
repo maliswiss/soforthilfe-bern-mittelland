@@ -25,7 +25,8 @@ public sealed record EinordnungInfo(
 
 /// <summary>
 /// Ordnet eine Anfrage einer Kategorie zu: zuerst die Wahl der anfragenden Person, dann eindeutige Schlüsselwörter,
-/// danach der TF-IDF-Klassifikator. Die Notfallprüfung läuft vorher und gehört nicht dazu.
+/// danach der TF-IDF-Klassifikator und zuletzt das lokale Sprachmodell. Die Notfallprüfung läuft vorher und gehört
+/// nicht dazu.
 /// </summary>
 public interface IEinordnung
 {
@@ -50,10 +51,14 @@ public static class EinordnungTexte
         string.Format(Kultur, "Klassifikation über maschinelles Lernen: Ähnlichkeit {0:0.00} zur Kategorie «{1}», "
             + "Abstand zur zweitbesten Kategorie {2:0.00}.", aehnlichkeit, kategorie, abstand);
 
+    public const string Sprachmodell =
+        "Eingeordnet durch das lokale Sprachmodell, weil Regeln und maschinelles Lernen nicht sicher entschieden haben.";
+
     private static readonly CultureInfo Kultur = CultureInfo.GetCultureInfo("de-CH");
 }
 
-public sealed class Einordnung(SoforthilfeDbContext datenbank, ITextKlassifikator klassifikator) : IEinordnung
+public sealed class Einordnung(SoforthilfeDbContext datenbank, ITextKlassifikator klassifikator, ISprachmodell sprachmodell)
+    : IEinordnung
 {
     public async Task<EinordnungInfo> EinordnenAsync(Guid? kategorieId, string? freitext, CancellationToken abbruch)
     {
@@ -86,6 +91,15 @@ public sealed class Einordnung(SoforthilfeDbContext datenbank, ITextKlassifikato
                 EinordnungTexte.MaschinellesLernen(ml.Aehnlichkeit, ueberMl.Bezeichnung, ml.Abstand));
         }
 
+        // Stufe 4: lokales Sprachmodell, nur wenn alle vorherigen Stufen offen bleiben. Ohne Antwort im Zeitlimit
+        // geht es ohne Sprachmodell weiter.
+        var antwort = await sprachmodell.KlassifizierenAsync(freitext,
+            kategorien.Select(k => (k.Kennung, k.Bezeichnung)).ToList(), abbruch);
+        if (antwort.Kennung is not null && kategorien.FirstOrDefault(k => k.Kennung == antwort.Kennung) is { } ueberModell)
+        {
+            return Ergebnis(ueberModell, Erfassungsweg.Sprachmodell, null, EinordnungTexte.Sprachmodell);
+        }
+
         // Unsicher: die bis zu drei ähnlichsten Kategorien zur Auswahl anbieten.
         var alternativen = ml.Rangfolge
             .Take(3)
@@ -97,7 +111,7 @@ public sealed class Einordnung(SoforthilfeDbContext datenbank, ITextKlassifikato
         return Ohne(EinordnungTexte.Unsicher) with { Alternativen = alternativen };
     }
 
-    private static EinordnungInfo Ergebnis(Kategorie kategorie, Erfassungsweg weg, double konfidenz, string begruendung) =>
+    private static EinordnungInfo Ergebnis(Kategorie kategorie, Erfassungsweg weg, double? konfidenz, string begruendung) =>
         new(kategorie.Id, kategorie.Kennung, kategorie.Bezeichnung, kategorie.Kostenpflichtig, weg, konfidenz,
             begruendung, []);
 

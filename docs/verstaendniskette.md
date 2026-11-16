@@ -14,7 +14,9 @@ flowchart TD
     R -->|"Ja"| W1["Weg 1: Regeln"]
     R -->|"Nein"| M{"TF-IDF sicher?<br/>Ähnlichkeit ≥ 0.12<br/>Abstand ≥ 0.03"}
     M -->|"Ja"| W2["Weg 2: maschinelles Lernen"]
-    M -->|"Nein"| O["keine sichere Kategorie<br/>bis zu drei Alternativen"]
+    M -->|"Nein"| L{"Sprachmodell nennt<br/>erlaubte Kategorie<br/>im Zeitlimit?"}
+    L -->|"Ja"| W3["Weg 3: Sprachmodell"]
+    L -->|"Nein"| O["keine sichere Kategorie<br/>bis zu drei Alternativen"]
 ```
 
 | Stufe | Weg | Entscheid | Sicherheit |
@@ -22,6 +24,7 @@ flowchart TD
 | 1 | `0` Kategorieauswahl | die gewählte Kategorie gilt immer, auch wenn der Freitext etwas anderes nahelegt | `1.0` |
 | 2 | `1` Regeln | eindeutige Schlüsselwörter in Deutsch, Französisch, Italienisch und Englisch | `0.7` bis `0.95` |
 | 3 | `2` maschinelles Lernen | TF-IDF-Klassifikator mit Kosinusähnlichkeit, trainiert mit fiktiven Beispielen | Ähnlichkeit zur Kategorie |
+| 4 | `3` Sprachmodell | lokales Sprachmodell (Ollama), nur wenn die Stufen 1 bis 3 offen bleiben | keine (`null`) |
 
 Ohne sicheres Ergebnis bleibt die Kategorie leer, die Begründung bittet darum, eine Kategorie aus der Liste zu wählen, und `alternativen` nennt die bis zu drei ähnlichsten Kategorien.
 
@@ -53,6 +56,32 @@ Der Klassifikator in [`TfIdfKlassifikator.cs`](../backend/src/Soforthilfe.Dienst
 | Entscheid | Kosinusähnlichkeit zu allen Kategorien; sicher, wenn die beste mindestens `0.12` erreicht und mindestens `0.03` vor der zweitbesten liegt |
 
 Die Begründung nennt Ähnlichkeit und Abstand, zum Beispiel «Klassifikation über maschinelles Lernen: Ähnlichkeit 0.29 zur Kategorie «Lieferung Apotheke und Einkauf», Abstand zur zweitbesten Kategorie 0.29.».
+
+## Sprachmodell
+
+Die letzte Stufe fragt ein lokal betriebenes Sprachmodell ([`Sprachmodell.cs`](../backend/src/Soforthilfe.Dienste/Verstaendnis/Sprachmodell.cs)). Es läuft nur, wenn Regeln und maschinelles Lernen nicht sicher entscheiden; die meisten Anfragen erreichen es nie.
+
+| Punkt | Umsetzung |
+|---|---|
+| Betrieb | Ollama als Container im Profil `sprachmodell`, Port nur auf dem eigenen Rechner (`127.0.0.1`) |
+| Anbindung | nur über die konfigurierte Adresse `OLLAMA_BASE_URL`; ohne Adresse ist die Stufe ausgeschaltet |
+| Datenschutz | der Freitext geht nur an den eigenen Ollama-Dienst, nie an Dritte, und wird dort nicht gespeichert |
+| Modell | `OLLAMA_MODELL`, Standard `llama3.2:3b` (klein und schnell auf einem Rechner ohne Grafikkarte) |
+| Anweisung | erlaubte Kennungen mit Bezeichnung; Antwort nur als JSON `{"kategorie":"<kennung>"}` oder `{"kategorie":null}`; Temperatur 0, höchstens 60 Token |
+| Prüfung der Antwort | nur erlaubte Kennungen zählen; unbekannte, fehlende oder unlesbare Antworten ergeben keine Kategorie |
+| Geschwindigkeit | Zeitlimit `OLLAMA_ZEITLIMIT_SEKUNDEN` (Standard 10), gleiche Texte aus dem Zwischenspeicher, nach einem Fehler eine Minute ohne Anfrage an das Modell, Vorladen des Modells nach dem Start |
+| Ohne Antwort | die Kette bietet die drei ähnlichsten Kategorien zur Auswahl an, wie ohne Sprachmodell |
+
+Die Begründung lautet «Eingeordnet durch das lokale Sprachmodell, weil Regeln und maschinelles Lernen nicht sicher entschieden haben.»; eine Sicherheit nennt das Modell nicht.
+
+Starten für die Entwicklung (Werte aus der `.env`, Vorlage `.env.example`):
+
+```
+docker compose --profile sprachmodell up -d ollama
+docker compose exec ollama ollama pull llama3.2:3b
+```
+
+Die CI startet kein Sprachmodell; dort endet die Kette beim maschinellen Lernen. Die Schnittstellentests lassen beide Fälle zu.
 
 ## Kalibrierungssatz
 
@@ -92,5 +121,6 @@ Beim Erfassen ohne gewählte Kategorie (`POST /api/anfragen` nur mit Freitext) s
 | Test | Prüft |
 |---|---|
 | Einheitentests `SchluesselwortregelnTests` | Kategorien aus eindeutigen Schlüsselwörtern, Wortgrenzen, Gleichstand, Mehrheit der Treffer, Sicherheit, genanntes Schlüsselwort |
+| Einheitentests `SprachmodellTests` | ausgeschaltet ohne Adresse, erlaubte Kennung, Anfrage im JSON-Modus, unbekannte und unlesbare Antworten, Zwischenspeicher, Pause nach einem Fehler, Zeitlimit, Anweisung mit allen Kategorien |
 | Einheitentests `TfIdfKlassifikatorTests` | Kalibrierungssatz mit Kette und maschinellem Lernen allein, kein Trainingsbeispiel falsch, Entscheid ohne Schlüsselwort, offen bei knappem Abstand mit Rangfolge, unbekannte Wörter, Stammform |
-| Schnittstellentests `tests/api/verstaendnis.test.mjs` | gewählte Kategorie hat Vorrang, Regeln in vier Sprachen mit Begründung, maschinelles Lernen mit Ähnlichkeit und Abstand, bis zu drei Alternativen bei knappem Ergebnis, ohne Ergebnis Bitte um Auswahl, keine Einordnung bei Notfall, Anfrage nur mit Freitext erhält die Kategorie |
+| Schnittstellentests `tests/api/verstaendnis.test.mjs` | gewählte Kategorie hat Vorrang, Regeln in vier Sprachen mit Begründung, maschinelles Lernen mit Ähnlichkeit und Abstand, bis zu drei Alternativen bei knappem Ergebnis oder Entscheid des Sprachmodells, ohne Ergebnis Bitte um Auswahl, keine Einordnung bei Notfall, Anfrage nur mit Freitext erhält die Kategorie |

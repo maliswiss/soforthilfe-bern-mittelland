@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Soforthilfe.Datenzugriff;
 using Soforthilfe.Dienste.Anfragen;
 using Soforthilfe.Dienste.Helfende;
@@ -58,6 +59,24 @@ public static class DiensteErweiterungen
         dienste.AddScoped<IVerifizierungDienst, VerifizierungDienst>();
         // Der Klassifikator wird beim Start einmal trainiert und danach nur noch gelesen.
         dienste.AddSingleton<ITextKlassifikator, TfIdfKlassifikator>();
+
+        // Lokales Sprachmodell (Ollama) als letzte Stufe, nur über die konfigurierte Adresse; ohne Adresse aus.
+        var sprachmodell = new SprachmodellEinstellungen(
+            konfiguration["OLLAMA_BASE_URL"],
+            konfiguration["OLLAMA_MODELL"] is { Length: > 0 } modell ? modell : "llama3.2:3b",
+            TimeSpan.FromSeconds(konfiguration.GetValue("OLLAMA_ZEITLIMIT_SEKUNDEN", 10)),
+            "30m");
+        dienste.AddSingleton(sprachmodell);
+        dienste.TryAddSingleton(TimeProvider.System);
+        dienste.AddHttpClient(OllamaSprachmodell.KlientName, klient =>
+        {
+            if (sprachmodell.Eingeschaltet)
+            {
+                klient.BaseAddress = new Uri(sprachmodell.Adresse!.TrimEnd('/') + "/");
+            }
+        });
+        dienste.AddSingleton<ISprachmodell, OllamaSprachmodell>();
+        dienste.AddHostedService<SprachmodellAufwaermer>();
         dienste.AddScoped<IEinordnung, Einordnung>();
         dienste.AddScoped<IVerstaendnisDienst, VerstaendnisDienst>();
 

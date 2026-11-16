@@ -1,5 +1,6 @@
-// Schnittstellentests: Einordnung einer Anfrage über die gewählte Kategorie, eindeutige Schlüsselwörter oder
-// maschinelles Lernen (TF-IDF).
+// Schnittstellentests: Einordnung einer Anfrage über die gewählte Kategorie, eindeutige Schlüsselwörter,
+// maschinelles Lernen (TF-IDF) oder das lokale Sprachmodell. Ohne laufendes Sprachmodell (wie in der CI) bleiben
+// unsichere Texte offen; mit Sprachmodell darf die letzte Stufe entscheiden.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -8,6 +9,19 @@ import { aufruf, neuesKonto } from './hilfen.mjs';
 const KATEGORIEAUSWAHL = 0;
 const REGELN = 1;
 const MASCHINELLES_LERNEN = 2;
+const SPRACHMODELL = 3;
+
+// Hat das Sprachmodell entschieden, gelten Kategorie, Weg und Begründung der letzten Stufe.
+function sprachmodellHatEntschieden(inhalt) {
+  if (inhalt.erfassungsweg !== SPRACHMODELL) {
+    return false;
+  }
+  assert.ok(inhalt.kategorieId);
+  assert.equal(inhalt.konfidenz, null);
+  assert.match(inhalt.begruendung, /lokale Sprachmodell/);
+  assert.deepEqual(inhalt.alternativen, []);
+  return true;
+}
 
 const verstehen = (daten) => aufruf('POST', '/api/anfragen/verstehen', { daten });
 
@@ -59,6 +73,9 @@ test('Eindeutige Schlüsselwörter ordnen den Freitext ein, auch auf Französisc
 test('Ohne erkennbaren Inhalt bleibt die Kategorie offen und die Begründung bittet um eine Auswahl', async () => {
   const { status, inhalt } = await verstehen({ freitext: 'Grüezi mitenand' });
   assert.equal(status, 200);
+  if (sprachmodellHatEntschieden(inhalt)) {
+    return;
+  }
   assert.equal(inhalt.kategorieId, null);
   assert.equal(inhalt.kategorie, null);
   assert.match(inhalt.begruendung, /Bitte wählen Sie eine Kategorie/);
@@ -77,6 +94,9 @@ test('Ohne eindeutiges Schlüsselwort ordnet das maschinelle Lernen ein und nenn
 
 test('Bei knappem Ergebnis bleibt die Kategorie offen, die drei ähnlichsten stehen zur Auswahl', async () => {
   const { inhalt } = await verstehen({ freitext: 'Ich brauche jemanden mit einem Bus für einen Tisch' });
+  if (sprachmodellHatEntschieden(inhalt)) {
+    return;
+  }
   assert.equal(inhalt.kategorieId, null);
   assert.equal(inhalt.erfassungsweg, null);
   assert.match(inhalt.begruendung, /Bitte wählen Sie eine Kategorie/);
@@ -108,5 +128,7 @@ test('Eine Anfrage nur mit Freitext erhält die erkannte Kategorie', async () =>
 
   const offen = await aufruf('POST', '/api/anfragen', { token, daten: { freitext: 'Grüezi mitenand', ...ort } });
   assert.equal(offen.status, 201);
-  assert.equal(offen.inhalt.kategorieId, null);
+  // Ohne Sprachmodell bleibt die Kategorie leer; mit Sprachmodell darf es eine wählen
+  const mitSprachmodell = (await verstehen({ freitext: 'Grüezi mitenand' })).inhalt.erfassungsweg === SPRACHMODELL;
+  assert.ok(mitSprachmodell || offen.inhalt.kategorieId === null);
 });
