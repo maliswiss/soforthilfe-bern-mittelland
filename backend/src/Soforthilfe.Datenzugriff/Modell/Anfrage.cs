@@ -35,6 +35,12 @@ public sealed class Anfrage
 
     public Prioritaet Prioritaet { get; set; } = Prioritaet.Mittel;
 
+    // Weg, auf dem die Kategorie bestimmt wurde; leer, wenn keine Stufe sicher entschieden hat.
+    public Erfassungsweg? Erfassungsweg { get; set; }
+
+    // Sicherheit der Einordnung (Regeln, maschinelles Lernen); bei Kategorieauswahl 1, beim Sprachmodell leer.
+    public double? EinordnungKonfidenz { get; set; }
+
     public AnfrageStatus Status { get; set; } = AnfrageStatus.Offen;
 
     public DateTimeOffset ErstelltAm { get; set; }

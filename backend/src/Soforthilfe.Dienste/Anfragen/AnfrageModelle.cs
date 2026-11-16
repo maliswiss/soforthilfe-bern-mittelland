@@ -1,8 +1,9 @@
 namespace Soforthilfe.Dienste.Anfragen;
 
 /// <summary>
-/// Eine Anfrage, wie sie die Schnittstelle zurückgibt. Prioritaet (0 tief, 1 mittel, 2 hoch) und Status
-/// (1 offen, 2 Vorschläge vorhanden, 3 angenommen, 4 unterwegs, 5 erledigt, 6 abgebrochen) sind Zahlen.
+/// Eine Anfrage, wie sie die Schnittstelle zurückgibt. Prioritaet (0 tief, 1 mittel, 2 hoch), Status
+/// (1 offen, 2 Vorschläge vorhanden, 3 angenommen, 4 unterwegs, 5 erledigt, 6 abgebrochen) und Erfassungsweg
+/// (0 Kategorieauswahl, 1 Regeln, 2 maschinelles Lernen, 3 Sprachmodell, leer ohne Kategorie) sind Zahlen.
 /// </summary>
 public sealed record AnfrageInfo(
     Guid Id,
@@ -16,7 +17,8 @@ public sealed record AnfrageInfo(
     int Prioritaet,
     int Status,
     DateTimeOffset ErstelltAm,
-    bool Bezahlpflichtig);
+    bool Bezahlpflichtig,
+    int? Erfassungsweg);
 
 /// <summary>
 /// Daten einer neuen Anfrage: Kategorie, Freitext oder beides, dazu der Einsatzort. Ohne Prioritaet wird die

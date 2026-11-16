@@ -153,6 +153,8 @@ public static class TestdatenLader
                 RegionId = bern,
                 KontoId = anna.Id,
                 KategorieId = kategorien["sanitaer-elektro"].Id,
+                Erfassungsweg = Erfassungsweg.Kategorieauswahl,
+                EinordnungKonfidenz = 1.0,
                 Freitext = "Der Wasserhahn in der Küche tropft stark.",
                 Postleitzahl = "3011",
                 Ort = "Bern",

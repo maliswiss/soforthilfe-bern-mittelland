@@ -83,6 +83,8 @@ erDiagram
     text Zeitfenster
     text Prioritaet
     text Status
+    text Erfassungsweg
+    float EinordnungKonfidenz
   }
   ORTSCHAFT {
     int Id PK
@@ -165,6 +167,7 @@ Weitere Regionen entstehen im laufenden Betrieb als Daten (`POST /api/mandanten`
 | 12 | `Helferprofile.Standort` ist der Punkt der Postleitzahl, nie ein genauer Standort | Entfernungen ohne Ortung der Person; ändert sich der Ort, wird der Punkt neu bestimmt |
 | 13 | Preise als `numeric(8,2)` ohne MWST, Zuschläge als ganze Prozent | genaue Beträge ohne Rundungsfehler; der Richtpreis wird berechnet und nicht gespeichert ([preise.md](preise.md)) |
 | 14 | `Verifizierungen` speichern nur überprüfbare Angaben, keine Dateien | Datenschutz: keine Ausweisdokumente; die Koordination prüft die Angaben in öffentlichen Registern |
+| 15 | `Anfragen.Erfassungsweg` als Text, leer ohne Kategorie; `EinordnungKonfidenz` nur bei Regeln, maschinellem Lernen und Kategorieauswahl | Nachvollziehbarkeit der Verständniskette und Auswertung je Weg ([verstaendniskette.md](verstaendniskette.md)) |
 
 ## Testdaten
 

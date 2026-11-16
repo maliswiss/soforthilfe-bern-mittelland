@@ -49,6 +49,13 @@ namespace Soforthilfe.Datenzugriff.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("character varying(250)");
 
+                    b.Property<double?>("EinordnungKonfidenz")
+                        .HasColumnType("double precision");
+
+                    b.Property<string>("Erfassungsweg")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
                     b.Property<DateTimeOffset>("ErstelltAm")
                         .HasColumnType("timestamp with time zone");
 

@@ -145,6 +145,7 @@ public sealed class SoforthilfeDbContext : DbContext
             anfrage.Property(a => a.Zeitfenster).HasMaxLength(120);
             anfrage.Property(a => a.Status).HasConversion<string>().HasMaxLength(20);
             anfrage.Property(a => a.Prioritaet).HasConversion<string>().HasMaxLength(10);
+            anfrage.Property(a => a.Erfassungsweg).HasConversion<string>().HasMaxLength(30);
 
             // Abfragen laufen immer je Region; der Index unterstützt die Mandantentrennung.
             anfrage.HasIndex(a => a.RegionId);

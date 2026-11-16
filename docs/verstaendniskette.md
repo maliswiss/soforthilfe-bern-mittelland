@@ -26,6 +26,8 @@ flowchart TD
 | 3 | `2` maschinelles Lernen | TF-IDF-Klassifikator mit Kosinusähnlichkeit, trainiert mit fiktiven Beispielen | Ähnlichkeit zur Kategorie |
 | 4 | `3` Sprachmodell | lokales Sprachmodell (Ollama), nur wenn die Stufen 1 bis 3 offen bleiben | keine (`null`) |
 
+Alle Wege laufen über dieselbe Kette, beim Verständnis-Schritt wie beim Erfassen. Eine neue Anfrage speichert den Weg (`Erfassungsweg`) und die Sicherheit (`EinordnungKonfidenz`); das Protokoll erhält den Eintrag `Anfrage.Eingeordnet` mit dem Weg als Detail (`Kategorieauswahl`, `Regeln`, `MaschinellesLernen`, `Sprachmodell` oder `Offen`), ohne Freitext und ohne Personendaten.
+
 Ohne sicheres Ergebnis bleibt die Kategorie leer, die Begründung bittet darum, eine Kategorie aus der Liste zu wählen, und `alternativen` nennt die bis zu drei ähnlichsten Kategorien.
 
 ## Regeln
@@ -136,6 +138,7 @@ Beim Erfassen ohne gewählte Kategorie (`POST /api/anfragen` nur mit Freitext) s
 | Einheitentests `SchluesselwortregelnTests` | Kategorien aus eindeutigen Schlüsselwörtern, Wortgrenzen, Gleichstand, Mehrheit der Treffer, Sicherheit, genanntes Schlüsselwort |
 | Einheitentests `SprachmodellTests` | ausgeschaltet ohne Adresse, erlaubte Kennung, Anfrage im JSON-Modus, unbekannte und unlesbare Antworten, Zwischenspeicher, Pause nach einem Fehler, Zeitlimit, Anweisung mit allen Kategorien |
 | Einheitentests `DringlichkeitTests` | Signalwörter für Eile und für «keine Eile», Vorrang des Texts vor der Kategorie, übliche Dringlichkeit je Kategorie, Wortgrenzen, Begründung |
+| Schnittstellentests `tests/api/einordnungsweg.test.mjs` | gespeicherter Weg für Kategorieauswahl, Regeln, maschinelles Lernen und ohne Ergebnis, beim Erfassen und Lesen; Protokolleintrag mit Weg, ohne Freitext |
 | Schnittstellentests `tests/api/dringlichkeit.test.mjs` | Dringlichkeit mit Begründung im Verständnis-Schritt, keine bei Notfall, abgeleitet beim Erfassen, gewählte Dringlichkeit gilt |
 | Einheitentests `TfIdfKlassifikatorTests` | Kalibrierungssatz mit Kette und maschinellem Lernen allein, kein Trainingsbeispiel falsch, Entscheid ohne Schlüsselwort, offen bei knappem Abstand mit Rangfolge, unbekannte Wörter, Stammform |
 | Schnittstellentests `tests/api/verstaendnis.test.mjs` | gewählte Kategorie hat Vorrang, Regeln in vier Sprachen mit Begründung, maschinelles Lernen mit Ähnlichkeit und Abstand, bis zu drei Alternativen bei knappem Ergebnis oder Entscheid des Sprachmodells, ohne Ergebnis Bitte um Auswahl, keine Einordnung bei Notfall, Anfrage nur mit Freitext erhält die Kategorie |

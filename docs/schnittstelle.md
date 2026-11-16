@@ -84,7 +84,7 @@ Content-Type: application/json
 | `adresse`, `zeitfenster` | freiwillig |
 | `prioritaet` | `0` tief, `1` mittel, `2` hoch; ohne Angabe aus Text und Kategorie abgeleitet ([verstaendniskette.md](verstaendniskette.md)) |
 
-Antwort `201` mit der Anfrage: `id`, `kategorieId`, `kategorieBezeichnung`, `freitext`, `plz`, `ort`, `adresse`, `zeitfenster`, `prioritaet`, `status`, `erstelltAm` und `bezahlpflichtig`.
+Antwort `201` mit der Anfrage: `id`, `kategorieId`, `kategorieBezeichnung`, `freitext`, `plz`, `ort`, `adresse`, `zeitfenster`, `prioritaet`, `status`, `erstelltAm`, `bezahlpflichtig` und `erfassungsweg` (`0` Kategorieauswahl, `1` Regeln, `2` maschinelles Lernen, `3` Sprachmodell, `null` ohne Kategorie).
 
 ## Orte und Postleitzahlen
 

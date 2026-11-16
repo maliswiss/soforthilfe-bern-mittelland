@@ -75,24 +75,18 @@ public sealed partial class AnfrageDienst(
             return new AnfrageErgebnis(null, AnfrageFehler.PrioritaetUngueltig);
         }
 
-        Kategorie? kategorie = null;
-        if (daten.KategorieId is Guid kategorieId)
+        if (daten.KategorieId is Guid kategorieId
+            && !await datenbank.Kategorien.AnyAsync(k => k.Id == kategorieId, abbruch))
         {
-            kategorie = await datenbank.Kategorien.AsNoTracking().FirstOrDefaultAsync(k => k.Id == kategorieId, abbruch);
-            if (kategorie is null)
-            {
-                return new AnfrageErgebnis(null, AnfrageFehler.KategorieUnbekannt);
-            }
+            return new AnfrageErgebnis(null, AnfrageFehler.KategorieUnbekannt);
         }
-        else
-        {
-            // Ohne gewählte Kategorie ordnet die Verständniskette den Freitext ein; ohne sicheres Ergebnis bleibt sie leer.
-            var eingeordnet = await einordnung.EinordnenAsync(null, freitext, abbruch);
-            if (eingeordnet.KategorieId is Guid erkannt)
-            {
-                kategorie = await datenbank.Kategorien.AsNoTracking().FirstAsync(k => k.Id == erkannt, abbruch);
-            }
-        }
+
+        // Eine Kette für alle Wege: gewählte Kategorie, Regeln, maschinelles Lernen, Sprachmodell.
+        // Ohne sicheres Ergebnis bleibt die Kategorie leer.
+        var eingeordnet = await einordnung.EinordnenAsync(daten.KategorieId, freitext, abbruch);
+        var kategorie = eingeordnet.KategorieId is Guid erkannt
+            ? await datenbank.Kategorien.AsNoTracking().FirstAsync(k => k.Id == erkannt, abbruch)
+            : null;
 
         var anfrage = new Anfrage
         {
@@ -109,12 +103,18 @@ public sealed partial class AnfrageDienst(
             Prioritaet = daten.Prioritaet is int vorgabe
                 ? (Prioritaet)vorgabe
                 : Dringlichkeit.Bestimmen(freitext, kategorie?.Kennung).Prioritaet,
+            Erfassungsweg = eingeordnet.Weg,
+            EinordnungKonfidenz = eingeordnet.Konfidenz,
             Status = AnfrageStatus.Offen,
             ErstelltAm = DateTimeOffset.UtcNow,
         };
 
         datenbank.Anfragen.Add(anfrage);
         await datenbank.SaveChangesAsync(abbruch);
+
+        // Der Weg der Einordnung wird nachvollziehbar protokolliert; «Offen», wenn keine Stufe entschieden hat.
+        await protokoll.SchreibenAsync(ProtokollAktionen.AnfrageEingeordnet, ProtokollAktionen.ObjektAnfrage,
+            anfrage.Id.ToString(), eingeordnet.Weg?.ToString() ?? "Offen", abbruch);
 
         anfrage.Kategorie = kategorie;
         return new AnfrageErgebnis(Info(anfrage), null);
@@ -156,5 +156,6 @@ public sealed partial class AnfrageDienst(
         (int)anfrage.Prioritaet,
         (int)anfrage.Status,
         anfrage.ErstelltAm,
-        anfrage.Kategorie?.Kostenpflichtig ?? false);
+        anfrage.Kategorie?.Kostenpflichtig ?? false,
+        anfrage.Erfassungsweg is { } weg ? (int?)weg : null);
 }

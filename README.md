@@ -13,6 +13,7 @@ Hilfesuchende beschreiben ihre Lage in eigenen Worten. Die Plattform erkennt den
 
 - [Funktionen](#funktionen)
 - [Architektur](#architektur)
+- [Verständniskette](#verständniskette)
 - [Datenmodell](#datenmodell)
 - [Technische Basis](#technische-basis)
 - [Schnellstart](#schnellstart)
@@ -34,7 +35,7 @@ Hilfesuchende beschreiben ihre Lage in eigenen Worten. Die Plattform erkennt den
 | Notfall-Stopp mit Hinweis «144 anrufen» und Protokolleintrag ohne Personendaten | R2 | umgesetzt |
 | Orte über das Ortschaftenverzeichnis von swisstopo, Region aus der Postleitzahl, Standortfreigabe | R2 | umgesetzt |
 | Helferprofile mit Verifizierung und Preisangaben | R2 | in Arbeit ([docs/helferprofil.md](docs/helferprofil.md), [docs/preise.md](docs/preise.md), [docs/verifizierung.md](docs/verifizierung.md)) |
-| Verständniskette: Kategorie, Regeln, TF-IDF-Klassifikator, Sprachmodell | R2 | in Arbeit ([docs/verstaendniskette.md](docs/verstaendniskette.md)) |
+| Verständniskette: Kategorie, Regeln, TF-IDF-Klassifikator, Sprachmodell, Dringlichkeit | R2 | umgesetzt ([docs/verstaendniskette.md](docs/verstaendniskette.md)) |
 | Mehrsprachigkeit Deutsch und Französisch, Sprachimport ohne Deployment | R2 | geplant |
 | Smart-Matching mit nachvollziehbarer Begründung | R2 | geplant |
 | Auswahl, Zusage, Eskalation und Echtzeit-Hinweise | R3 | geplant |
@@ -62,6 +63,27 @@ flowchart LR
 Jede Region ist ein Mandant: Der Datenzugriff liest und schreibt nur Daten der Region der laufenden Anfrage. Details: [docs/mandanten.md](docs/mandanten.md).
 
 Der vollständige Architektur- und Codeplan steht in [docs/architektur.md](docs/architektur.md).
+
+## Verständniskette
+
+Jede Anfrage durchläuft zuerst die Notfallprüfung, danach ordnen bis zu vier Stufen sie einer Kategorie zu. Die erste Stufe mit einem sicheren Ergebnis entscheidet; die Anfrage speichert den Weg, und das Protokoll hält ihn ohne Freitext fest.
+
+```mermaid
+flowchart TD
+  E["Kategorie und/oder Freitext"] --> N{"Akuter gesundheitlicher<br/>Hinweis?"}
+  N -- "ja" --> S["Notfall-Stopp:<br/>«Bitte sofort 144 anrufen»"]
+  N -- "nein" --> K{"Kategorie gewählt?"}
+  K -- "ja" --> W0["Kategorieauswahl"]
+  K -- "nein" --> R{"Eindeutiges<br/>Schlüsselwort?"}
+  R -- "ja" --> W1["Regeln"]
+  R -- "nein" --> M{"TF-IDF sicher?"}
+  M -- "ja" --> W2["Maschinelles Lernen"]
+  M -- "nein" --> L{"Lokales Sprachmodell<br/>im Zeitlimit?"}
+  L -- "ja" --> W3["Sprachmodell"]
+  L -- "nein" --> A["Auswahl aus den<br/>drei ähnlichsten Kategorien"]
+```
+
+Die Dringlichkeit folgt aus Signalwörtern im Text und aus der Kategorie. Details, Schwellen und Messwerte des Kalibrierungssatzes: [docs/verstaendniskette.md](docs/verstaendniskette.md).
 
 ## Datenmodell
 
