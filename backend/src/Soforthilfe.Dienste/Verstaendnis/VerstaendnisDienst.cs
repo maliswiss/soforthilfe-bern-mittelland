@@ -15,7 +15,8 @@ public sealed class VerstaendnisDienst(INotfallPruefung notfallPruefung, IProtok
         var notfall = notfallPruefung.Pruefen(freitext);
         if (!notfall.IstNotfall)
         {
-            return new VerstaendnisInfo(false, null, null, await einordnung.EinordnenAsync(kategorieId, freitext, abbruch));
+            var eingeordnet = await einordnung.EinordnenAsync(kategorieId, freitext, abbruch);
+            return new VerstaendnisInfo(false, null, null, eingeordnet, Dringlichkeit.Bestimmen(freitext, eingeordnet.Kennung));
         }
 
         // Jeder Notfall-Stopp wird protokolliert, nur mit dem Begriff aus der festen Liste.

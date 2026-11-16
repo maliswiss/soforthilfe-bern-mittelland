@@ -11,7 +11,8 @@ export const useAnfrageEntwurf = defineStore('anfrageEntwurf', {
     // Einordnung des Freitexts durch die Verständniskette: Kategorie, Begründung und Alternativen
     einordnung: null,
     freitext: '',
-    prioritaet: 1,
+    // Ohne Wahl leitet die Schnittstelle die Dringlichkeit aus Text und Kategorie ab
+    prioritaet: null,
     plz: '',
     ort: '',
     // Erkanntes Wort beim Notfall-Stopp; bleibt nur im Speicher der Seite, nie in der Adresse

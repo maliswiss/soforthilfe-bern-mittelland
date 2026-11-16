@@ -70,7 +70,7 @@ public sealed partial class AnfrageDienst(
                 return new AnfrageErgebnis(null, AnfrageFehler.PostleitzahlAusserhalbRegion);
         }
 
-        if (!Enum.IsDefined(typeof(Prioritaet), daten.Prioritaet))
+        if (daten.Prioritaet is int gewaehlt && !Enum.IsDefined(typeof(Prioritaet), gewaehlt))
         {
             return new AnfrageErgebnis(null, AnfrageFehler.PrioritaetUngueltig);
         }
@@ -105,7 +105,10 @@ public sealed partial class AnfrageDienst(
             Ort = ort,
             Adresse = Leer(daten.Adresse),
             Zeitfenster = Leer(daten.Zeitfenster),
-            Prioritaet = (Prioritaet)daten.Prioritaet,
+            // Eine gewählte Dringlichkeit gilt; sonst folgt sie aus Text und Kategorie.
+            Prioritaet = daten.Prioritaet is int vorgabe
+                ? (Prioritaet)vorgabe
+                : Dringlichkeit.Bestimmen(freitext, kategorie?.Kennung).Prioritaet,
             Status = AnfrageStatus.Offen,
             ErstelltAm = DateTimeOffset.UtcNow,
         };

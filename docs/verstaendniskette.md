@@ -94,6 +94,18 @@ Die CI startet kein Sprachmodell; dort endet die Kette beim maschinellen Lernen.
 
 Mindestwerte im Test: Kette mindestens 95 richtig und höchstens 2 falsch, maschinelles Lernen allein mindestens 75 richtig und höchstens 7 falsch. Bleibt das Ergebnis offen, wird um die Wahl einer Kategorie gebeten.
 
+## Dringlichkeit
+
+Die Dringlichkeit (`0` tief, `1` mittel, `2` hoch) folgt aus Text und Kategorie ([`Dringlichkeit.cs`](../backend/src/Soforthilfe.Dienste/Verstaendnis/Dringlichkeit.cs)). Eine beim Erfassen ausdrücklich gewählte Dringlichkeit gilt immer.
+
+| Reihenfolge | Regel | Beispiel |
+|---|---|---|
+| 1 | Wörter für «keine Eile» ergeben tief | «keine Eile», «nicht dringend», «nächste Woche», «pas pressé» |
+| 2 | Wörter für Eile oder besondere Lage ergeben hoch | «sofort», «heute noch», «kalt», «kein Strom», «Kinder», «urgent» |
+| 3 | ohne Signalwort die übliche Dringlichkeit der Kategorie | Schlüsseldienst und Pannenhilfe hoch, Transport- und Umzugshilfe tief, alle anderen mittel |
+
+Die Wortgrenzen gelten wie bei den Regeln: «kalt» passt nicht auf «Kaltwasser». Bei einem Notfall-Stopp gibt es keine Dringlichkeit, sondern den Hinweis auf 144. Die Begründung nennt das Signalwort, zum Beispiel «Dringlichkeit hoch wegen «sofort».».
+
 ## Schnittstelle
 
 ```
@@ -109,12 +121,13 @@ Antwort `200`:
 { "notfall": false, "notfallGrund": null, "notfallHinweis": null,
   "kategorieId": "…", "kategorie": "Sanitär, Heizung, Elektro", "code": "sanitaer-elektro",
   "bezahlpflichtig": true, "erfassungsweg": 1, "konfidenz": 0.8,
-  "begruendung": "Erkannt über das Schlüsselwort «Heizung».", "alternativen": [] }
+  "begruendung": "Erkannt über das Schlüsselwort «Heizung».", "alternativen": [],
+  "prioritaet": 1, "prioritaetGrund": "Dringlichkeit mittel, ohne Hinweis auf Eile." }
 ```
 
 In der Oberfläche zeigt «Wo und wann?» die erkannte Kategorie mit Begründung; die Person kann sie ändern oder bei Unsicherheit eine der Alternativen wählen. Eine geänderte Kategorie gilt als Kategorieauswahl.
 
-Beim Erfassen ohne gewählte Kategorie (`POST /api/anfragen` nur mit Freitext) speichert die Anfrage die erkannte Kategorie; ohne sicheres Ergebnis bleibt sie leer.
+Beim Erfassen ohne gewählte Kategorie (`POST /api/anfragen` nur mit Freitext) speichert die Anfrage die erkannte Kategorie; ohne sicheres Ergebnis bleibt sie leer. Ohne `prioritaet` speichert sie die abgeleitete Dringlichkeit.
 
 ## Tests
 
@@ -122,5 +135,7 @@ Beim Erfassen ohne gewählte Kategorie (`POST /api/anfragen` nur mit Freitext) s
 |---|---|
 | Einheitentests `SchluesselwortregelnTests` | Kategorien aus eindeutigen Schlüsselwörtern, Wortgrenzen, Gleichstand, Mehrheit der Treffer, Sicherheit, genanntes Schlüsselwort |
 | Einheitentests `SprachmodellTests` | ausgeschaltet ohne Adresse, erlaubte Kennung, Anfrage im JSON-Modus, unbekannte und unlesbare Antworten, Zwischenspeicher, Pause nach einem Fehler, Zeitlimit, Anweisung mit allen Kategorien |
+| Einheitentests `DringlichkeitTests` | Signalwörter für Eile und für «keine Eile», Vorrang des Texts vor der Kategorie, übliche Dringlichkeit je Kategorie, Wortgrenzen, Begründung |
+| Schnittstellentests `tests/api/dringlichkeit.test.mjs` | Dringlichkeit mit Begründung im Verständnis-Schritt, keine bei Notfall, abgeleitet beim Erfassen, gewählte Dringlichkeit gilt |
 | Einheitentests `TfIdfKlassifikatorTests` | Kalibrierungssatz mit Kette und maschinellem Lernen allein, kein Trainingsbeispiel falsch, Entscheid ohne Schlüsselwort, offen bei knappem Abstand mit Rangfolge, unbekannte Wörter, Stammform |
 | Schnittstellentests `tests/api/verstaendnis.test.mjs` | gewählte Kategorie hat Vorrang, Regeln in vier Sprachen mit Begründung, maschinelles Lernen mit Ähnlichkeit und Abstand, bis zu drei Alternativen bei knappem Ergebnis oder Entscheid des Sprachmodells, ohne Ergebnis Bitte um Auswahl, keine Einordnung bei Notfall, Anfrage nur mit Freitext erhält die Kategorie |

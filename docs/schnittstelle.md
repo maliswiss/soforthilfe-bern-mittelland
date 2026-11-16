@@ -82,7 +82,7 @@ Content-Type: application/json
 | `plz` | vierstellig, beginnt nicht mit 0, steht im Ortschaftenverzeichnis und berührt eine Gemeinde der Region des Kontos |
 | `ort` | Pflicht, höchstens 120 Zeichen |
 | `adresse`, `zeitfenster` | freiwillig |
-| `prioritaet` | `0` tief, `1` mittel (Standard), `2` hoch |
+| `prioritaet` | `0` tief, `1` mittel, `2` hoch; ohne Angabe aus Text und Kategorie abgeleitet ([verstaendniskette.md](verstaendniskette.md)) |
 
 Antwort `201` mit der Anfrage: `id`, `kategorieId`, `kategorieBezeichnung`, `freitext`, `plz`, `ort`, `adresse`, `zeitfenster`, `prioritaet`, `status`, `erstelltAm` und `bezahlpflichtig`.
 

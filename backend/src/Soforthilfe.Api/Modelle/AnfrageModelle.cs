@@ -6,7 +6,7 @@ namespace Soforthilfe.Api.Modelle;
 
 /// <summary>
 /// Eingabe für eine neue Anfrage: Kategorie, Freitext oder beides, dazu Postleitzahl und Ort des Einsatzes.
-/// Prioritaet: 0 tief, 1 mittel (Standard), 2 hoch.
+/// Prioritaet: 0 tief, 1 mittel, 2 hoch; ohne Angabe aus Text und Kategorie abgeleitet.
 /// </summary>
 public sealed record AnfrageErstellen(
     Guid? KategorieId,
@@ -15,7 +15,7 @@ public sealed record AnfrageErstellen(
     [Required, StringLength(120)] string Ort,
     [StringLength(250)] string? Adresse = null,
     [StringLength(120)] string? Zeitfenster = null,
-    int Prioritaet = 1);
+    int? Prioritaet = null);
 
 /// <summary>
 /// Eingabe für den Verständnis-Schritt vor dem Erfassen: Kategorie, Freitext oder beides.
@@ -26,6 +26,7 @@ public sealed record VerstaendnisAnfrage(Guid? KategorieId, [StringLength(2000)]
 /// Antwort des Verständnis-Schritts. Bei «Notfall» ist die Vermittlung gestoppt und die Einordnung bleibt leer.
 /// Sonst nennt sie Kategorie mit Code, Weg (0 Kategorieauswahl, 1 Regeln, 2 maschinelles Lernen, 3 Sprachmodell),
 /// Sicherheit und Begründung; ohne sicheres Ergebnis bietet sie Alternativen zur Auswahl an.
+/// Dazu kommt die abgeleitete Dringlichkeit (0 tief, 1 mittel, 2 hoch) mit Begründung.
 /// </summary>
 public sealed record VerstaendnisAntwort(
     bool Notfall,
@@ -38,13 +39,17 @@ public sealed record VerstaendnisAntwort(
     Erfassungsweg? Erfassungsweg = null,
     double? Konfidenz = null,
     string? Begruendung = null,
-    IReadOnlyList<KategorieVorschlagAntwort>? Alternativen = null)
+    IReadOnlyList<KategorieVorschlagAntwort>? Alternativen = null,
+    int? Prioritaet = null,
+    string? PrioritaetGrund = null)
 {
     public static VerstaendnisAntwort Aus(VerstaendnisInfo v) => v.Einordnung is not { } e
         ? new(v.Notfall, v.NotfallGrund, v.NotfallHinweis, Alternativen: [])
         : new(v.Notfall, v.NotfallGrund, v.NotfallHinweis, e.KategorieId, e.Bezeichnung, e.Kennung, e.Kostenpflichtig,
             e.Weg, e.Konfidenz, e.Begruendung,
-            e.Alternativen.Select(a => new KategorieVorschlagAntwort(a.KategorieId, a.Bezeichnung, a.Kennung, a.Aehnlichkeit)).ToList());
+            e.Alternativen.Select(a => new KategorieVorschlagAntwort(a.KategorieId, a.Bezeichnung, a.Kennung, a.Aehnlichkeit)).ToList(),
+            v.Dringlichkeit is { } d ? (int?)d.Prioritaet : null,
+            v.Dringlichkeit?.Grund);
 }
 
 /// <summary>

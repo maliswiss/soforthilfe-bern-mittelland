@@ -19,7 +19,8 @@ public sealed record AnfrageInfo(
     bool Bezahlpflichtig);
 
 /// <summary>
-/// Daten einer neuen Anfrage: Kategorie, Freitext oder beides, dazu der Einsatzort.
+/// Daten einer neuen Anfrage: Kategorie, Freitext oder beides, dazu der Einsatzort. Ohne Prioritaet wird die
+/// Dringlichkeit aus Text und Kategorie abgeleitet.
 /// </summary>
 public sealed record AnfrageDaten(
     Guid KontoId,
@@ -29,7 +30,7 @@ public sealed record AnfrageDaten(
     string Ort,
     string? Adresse,
     string? Zeitfenster,
-    int Prioritaet);
+    int? Prioritaet);
 
 /// <summary>
 /// Gründe, warum eine Anfrage abgelehnt wird.
