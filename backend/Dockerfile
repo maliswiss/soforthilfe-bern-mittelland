@@ -1,6 +1,6 @@
 # Schnittstelle als Container-Image.
 # Build: SDK-Image, zuerst die Projektdateien (Cache für die Abhängigkeiten), danach der Quelltext.
-FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+FROM mcr.microsoft.com/dotnet/sdk:11.0 AS build
 WORKDIR /quelle
 COPY global.json Directory.Build.props Soforthilfe.slnx ./
 COPY src/Soforthilfe.Api/Soforthilfe.Api.csproj src/Soforthilfe.Api/
