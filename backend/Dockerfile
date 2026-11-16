@@ -11,7 +11,7 @@ COPY src/ src/
 RUN dotnet publish src/Soforthilfe.Api/Soforthilfe.Api.csproj -c Release -o /ausgabe --no-restore
 
 # Laufzeit: nur ASP.NET Core, ohne SDK, als Benutzer ohne Administratorrechte.
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS laufzeit
+FROM mcr.microsoft.com/dotnet/aspnet:11.0 AS laufzeit
 WORKDIR /app
 COPY --from=build /ausgabe .
 ENV ASPNETCORE_HTTP_PORTS=8080
