@@ -1,6 +1,6 @@
 # Mehrsprachigkeit
 
-Die Oberfläche gibt es auf Deutsch und Französisch. Alle sichtbaren Texte stehen als Daten in Sprachdateien, nie direkt in den Komponenten; Deutsch ist die Grundsprache.
+Die Oberfläche gibt es auf Deutsch und Französisch. Alle sichtbaren Texte stehen als Daten in Sprachdateien, nie direkt in den Komponenten; Deutsch ist die Grundsprache. Weitere Sprachen und korrigierte Texte importiert der Plattformbetrieb im laufenden Betrieb, ohne neues Deployment.
 
 ## Sprachdateien
 
@@ -17,9 +17,9 @@ Die Bereiche `kategorien` und `faehigkeiten` enthalten die Namen der zehn Katego
 
 | Regel | Umsetzung |
 |---|---|
-| Umschalter | Kurzzeichen `DE` und `FR` in der Kopfzeile, die gewählte Sprache ist hervorgehoben |
-| Erste Wahl | ohne gespeicherte Wahl die Sprache des Browsers, sonst Deutsch |
-| Merken | die Wahl bleibt im Browser gespeichert (lokaler Speicher); ohne Speicher gilt sie bis zum Neuladen |
+| Umschalter | Kurzzeichen der mitgelieferten und der aktiven importierten Sprachen in der Kopfzeile, die gewählte Sprache ist hervorgehoben |
+| Erste Wahl | ohne gespeicherte Wahl die Sprache des Browsers, auch eine importierte, sonst Deutsch |
+| Merken | eine Wahl im Umschalter bleibt im Browser gespeichert (lokaler Speicher); ohne Speicher gilt sie bis zum Neuladen |
 | Dokument | `lang` der Seite folgt der Sprache, damit Vorleseprogramme richtig aussprechen |
 | Zahlen und Daten | Schweizer Format der Sprache (`de-CH`, `fr-CH`) |
 
@@ -47,6 +47,21 @@ PUT /api/sprachen/it
 { "name": "Italiano", "aktiv": true, "texte": { "start": { "titel1": "Aiuto immediato" } } }
 ```
 
+## Sprachverwaltung
+
+Der Plattformbetrieb verwaltet die Sprachen unter `/sprachen` (Link «Sprachen» in der Kopfzeile).
+
+| Funktion | Umsetzung |
+|---|---|
+| Übersicht | importierte Sprachen mit Code, Name, Anzahl Texte, Stand und Zeitpunkt der letzten Änderung |
+| Vorlage | die deutschen Texte als Datei `sprachvorlage-de.json` zum Übersetzen |
+| Import | Code, eigener Name und Sprachdatei; wahlweise sofort im Umschalter |
+| Prüfung im Browser | dieselben Regeln wie die Schnittstelle ([`sprachpruefung.js`](../frontend/src/api/sprachpruefung.js)); dazu der Vergleich mit der Vorlage: fehlende Texte (erscheinen auf Deutsch), unbekannte Schlüssel (werden nie angezeigt) und andere Platzhalter |
+| Texte ersetzen | übernimmt Code und Name einer Zeile; der Import ersetzt alle Texte |
+| Ein- und ausschalten, löschen | sofort wirksam; Löschen mit Rückfrage |
+
+Beim Start lädt die Oberfläche die Liste der aktiven Sprachen und die Texte der gewählten importierten Sprache. Importierte Texte zu `de` oder `fr` liegen über den mitgelieferten. Nach jeder Änderung in der Sprachverwaltung lädt die Oberfläche Liste und Texte neu; andere Browser sehen die Änderung beim nächsten Laden der Seite. Ist die Schnittstelle nicht erreichbar, bleiben Deutsch und Französisch.
+
 ## Tests
 
 | Test | Prüft |
@@ -54,4 +69,5 @@ PUT /api/sprachen/it
 | Oberflächentests `tests/oberflaeche/sprache.spec.mjs` | Wechsel auf Französisch mit Texten, Kategorienamen, Sprache des Dokuments und Fussbereich; Wahl bleibt nach dem Neuladen; Rückwechsel; Sprache des Browsers ohne gespeicherte Wahl |
 | Schnittstellentests `tests/api/anfragen.test.mjs` | Anfragen enthalten den Code der Kategorie |
 | Schnittstellentests `tests/api/sprachen.test.mjs` | Zugriff je Rolle; Import gilt sofort; erneuter Import ersetzt die Texte; ausschalten, löschen und Protokoll; ungültige Dateien mit Feld und Stelle |
+| Oberflächentests `tests/oberflaeche/sprachen.spec.mjs` | Prüfung im Browser mit betroffener Stelle; Import mit fehlenden und unbekannten Texten; neue Sprache sofort im Umschalter und für Besuchende; deutsche Texte als Ersatz; ausschalten und löschen; Zugang nur für den Plattformbetrieb |
 | Komponententests `SprachdateiTests` | Code, Name, Ebenen, Schlüssel, Längen, unzulässige Zeichen und Platzhalter |

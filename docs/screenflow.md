@@ -60,6 +60,7 @@ Nach der Anmeldung landen Helfende im Helferprofil und die Koordination bei den 
 | 08 | Notfall | `/notfall` | offen | Notfall-Stopp: «Bitte sofort 144 anrufen», Anrufknopf und Abgrenzung |
 | 09 | Helferprofil | `/helfen/profil` | Helfende | Typ, Betriebsname, Postleitzahl und Ort, Adresse, Radius, Fähigkeiten, Preisangaben mit Vorschau des Richtpreises; Nachweise einreichen, Stand der Verifizierung und eingereichte Nachweise mit Bemerkung der Koordination |
 | 10 | Koordination | `/koordination` | Koordination | offene Verifizierungen der Region mit Profilangaben, Bemerkung, «Freigeben» und «Ablehnen»; Protokoll der Region |
+| 11 | Sprachen | `/sprachen` | Plattformbetrieb | importierte Sprachen mit Anzahl Texte und Stand, «Einschalten», «Ausschalten», «Texte ersetzen» und «Löschen»; Sprachdatei importieren mit Prüfung im Browser und deutscher Vorlage ([mehrsprachigkeit.md](mehrsprachigkeit.md)) |
 
 ## Navigation
 
@@ -69,6 +70,7 @@ Nach der Anmeldung landen Helfende im Helferprofil und die Koordination bei den 
 | Hilfesuchende | Logo mit Region · So funktioniert es · Meine Anfragen · Name · Abmelden |
 | Helfende | Logo mit Region · So funktioniert es · Helferprofil · Name · Abmelden |
 | Koordination | Logo mit Region · So funktioniert es · Koordination · Name · Abmelden |
+| Plattformbetrieb | Logo mit Region · So funktioniert es · Sprachen · Name · Abmelden |
 | Andere Rollen | Logo mit Region · So funktioniert es · Name · Abmelden |
 
 Seiten einer bestimmten Rolle führen ohne diese Rolle zur Startseite; die Schnittstelle prüft die Rolle zusätzlich.

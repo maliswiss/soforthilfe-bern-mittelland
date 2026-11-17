@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n';
 import { useKonto } from './stores/konto';
 import { sitzungAbgelaufen } from './api/klient';
 import SprachUmschalter from './components/SprachUmschalter.vue';
+import { spracheName as nameDerSprache } from './i18n';
 
 const konto = useKonto();
 const router = useRouter();
@@ -13,7 +14,7 @@ const { t, locale } = useI18n();
 konto.wiederherstellen();
 
 const name = computed(() => konto.benutzer?.anzeigename ?? '');
-const spracheName = computed(() => t(`sprache.${locale.value}`));
+const spracheName = computed(() => nameDerSprache(locale.value));
 
 // Lehnt die Schnittstelle das Token ab, führt die Seite zur Anmeldung zurück und merkt sich das Ziel
 function sitzungBeendet() {
@@ -80,6 +81,9 @@ function abmelden() {
           </RouterLink>
           <RouterLink v-if="konto.istKoordination" :to="{ name: 'koordination' }" class="hover:text-tanne-hell">
             {{ t('kopf.koordination') }}
+          </RouterLink>
+          <RouterLink v-if="konto.istPlattformbetrieb" :to="{ name: 'sprachen' }" class="hover:text-tanne-hell">
+            {{ t('kopf.sprachen') }}
           </RouterLink>
           <span class="text-grau">{{ name }}</span>
           <button type="button" class="underline underline-offset-2" @click="abmelden">{{ t('kopf.abmelden') }}</button>

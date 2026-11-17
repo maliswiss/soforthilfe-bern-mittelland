@@ -1,7 +1,8 @@
 <script setup>
-/// Umschalter der Sprache in der Kopfzeile. Zeigt die verfügbaren Sprachen als Kurzzeichen.
+/// Umschalter der Sprache in der Kopfzeile. Zeigt die mitgelieferten und die aktiven importierten Sprachen
+/// als Kurzzeichen.
 import { useI18n } from 'vue-i18n';
-import { mitgeliefert, spracheSetzen } from '../i18n';
+import { sprachen, spracheSetzen } from '../i18n';
 
 const { t, locale } = useI18n();
 </script>
@@ -9,7 +10,7 @@ const { t, locale } = useI18n();
 <template>
   <div class="flex items-center gap-1 text-xs" role="group" :aria-label="t('kopf.sprache')">
     <button
-      v-for="eintrag in mitgeliefert"
+      v-for="eintrag in sprachen"
       :key="eintrag.code"
       type="button"
       class="border px-1.5 py-0.5 uppercase"

@@ -25,6 +25,7 @@ export const useKonto = defineStore('konto', {
     istHelfende: (state) => state.benutzer?.rollen?.includes('Helfende') ?? false,
     istHilfesuchende: (state) => state.benutzer?.rollen?.includes('Hilfesuchende') ?? false,
     istKoordination: (state) => state.benutzer?.rollen?.includes('Koordination') ?? false,
+    istPlattformbetrieb: (state) => state.benutzer?.rollen?.includes('Plattformbetrieb') ?? false,
 
     /// Schlüssel der wirksamen Region: die des Kontos oder vor der Anmeldung die aus der Postleitzahl bestimmte.
     region: (state) => state.benutzer?.mandantSchluessel ?? state.gewaehlteRegion,

@@ -35,6 +35,12 @@ const routen = [
     component: () => import('../views/KoordinationView.vue'),
     meta: { anmeldung: true, rolle: 'Koordination' }
   },
+  {
+    path: '/sprachen',
+    name: 'sprachen',
+    component: () => import('../views/SprachenView.vue'),
+    meta: { anmeldung: true, rolle: 'Plattformbetrieb' }
+  },
   { path: '/so-funktioniert-es', name: 'ablauf', component: () => import('../views/AblaufView.vue') },
   { path: '/notfall', name: 'notfall', component: () => import('../views/NotfallView.vue') },
   // Unbekannte Pfade führen zur Startseite
