@@ -36,7 +36,7 @@ Hilfesuchende beschreiben ihre Lage in eigenen Worten. Die Plattform erkennt den
 | Orte über das Ortschaftenverzeichnis von swisstopo, Region aus der Postleitzahl, Standortfreigabe | R2 | umgesetzt |
 | Helferprofile mit Verifizierung und Preisangaben | R2 | in Arbeit ([docs/helferprofil.md](docs/helferprofil.md), [docs/preise.md](docs/preise.md), [docs/verifizierung.md](docs/verifizierung.md)) |
 | Verständniskette: Kategorie, Regeln, TF-IDF-Klassifikator, Sprachmodell, Dringlichkeit | R2 | umgesetzt ([docs/verstaendniskette.md](docs/verstaendniskette.md)) |
-| Mehrsprachigkeit Deutsch und Französisch, Sprachimport ohne Deployment | R2 | geplant |
+| Mehrsprachigkeit Deutsch und Französisch, Sprachimport ohne Deployment | R2 | in Arbeit ([docs/mehrsprachigkeit.md](docs/mehrsprachigkeit.md)) |
 | Smart-Matching mit nachvollziehbarer Begründung | R2 | geplant |
 | Auswahl, Zusage, Eskalation und Echtzeit-Hinweise | R3 | geplant |
 | Chat je Anfrage | R3 | geplant |

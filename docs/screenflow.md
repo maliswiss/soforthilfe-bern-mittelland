@@ -73,6 +73,8 @@ Nach der Anmeldung landen Helfende im Helferprofil und die Koordination bei den 
 
 Seiten einer bestimmten Rolle führen ohne diese Rolle zur Startseite; die Schnittstelle prüft die Rolle zusätzlich.
 
+Am Ende jeder Kopfzeile steht der Sprachumschalter `DE` `FR` ([mehrsprachigkeit.md](mehrsprachigkeit.md)).
+
 «Für Helfende» öffnet die Registrierung mit vorgewählter Kontoart «Hilfe anbieten».
 
 ## Prüfungen in der Oberfläche

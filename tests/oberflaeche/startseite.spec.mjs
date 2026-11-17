@@ -17,7 +17,8 @@ test('Startseite zeigt zehn Kategorien, kostenlose sind gekennzeichnet', async (
   await page.goto('/');
 
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Passende Hilfe finden.');
-  const kacheln = page.locator('[aria-pressed]');
+  // Nur die Kacheln im Inhalt; der Sprachumschalter in der Kopfzeile zählt nicht
+  const kacheln = page.locator('main [aria-pressed]');
   await expect(kacheln).toHaveCount(10);
   await expect(page.getByRole('button', { name: /Nachbarschaftshilfe/ })).toContainText('kostenlos');
   await expect(page.getByRole('button', { name: /^Schlüsseldienst$/ })).not.toContainText('kostenlos');

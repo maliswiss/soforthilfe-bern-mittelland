@@ -8,6 +8,7 @@ import { useAnfrageEntwurf } from '../stores/anfrage';
 import HinweisFeld from '../components/HinweisFeld.vue';
 import OrtEingabe from '../components/OrtEingabe.vue';
 import PreisHinweis from '../components/PreisHinweis.vue';
+import { kategorieName } from '../api/datentexte';
 
 const router = useRouter();
 const { t } = useI18n();
@@ -113,7 +114,7 @@ async function absenden() {
 
   <form class="karte mt-6 max-w-2xl space-y-4" novalidate @submit.prevent="absenden">
     <p v-if="entwurf.kategorieBezeichnung" class="border-l-4 border-tanne bg-tanne-blass px-4 py-3 text-sm">
-      {{ t('erfassen.anliegen', { kategorie: entwurf.kategorieBezeichnung }) }}
+      {{ t('erfassen.anliegen', { kategorie: kategorieName(entwurf.kategorieCode, entwurf.kategorieBezeichnung) }) }}
     </p>
     <div v-if="entwurf.freitext" class="border-l-4 border-tanne bg-tanne-blass px-4 py-3 text-sm">
       <p class="font-medium">{{ t('erfassen.anliegenFreitext') }}</p>
@@ -122,7 +123,7 @@ async function absenden() {
 
     <div v-if="!entwurf.kategorieId && einordnung" data-test="einordnung">
       <p v-if="einordnung.kategorieId" class="text-sm">
-        <span class="font-medium">{{ t('erfassen.kategorieErkannt', { kategorie: einordnung.kategorie }) }}</span>
+        <span class="font-medium">{{ t('erfassen.kategorieErkannt', { kategorie: kategorieName(einordnung.code, einordnung.kategorie) }) }}</span>
         <span class="block text-grau">{{ einordnung.begruendung }}</span>
       </p>
       <p v-else class="text-sm font-medium">{{ t('erfassen.kategorieUnsicher') }}</p>
@@ -131,11 +132,11 @@ async function absenden() {
       <select id="kategorie" v-model="auswahl" class="feld">
         <option v-if="!einordnung.kategorieId" value="">{{ t('erfassen.kategorieOffen') }}</option>
         <optgroup v-if="alternativen.length" :label="t('erfassen.kategorieVorschlaege')">
-          <option v-for="a in alternativen" :key="`v-${a.kategorieId}`" :value="a.kategorieId">{{ a.kategorie }}</option>
+          <option v-for="a in alternativen" :key="`v-${a.kategorieId}`" :value="a.kategorieId">{{ kategorieName(a.code, a.kategorie) }}</option>
         </optgroup>
         <optgroup :label="t('erfassen.kategorieAlle')">
-          <option v-if="einordnung.kategorieId && !kategorien.length" :value="einordnung.kategorieId">{{ einordnung.kategorie }}</option>
-          <option v-for="k in kategorien" :key="k.id" :value="k.id">{{ k.bezeichnung }}</option>
+          <option v-if="einordnung.kategorieId && !kategorien.length" :value="einordnung.kategorieId">{{ kategorieName(einordnung.code, einordnung.kategorie) }}</option>
+          <option v-for="k in kategorien" :key="k.id" :value="k.id">{{ kategorieName(k.code, k.bezeichnung) }}</option>
         </optgroup>
       </select>
     </div>

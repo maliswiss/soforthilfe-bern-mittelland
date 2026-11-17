@@ -157,5 +157,6 @@ public sealed partial class AnfrageDienst(
         (int)anfrage.Status,
         anfrage.ErstelltAm,
         anfrage.Kategorie?.Kostenpflichtig ?? false,
-        anfrage.Erfassungsweg is { } weg ? (int?)weg : null);
+        anfrage.Erfassungsweg is { } weg ? (int?)weg : null,
+        anfrage.Kategorie?.Kennung);
 }

@@ -9,6 +9,7 @@ import { useKonto } from '../stores/konto';
 import HinweisFeld from '../components/HinweisFeld.vue';
 import OrtEingabe from '../components/OrtEingabe.vue';
 import PreisAngaben from '../components/PreisAngaben.vue';
+import { faehigkeitName } from '../api/datentexte';
 import Warnhinweis from '../components/Warnhinweis.vue';
 
 const konto = useKonto();
@@ -289,7 +290,7 @@ async function nachweisEinreichen() {
           :aria-pressed="formular.skillIds.includes(skill.id)"
           @click="skillUmschalten(skill.id)"
         >
-          {{ skill.bezeichnung }}
+          {{ faehigkeitName(skill.code, skill.bezeichnung) }}
           <span v-if="!skill.bezahlpflichtig" class="block text-xs text-grau">{{ t('allgemein.kostenlos') }}</span>
         </button>
       </div>

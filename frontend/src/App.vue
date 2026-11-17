@@ -4,6 +4,7 @@ import { useRoute, useRouter, RouterLink, RouterView } from 'vue-router';
 import { useI18n } from 'vue-i18n';
 import { useKonto } from './stores/konto';
 import { sitzungAbgelaufen } from './api/klient';
+import SprachUmschalter from './components/SprachUmschalter.vue';
 
 const konto = useKonto();
 const router = useRouter();
@@ -90,6 +91,8 @@ function abmelden() {
           </RouterLink>
           <RouterLink :to="{ name: 'anmeldung' }" class="hover:text-tanne-hell">{{ t('kopf.anmelden') }}</RouterLink>
         </template>
+
+        <SprachUmschalter />
       </nav>
     </div>
   </header>

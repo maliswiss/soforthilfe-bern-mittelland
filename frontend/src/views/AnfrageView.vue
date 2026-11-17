@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n';
 import { holen } from '../api/klient';
 import { kultur } from '../i18n';
 import { useKonto } from '../stores/konto';
+import { kategorieName } from '../api/datentexte';
 import PreisHinweis from '../components/PreisHinweis.vue';
 import HinweisFeld from '../components/HinweisFeld.vue';
 import PrioritaetsMarke from '../components/PrioritaetsMarke.vue';
@@ -29,7 +30,7 @@ onMounted(async () => {
 <template>
   <div v-if="anfrage">
     <div class="flex flex-wrap items-center gap-3">
-      <h1 class="text-3xl">{{ anfrage.kategorieBezeichnung ?? t('hinweis.anfrage') }}</h1>
+      <h1 class="text-3xl">{{ kategorieName(anfrage.kategorieCode, anfrage.kategorieBezeichnung) ?? t('hinweis.anfrage') }}</h1>
       <StatusMarke :wert="anfrage.status" />
       <PrioritaetsMarke :wert="anfrage.prioritaet" />
     </div>

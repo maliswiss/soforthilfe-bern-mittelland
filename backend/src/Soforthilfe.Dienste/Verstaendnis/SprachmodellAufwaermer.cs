@@ -59,7 +59,8 @@ public sealed class SprachmodellAufwaermer(
         }
         catch (Exception fehler) when (!abbruch.IsCancellationRequested)
         {
-            protokoll.LogDebug(fehler, "Sprachmodell beim Vorladen nicht erreichbar.");
+            // Ohne laufendes Sprachmodell normal; eine Zeile genügt, ohne Stapelverfolgung.
+            protokoll.LogDebug("Sprachmodell beim Vorladen nicht erreichbar ({Grund}).", fehler.GetType().Name);
             return false;
         }
     }

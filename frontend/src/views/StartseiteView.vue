@@ -1,4 +1,5 @@
 <script setup>
+import { kategorieName } from '../api/datentexte';
 import { onMounted, ref } from 'vue';
 import { useRouter, RouterLink } from 'vue-router';
 import { useI18n } from 'vue-i18n';
@@ -60,6 +61,7 @@ async function hilfeFinden() {
     einordnung = {
       kategorieId: ergebnis.kategorieId,
       kategorie: ergebnis.kategorie,
+      code: ergebnis.code,
       bezahlpflichtig: ergebnis.bezahlpflichtig,
       begruendung: ergebnis.begruendung,
       alternativen: ergebnis.alternativen ?? []
@@ -74,6 +76,7 @@ async function hilfeFinden() {
   const kategorie = kategorien.value.find((k) => k.id === gewaehlteKategorie.value);
   entwurf.kategorieId = eingabeart.value === 'kategorie' ? gewaehlteKategorie.value : null;
   entwurf.kategorieBezeichnung = eingabeart.value === 'kategorie' ? kategorie?.bezeichnung ?? null : null;
+  entwurf.kategorieCode = eingabeart.value === 'kategorie' ? kategorie?.code ?? null : null;
   entwurf.bezahlpflichtig = eingabeart.value === 'kategorie' ? kategorie?.bezahlpflichtig ?? null : null;
   entwurf.freitext = eingabeart.value === 'freitext' ? freitext.value.trim() : '';
   // Beim Freitext bleibt die Einordnung ein Vorschlag; die Person kann sie im nächsten Schritt ändern
@@ -149,7 +152,7 @@ async function hilfeFinden() {
           :aria-pressed="gewaehlteKategorie === kategorie.id"
           @click="gewaehlteKategorie = kategorie.id"
         >
-          {{ kategorie.bezeichnung }}
+          {{ kategorieName(kategorie.code, kategorie.bezeichnung) }}
           <span v-if="!kategorie.bezahlpflichtig" class="mt-1 block text-xs text-grau">{{ t('allgemein.kostenlos') }}</span>
         </button>
       </div>

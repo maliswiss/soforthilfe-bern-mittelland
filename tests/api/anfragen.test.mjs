@@ -81,6 +81,8 @@ test('Anfrage per Kategorie, per Freitext oder mit beidem', async () => {
   assert.equal(perKategorie.status, 201);
   assert.equal(perKategorie.inhalt.kategorieId, kostenlos.id);
   assert.equal(perKategorie.inhalt.kategorieBezeichnung, kostenlos.bezeichnung);
+  // Mit dem Code zeigt die Oberfläche den Namen in der gewählten Sprache
+  assert.equal(perKategorie.inhalt.kategorieCode, kostenlos.code);
   assert.equal(perKategorie.inhalt.bezahlpflichtig, false);
   assert.equal(perKategorie.inhalt.status, 1, 'offen');
   assert.equal(perKategorie.inhalt.prioritaet, 1, 'mittel');
@@ -93,6 +95,7 @@ test('Anfrage per Kategorie, per Freitext oder mit beidem', async () => {
   assert.equal(perFreitext.status, 201);
   // Ohne gewählte Kategorie ordnet die Verständniskette den Freitext ein
   assert.equal(perFreitext.inhalt.kategorieBezeichnung, 'Sanitär, Heizung, Elektro');
+  assert.equal(perFreitext.inhalt.kategorieCode, 'sanitaer-elektro');
   assert.equal(perFreitext.inhalt.bezahlpflichtig, true);
   assert.equal(perFreitext.inhalt.freitext, 'Die Heizung ist ausgefallen.');
   assert.equal(perFreitext.inhalt.prioritaet, 2);

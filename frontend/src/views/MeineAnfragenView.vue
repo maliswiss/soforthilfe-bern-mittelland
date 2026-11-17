@@ -1,4 +1,5 @@
 <script setup>
+import { kategorieName } from '../api/datentexte';
 import { onMounted, ref } from 'vue';
 import { RouterLink } from 'vue-router';
 import { useI18n } from 'vue-i18n';
@@ -42,7 +43,7 @@ onMounted(async () => {
     <li v-for="anfrage in anfragen" :key="anfrage.id" class="karte">
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 class="text-xl">{{ anfrage.kategorieBezeichnung ?? t('meineAnfragen.ohneKategorie') }}</h2>
+          <h2 class="text-xl">{{ kategorieName(anfrage.kategorieCode, anfrage.kategorieBezeichnung) ?? t('meineAnfragen.ohneKategorie') }}</h2>
           <p class="text-sm text-grau">
             {{ anfrage.plz }} {{ anfrage.ort }} ·
             {{ new Date(anfrage.erstelltAm).toLocaleString(kultur()) }}
