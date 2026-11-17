@@ -119,6 +119,15 @@ erDiagram
     text Detail
     timestamptz Zeitpunkt
   }
+  SPRACHE {
+    varchar Code PK
+    varchar Name
+    boolean Aktiv
+    jsonb Texte
+    int AnzahlTexte
+    timestamptz GeaendertAm
+    uuid GeaendertVonId
+  }
 ```
 
 ## Tabellen
@@ -134,6 +143,7 @@ erDiagram
 | `HelferprofilSkills` | Zuordnung Profil zu Fähigkeit | über das Profil |
 | `Anfragen` | Anliegen mit Kategorie und/oder Freitext, Ort, Zeitfenster, Dringlichkeit und Status | genau eine |
 | `Protokoll` | Sicherheitsrelevante Vorgänge wie der Notfall-Stopp, ohne Personendaten | eine oder keine (ohne Anmeldung) |
+| `Sprachen` | Importierte Sprachen der Oberfläche mit ihren Texten ([mehrsprachigkeit.md](mehrsprachigkeit.md)) | für alle Regionen gleich |
 | `Ortschaften` | Amtliches Ortschaftenverzeichnis von swisstopo: Postleitzahl, Ortschaft, Gemeinde mit Adressenanteil, Kanton und Punkt | für alle Regionen gleich |
 
 ## Stammdaten
@@ -168,6 +178,7 @@ Weitere Regionen entstehen im laufenden Betrieb als Daten (`POST /api/mandanten`
 | 13 | Preise als `numeric(8,2)` ohne MWST, Zuschläge als ganze Prozent | genaue Beträge ohne Rundungsfehler; der Richtpreis wird berechnet und nicht gespeichert ([preise.md](preise.md)) |
 | 14 | `Verifizierungen` speichern nur überprüfbare Angaben, keine Dateien | Datenschutz: keine Ausweisdokumente; die Koordination prüft die Angaben in öffentlichen Registern |
 | 15 | `Anfragen.Erfassungsweg` als Text, leer ohne Kategorie; `EinordnungKonfidenz` nur bei Regeln, maschinellem Lernen und Kategorieauswahl | Nachvollziehbarkeit der Verständniskette und Auswertung je Weg ([verstaendniskette.md](verstaendniskette.md)) |
+| 16 | `Sprachen.Texte` als `jsonb` mit dem Sprachcode als Schlüssel; Deutsch und Französisch bleiben in der Oberfläche mitgeliefert | neue Sprachen und Korrekturen gelten ohne Deployment; ohne Datenbankeintrag bleibt die Oberfläche vollständig |
 
 ## Testdaten
 

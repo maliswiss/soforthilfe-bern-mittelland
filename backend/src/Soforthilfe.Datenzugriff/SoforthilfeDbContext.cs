@@ -36,6 +36,8 @@ public sealed class SoforthilfeDbContext : DbContext
 
     public DbSet<Ortschaft> Ortschaften => Set<Ortschaft>();
 
+    public DbSet<Sprache> Sprachen => Set<Sprache>();
+
     protected override void OnModelCreating(ModelBuilder modell)
     {
         // PostGIS wird über die Migrationen in der Datenbank aktiviert, nicht von Hand.
@@ -155,6 +157,16 @@ public sealed class SoforthilfeDbContext : DbContext
             anfrage.HasOne(a => a.Kategorie).WithMany().HasForeignKey(a => a.KategorieId).OnDelete(DeleteBehavior.Restrict);
 
             anfrage.HasQueryFilter(a => _mandant.Uebergreifend || a.RegionId == _mandant.RegionId);
+        });
+
+        // Sprachen gelten für die ganze Plattform, ohne Regionsfilter.
+        modell.Entity<Sprache>(sprache =>
+        {
+            sprache.ToTable("Sprachen");
+            sprache.HasKey(s => s.Code);
+            sprache.Property(s => s.Code).HasMaxLength(2);
+            sprache.Property(s => s.Name).HasMaxLength(40);
+            sprache.Property(s => s.Texte).HasColumnType("jsonb");
         });
 
         modell.Entity<Protokolleintrag>(eintrag =>

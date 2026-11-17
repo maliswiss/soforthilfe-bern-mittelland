@@ -32,6 +32,12 @@ Die Schnittstelle ist eine REST-API unter `/api`. Sie spricht JSON; Feldnamen be
 | POST | `/api/verifizierungen/{id}/entscheid` | Koordination | Nachweis freigeben oder ablehnen; fremde Region `404`, bereits entschieden `409` |
 | POST | `/api/preise/richtpreis` | offen | Richtpreis für die erste Stunde zu bis zu zehn Zeitpunkten ([preise.md](preise.md)) |
 | GET | `/api/protokoll` | Koordination, Mandantenadministration, Plattformbetrieb | Neueste Protokolleinträge der eigenen Region, für den Plattformbetrieb aller Regionen; Filter `aktion`, Anzahl `anzahl` (Standard 100, höchstens 500) |
+| GET | `/api/sprachen` | offen | aktive importierte Sprachen für den Umschalter ([mehrsprachigkeit.md](mehrsprachigkeit.md)) |
+| GET | `/api/sprachen/{code}/texte` | offen | Texte einer aktiven importierten Sprache als JSON-Objekt; unbekannt oder ausgeschaltet `404` |
+| GET | `/api/sprachen/verwaltung` | Plattformbetrieb | alle importierten Sprachen, auch ausgeschaltete |
+| PUT | `/api/sprachen/{code}` | Plattformbetrieb | Sprache importieren oder ihre Texte ersetzen; gilt sofort, ohne Deployment |
+| PUT | `/api/sprachen/{code}/aktiv` | Plattformbetrieb | Sprache ein- oder ausschalten |
+| DELETE | `/api/sprachen/{code}` | Plattformbetrieb | importierte Sprache löschen |
 | GET | `/health/live` | intern | Prozess läuft |
 | GET | `/health/ready` | intern | Anwendung bereit, Datenbank erreichbar |
 

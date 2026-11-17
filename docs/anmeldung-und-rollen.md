@@ -33,6 +33,8 @@
 | `GET /api/protokoll` | nein | nein | eigene Region | eigene Region | alle Regionen und Einträge ohne Region |
 | `PUT /api/konten/{id}/rolle` | nein | nein | nein | eigene Region | alle Regionen |
 | `POST /api/mandanten` | nein | nein | nein | nein | ja |
+| `GET /api/sprachen`, `GET /api/sprachen/{code}/texte` | ja | ja | ja | ja | ja |
+| `GET /api/sprachen/verwaltung`, `PUT`, `DELETE /api/sprachen/{code}`, `PUT /api/sprachen/{code}/aktiv` | nein | nein | nein | nein | ja |
 
 | Regel | Umsetzung |
 |---|---|

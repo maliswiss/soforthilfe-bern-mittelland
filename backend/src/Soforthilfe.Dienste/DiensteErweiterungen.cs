@@ -13,6 +13,7 @@ using Soforthilfe.Dienste.Orte;
 using Soforthilfe.Dienste.Preise;
 using Soforthilfe.Dienste.Protokoll;
 using Soforthilfe.Dienste.Regionen;
+using Soforthilfe.Dienste.Sprachen;
 using Soforthilfe.Dienste.Verstaendnis;
 
 namespace Soforthilfe.Dienste;
@@ -78,6 +79,7 @@ public static class DiensteErweiterungen
         dienste.AddSingleton<ISprachmodell, OllamaSprachmodell>();
         dienste.AddHostedService<SprachmodellAufwaermer>();
         dienste.AddScoped<IEinordnung, Einordnung>();
+        dienste.AddScoped<ISprachDienst, SprachDienst>();
         dienste.AddScoped<IVerstaendnisDienst, VerstaendnisDienst>();
 
         return dienste;

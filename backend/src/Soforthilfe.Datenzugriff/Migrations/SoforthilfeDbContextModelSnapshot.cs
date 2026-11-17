@@ -610,6 +610,38 @@ namespace Soforthilfe.Datenzugriff.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Soforthilfe.Datenzugriff.Modell.Sprache", b =>
+                {
+                    b.Property<string>("Code")
+                        .HasMaxLength(2)
+                        .HasColumnType("character varying(2)");
+
+                    b.Property<bool>("Aktiv")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("AnzahlTexte")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("GeaendertAm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("GeaendertVonId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)");
+
+                    b.Property<string>("Texte")
+                        .IsRequired()
+                        .HasColumnType("jsonb");
+
+                    b.HasKey("Code");
+
+                    b.ToTable("Sprachen", (string)null);
+                });
+
             modelBuilder.Entity("Soforthilfe.Datenzugriff.Modell.Verifizierung", b =>
                 {
                     b.Property<Guid>("Id")
