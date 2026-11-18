@@ -699,6 +699,11 @@ namespace Soforthilfe.Datenzugriff.Migrations
                     b.Property<Guid>("AnfrageId")
                         .HasColumnType("uuid");
 
+                    b.Property<string>("Begruendung")
+                        .IsRequired()
+                        .HasMaxLength(400)
+                        .HasColumnType("character varying(400)");
+
                     b.Property<int>("DistanzMeter")
                         .HasColumnType("integer");
 

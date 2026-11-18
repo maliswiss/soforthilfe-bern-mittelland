@@ -1,8 +1,8 @@
 namespace Soforthilfe.Datenzugriff.Modell;
 
 /// <summary>
-/// Vorschlag des Smart-Matchings: eine helfende Person zu einer Anfrage mit Rang, Punktzahl, Teilpunkten und den
-/// Gewichten, mit denen die Punktzahl berechnet wurde. So bleibt jeder Vorschlag nachvollziehbar, auch wenn sich
+/// Vorschlag des Smart-Matchings: eine helfende Person zu einer Anfrage mit Rang, Punktzahl, Teilpunkten, den
+/// Gewichten, mit denen die Punktzahl berechnet wurde, und einer Begründung. So bleibt jeder Vorschlag nachvollziehbar, auch wenn sich
 /// Gewichte oder Profil später ändern.
 /// </summary>
 public sealed class Vorschlag
@@ -52,6 +52,10 @@ public sealed class Vorschlag
 
     // Partner-Abo: nur bei gleichwertiger Punktzahl vorgezogen und dann gekennzeichnet.
     public bool PartnerBevorzugt { get; set; }
+
+    // Kurze Begründung auf Deutsch, so wie sie beim Vorschlag galt, zum Beispiel
+    // «1.5 km entfernt · Fähigkeit «Nachbarschaftshilfe» · noch keine Bewertungen · verifiziert · jetzt verfügbar».
+    public string Begruendung { get; set; } = string.Empty;
 
     public DateTimeOffset ErstelltAm { get; set; }
 }

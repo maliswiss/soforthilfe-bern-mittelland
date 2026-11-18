@@ -1,0 +1,30 @@
+﻿using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace Soforthilfe.Datenzugriff.Migrations
+{
+    /// <inheritdoc />
+    public partial class VorschlagBegruendung : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.AddColumn<string>(
+                name: "Begruendung",
+                table: "Vorschlaege",
+                type: "character varying(400)",
+                maxLength: 400,
+                nullable: false,
+                defaultValue: "");
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropColumn(
+                name: "Begruendung",
+                table: "Vorschlaege");
+        }
+    }
+}

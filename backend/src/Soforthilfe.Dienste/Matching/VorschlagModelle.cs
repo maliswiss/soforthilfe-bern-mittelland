@@ -4,7 +4,8 @@ namespace Soforthilfe.Dienste.Matching;
 
 /// <summary>
 /// Vorschlag zu einer Anfrage, wie ihn die anfragende Person und die Koordination sehen: ohne Telefonnummer und
-/// Adresse der helfenden Person, die Distanz zwischen den Punkten der Postleitzahlen.
+/// Adresse der helfenden Person, die Distanz zwischen den Punkten der Postleitzahlen, mit Begründung und Beitrag
+/// jedes Kriteriums.
 /// </summary>
 public sealed record VorschlagInfo(
     Guid Id,
@@ -24,4 +25,6 @@ public sealed record VorschlagInfo(
     bool PartnerBevorzugt,
     Teilpunkte Teilpunkte,
     MatchingGewichte Gewichte,
+    string Begruendung,
+    IReadOnlyList<KriteriumInfo> Kriterien,
     DateTimeOffset ErstelltAm);

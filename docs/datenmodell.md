@@ -140,6 +140,7 @@ erDiagram
     double GewichtVerfuegbarkeit
     double GewichtErfahrung
     boolean PartnerBevorzugt
+    text Begruendung
     timestamptz ErstelltAm
   }
   SPRACHE {
@@ -165,7 +166,7 @@ erDiagram
 | `Verifizierungen` | Nachweise zu Helferprofilen ohne Ausweisdokumente: Art, normalisierter Wert, Stand der Prüfung ([verifizierung.md](verifizierung.md)) | genau eine |
 | `HelferprofilSkills` | Zuordnung Profil zu Fähigkeit | über das Profil |
 | `Anfragen` | Anliegen mit Kategorie und/oder Freitext, Ort, Zeitfenster, Dringlichkeit und Status | genau eine |
-| `Vorschlaege` | Vorschläge des Smart-Matchings je Anfrage mit Rang, Punktzahl, Teilpunkten und Gewichten ([matching.md](matching.md)) | genau eine |
+| `Vorschlaege` | Vorschläge des Smart-Matchings je Anfrage mit Rang, Punktzahl, Teilpunkten, Gewichten und Begründung ([matching.md](matching.md)) | genau eine |
 | `Protokoll` | Sicherheitsrelevante Vorgänge wie der Notfall-Stopp, ohne Personendaten | eine oder keine (ohne Anmeldung) |
 | `Sprachen` | Importierte Sprachen der Oberfläche mit ihren Texten ([mehrsprachigkeit.md](mehrsprachigkeit.md)) | für alle Regionen gleich |
 | `Ortschaften` | Amtliches Ortschaftenverzeichnis von swisstopo: Postleitzahl, Ortschaft, Gemeinde mit Adressenanteil, Kanton und Punkt | für alle Regionen gleich |
@@ -203,7 +204,7 @@ Weitere Regionen entstehen im laufenden Betrieb als Daten (`POST /api/mandanten`
 | 14 | `Verifizierungen` speichern nur überprüfbare Angaben, keine Dateien | Datenschutz: keine Ausweisdokumente; die Koordination prüft die Angaben in öffentlichen Registern |
 | 15 | `Anfragen.Erfassungsweg` als Text, leer ohne Kategorie; `EinordnungKonfidenz` nur bei Regeln, maschinellem Lernen und Kategorieauswahl | Nachvollziehbarkeit der Verständniskette und Auswertung je Weg ([verstaendniskette.md](verstaendniskette.md)) |
 | 16 | `Sprachen.Texte` als `jsonb` mit dem Sprachcode als Schlüssel; Deutsch und Französisch bleiben in der Oberfläche mitgeliefert | neue Sprachen und Korrekturen gelten ohne Deployment; ohne Datenbankeintrag bleibt die Oberfläche vollständig |
-| 17 | `Vorschlaege` speichern Teilpunkte und Gewichte je Vorschlag; eine helfende Person höchstens einmal je Anfrage | jeder Vorschlag bleibt nachvollziehbar, auch wenn sich Gewichte oder Profil später ändern ([matching.md](matching.md)) |
+| 17 | `Vorschlaege` speichern Teilpunkte, Gewichte und Begründung je Vorschlag; eine helfende Person höchstens einmal je Anfrage | jeder Vorschlag bleibt nachvollziehbar, auch wenn sich Gewichte oder Profil später ändern ([matching.md](matching.md)) |
 
 ## Testdaten
 

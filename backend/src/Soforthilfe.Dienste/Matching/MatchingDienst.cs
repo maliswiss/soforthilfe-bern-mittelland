@@ -7,7 +7,7 @@ namespace Soforthilfe.Dienste.Matching;
 
 /// <summary>
 /// Smart-Matching nach Distanz, Fähigkeit, Bewertung, Verfügbarkeit und Erfahrung mit einstellbaren Gewichten.
-/// Gespeichert werden Rang, Punktzahl, Teilpunkte und die verwendeten Gewichte.
+/// Gespeichert werden Rang, Punktzahl, Teilpunkte, die verwendeten Gewichte und die Begründung.
 /// </summary>
 public sealed class MatchingDienst(
     SoforthilfeDbContext datenbank,
@@ -17,10 +17,10 @@ public sealed class MatchingDienst(
 {
     public async Task<int> VorschlaegeErzeugenAsync(Guid anfrageId, CancellationToken abbruch)
     {
-        var anfrage = await datenbank.Anfragen.FirstOrDefaultAsync(a => a.Id == anfrageId, abbruch);
+        var anfrage = await datenbank.Anfragen.Include(a => a.Kategorie).FirstOrDefaultAsync(a => a.Id == anfrageId, abbruch);
 
         // Nur offene Anfragen mit Kategorie erhalten Vorschläge.
-        if (anfrage?.KategorieId is null || anfrage.Status is not (AnfrageStatus.Offen or AnfrageStatus.Vorgeschlagen))
+        if (anfrage?.Kategorie is null || anfrage.Status is not (AnfrageStatus.Offen or AnfrageStatus.Vorgeschlagen))
         {
             return 0;
         }
@@ -106,12 +106,18 @@ public sealed class MatchingDienst(
         GewichtVerfuegbarkeit = gewichte.Verfuegbarkeit,
         GewichtErfahrung = gewichte.Erfahrung,
         PartnerBevorzugt = eintrag.PartnerBevorzugt,
+        Begruendung = Begruendung.Text(eintrag.Kandidat.Profil, eintrag.Kandidat.DistanzMeter, anfrage.Kategorie!.Bezeichnung,
+            eintrag.PartnerBevorzugt),
         ErstelltAm = jetzt,
     };
 
     private static VorschlagInfo Info(Vorschlag v)
     {
         var profil = v.Helferprofil!;
+        var teilpunkte = new Teilpunkte(v.TeilpunkteDistanz, v.TeilpunkteFaehigkeit, v.TeilpunkteBewertung,
+            v.TeilpunkteVerfuegbarkeit, v.TeilpunkteErfahrung);
+        var verwendet = new MatchingGewichte(v.GewichtDistanz, v.GewichtFaehigkeit, v.GewichtBewertung,
+            v.GewichtVerfuegbarkeit, v.GewichtErfahrung);
         return new VorschlagInfo(
             v.Id,
             v.HelferprofilId,
@@ -128,10 +134,10 @@ public sealed class MatchingDienst(
             profil.AnzahlBewertungen,
             profil.AnzahlEinsaetze,
             v.PartnerBevorzugt,
-            new Teilpunkte(v.TeilpunkteDistanz, v.TeilpunkteFaehigkeit, v.TeilpunkteBewertung, v.TeilpunkteVerfuegbarkeit,
-                v.TeilpunkteErfahrung),
-            new MatchingGewichte(v.GewichtDistanz, v.GewichtFaehigkeit, v.GewichtBewertung, v.GewichtVerfuegbarkeit,
-                v.GewichtErfahrung),
+            teilpunkte,
+            verwendet,
+            v.Begruendung,
+            Begruendung.Kriterien(teilpunkte, verwendet),
             v.ErstelltAm);
     }
 }

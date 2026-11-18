@@ -50,9 +50,36 @@ Die Gewichte sind einstellbar, im Abschnitt `Matching:Gewichte` von `appsettings
 | Anzahl | die drei besten Kandidaten |
 | Zeitpunkt | gleich beim Erfassen einer Anfrage mit Kategorie; mit mindestens einem Vorschlag wechselt der Status auf «Vorschläge vorhanden» |
 | Benachrichtigung | keine; die anfragende Person entscheidet, wen sie anfragt |
-| Nachvollziehbarkeit | gespeichert werden Rang, Punktzahl, Distanz, Teilpunkte und die verwendeten Gewichte; das Protokoll nennt nur die Anzahl (`Anfrage.Vorgeschlagen`, zum Beispiel «3 Vorschläge») |
+| Nachvollziehbarkeit | gespeichert werden Rang, Punktzahl, Distanz, Teilpunkte, die verwendeten Gewichte und die Begründung; das Protokoll nennt nur die Anzahl (`Anfrage.Vorgeschlagen`, zum Beispiel «3 Vorschläge») |
 
 Die anfragende Person sieht die Vorschläge ihrer Anfrage unter `GET /api/anfragen/{id}/vorschlaege`, die Koordination und die Verwaltung die Vorschläge der Anfragen ihrer Region. Die Vorschläge nennen Name, Postleitzahl und Ort, Distanz, Bewertung, Einsätze und Verfügbarkeit, nie Telefonnummer oder Adresse.
+
+## Begründung
+
+Jeder Vorschlag erklärt sich selbst: als kurzer Text und mit dem Beitrag jedes Kriteriums zur Punktzahl.
+
+| Teil | Inhalt |
+|---|---|
+| `begruendung` | Distanz, Fähigkeit mit Kategorie, Bewertung, «verifiziert», Verfügbarkeit, Einsätze; bei Partnern der Hinweis auf den Vorzug bei gleichwertiger Punktzahl |
+| `kriterien` | je Kriterium `teilpunkte` (0 bis 1), `gewicht` und `beitrag` = Teilpunkte · Gewicht; die Beiträge ergeben zusammen die Punktzahl |
+
+Die Distanz steht unter 1 km in Metern, sonst in Kilometern mit einer Stelle; bei gleicher Postleitzahl steht «gleiche Postleitzahl». Der Text wird beim Vorschlag auf Deutsch gespeichert und hält fest, was zu diesem Zeitpunkt galt. Die Oberfläche kann die Kriterien über ihre Codes in jeder Sprache darstellen.
+
+```json
+{
+  "rang": 1,
+  "punktzahl": 0.7725,
+  "distanzMeter": 2500,
+  "begruendung": "2.5 km entfernt · Fähigkeit «Nachbarschaftshilfe» · noch keine Bewertungen · verifiziert · jetzt verfügbar · 4 Einsätze",
+  "kriterien": [
+    { "kriterium": "distanz", "teilpunkte": 0.75, "gewicht": 0.35, "beitrag": 0.2625 },
+    { "kriterium": "faehigkeit", "teilpunkte": 1, "gewicht": 0.25, "beitrag": 0.25 },
+    { "kriterium": "bewertung", "teilpunkte": 0.6, "gewicht": 0.2, "beitrag": 0.12 },
+    { "kriterium": "verfuegbarkeit", "teilpunkte": 1, "gewicht": 0.1, "beitrag": 0.1 },
+    { "kriterium": "erfahrung", "teilpunkte": 0.4, "gewicht": 0.1, "beitrag": 0.04 }
+  ]
+}
+```
 
 ## Tests
 
@@ -60,5 +87,7 @@ Die anfragende Person sieht die Vorschläge ihrer Anfrage unter `GET /api/anfrag
 |---|---|
 | Komponententests `KandidatenSucheTests` | Suchradius je Dringlichkeit; Grenzen von Such- und Einsatzradius; Reihenfolge |
 | Komponententests `PunktzahlTests` | Teilpunkte je Kriterium; gewichtete Punktzahl mit Beispiel; Gewichte auf Summe 1, ungültige Gewichte; Reihenfolge; Partner nur bei gleichwertiger Punktzahl |
+| Komponententests `BegruendungTests` | Text mit und ohne Bewertungen, Einzahl, Partner; Distanz in Metern und Kilometern; Kriterien mit Beitrag und Summe |
+| Schnittstellentests `tests/api/begruendung.test.mjs` | Text je Vorschlag; alle Kriterien mit Teilpunkten, Gewicht und Beitrag; Summe gleich Punktzahl |
 | Schnittstellentests `tests/api/vorschlaege.test.mjs` | Zugriff je Rolle; drei beste nach Punktzahl; Punktzahl bei hoher Dringlichkeit; Status «Vorschläge vorhanden»; Protokoll mit Anzahl; ohne Kandidaten offen |
 | Schnittstellentests `tests/api/kandidaten.test.mjs` | Zugriff je Rolle; verifiziert, Fähigkeit, Such- und Einsatzradius je Dringlichkeit; Preise bei kostenpflichtigen Kategorien; ohne Kategorie; fremde Region |

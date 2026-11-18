@@ -165,6 +165,7 @@ public sealed class SoforthilfeDbContext : DbContext
         modell.Entity<Vorschlag>(vorschlag =>
         {
             vorschlag.ToTable("Vorschlaege");
+            vorschlag.Property(v => v.Begruendung).HasMaxLength(400);
 
             // Eine helfende Person erscheint höchstens einmal je Anfrage; gelesen wird je Anfrage nach Rang.
             vorschlag.HasIndex(v => new { v.AnfrageId, v.HelferprofilId }).IsUnique();

@@ -37,8 +37,8 @@ public sealed record KandidatAntwort(
 }
 
 /// <summary>
-/// Vorschlag des Smart-Matchings nach Rang. Name erst für angemeldete Personen; Telefonnummer und Adresse gibt es
-/// hier nie.
+/// Vorschlag des Smart-Matchings nach Rang mit Begründung und den Teilpunkten aller Kriterien. Name erst für
+/// angemeldete Personen; Telefonnummer und Adresse gibt es hier nie.
 /// </summary>
 public sealed record VorschlagAntwort(
     Guid Id,
@@ -55,9 +55,20 @@ public sealed record VorschlagAntwort(
     double Bewertungsschnitt,
     int AnzahlBewertungen,
     int AnzahlEinsaetze,
-    bool PartnerBevorzugt)
+    bool PartnerBevorzugt,
+    string Begruendung,
+    IReadOnlyList<KriteriumAntwort> Kriterien)
 {
     public static VorschlagAntwort Aus(VorschlagInfo v) => new(
         v.Id, v.HelferprofilId, v.Rang, v.Punktzahl, v.DistanzMeter, v.Anzeigename, v.Typ, v.Betriebsname, v.Plz, v.Ort,
-        v.JetztVerfuegbar, v.Bewertungsschnitt, v.AnzahlBewertungen, v.AnzahlEinsaetze, v.PartnerBevorzugt);
+        v.JetztVerfuegbar, v.Bewertungsschnitt, v.AnzahlBewertungen, v.AnzahlEinsaetze, v.PartnerBevorzugt,
+        v.Begruendung, v.Kriterien.Select(KriteriumAntwort.Aus).ToList());
+}
+
+/// <summary>
+/// Beitrag eines Kriteriums: Teilpunkte (0 bis 1) mal Gewicht. Die Summe der Beiträge ergibt die Punktzahl.
+/// </summary>
+public sealed record KriteriumAntwort(string Kriterium, double Teilpunkte, double Gewicht, double Beitrag)
+{
+    public static KriteriumAntwort Aus(KriteriumInfo k) => new(k.Kriterium, k.Teilpunkte, k.Gewicht, k.Beitrag);
 }
