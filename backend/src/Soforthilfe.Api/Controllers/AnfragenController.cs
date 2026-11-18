@@ -18,7 +18,8 @@ namespace Soforthilfe.Api.Controllers;
 public sealed class AnfragenController(
     IAnfrageDienst anfragen,
     IVerstaendnisDienst verstaendnis,
-    IKandidatenSuche kandidaten) : ControllerBase
+    IKandidatenSuche kandidaten,
+    IMatchingDienst matching) : ControllerBase
 {
     private const string Lesende = Rollen.Hilfesuchende + "," + Rollen.KontenEinsehen;
 
@@ -95,6 +96,15 @@ public sealed class AnfragenController(
     {
         var ergebnis = await kandidaten.FuerAnfrageAsync(id, abbruch);
         return ergebnis is null ? NotFound() : Ok(KandidatenAntwort.Aus(ergebnis));
+    }
+
+    // Vorschläge des Smart-Matchings: Hilfesuchende zu eigenen Anfragen, Koordination und Verwaltung in der Region.
+    [Authorize(Roles = Lesende)]
+    [HttpGet("{id:guid}/vorschlaege")]
+    public async Task<IActionResult> Vorschlaege(Guid id, CancellationToken abbruch)
+    {
+        var vorschlaege = await matching.VorschlaegeAsync(id, NurEigene(), abbruch);
+        return vorschlaege is null ? NotFound() : Ok(vorschlaege.Select(VorschlagAntwort.Aus).ToList());
     }
 
     private Guid? KontoId() => Guid.TryParse(User.FindFirstValue("sub"), out var id) ? id : null;

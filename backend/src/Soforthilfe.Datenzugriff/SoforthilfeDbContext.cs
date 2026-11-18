@@ -6,7 +6,8 @@ namespace Soforthilfe.Datenzugriff;
 
 /// <summary>
 /// Datenbankkontext der Plattform (PostgreSQL mit PostGIS).
-/// Konten, Helferprofile, Verifizierungen, Anfragen und Protokolleinträge sind strikt nach Region (Mandant) getrennt.
+/// Konten, Helferprofile, Verifizierungen, Anfragen, Vorschläge und Protokolleinträge sind strikt nach Region (Mandant)
+/// getrennt.
 /// </summary>
 public sealed class SoforthilfeDbContext : DbContext
 {
@@ -31,6 +32,8 @@ public sealed class SoforthilfeDbContext : DbContext
     public DbSet<Verifizierung> Verifizierungen => Set<Verifizierung>();
 
     public DbSet<Anfrage> Anfragen => Set<Anfrage>();
+
+    public DbSet<Vorschlag> Vorschlaege => Set<Vorschlag>();
 
     public DbSet<Protokolleintrag> Protokoll => Set<Protokolleintrag>();
 
@@ -159,6 +162,21 @@ public sealed class SoforthilfeDbContext : DbContext
             anfrage.HasQueryFilter(a => _mandant.Uebergreifend || a.RegionId == _mandant.RegionId);
         });
 
+        modell.Entity<Vorschlag>(vorschlag =>
+        {
+            vorschlag.ToTable("Vorschlaege");
+
+            // Eine helfende Person erscheint höchstens einmal je Anfrage; gelesen wird je Anfrage nach Rang.
+            vorschlag.HasIndex(v => new { v.AnfrageId, v.HelferprofilId }).IsUnique();
+            vorschlag.HasIndex(v => v.RegionId);
+
+            vorschlag.HasOne(v => v.Anfrage).WithMany().HasForeignKey(v => v.AnfrageId).OnDelete(DeleteBehavior.Cascade);
+            vorschlag.HasOne(v => v.Helferprofil).WithMany().HasForeignKey(v => v.HelferprofilId).OnDelete(DeleteBehavior.Cascade);
+            vorschlag.HasOne<Region>().WithMany().HasForeignKey(v => v.RegionId).OnDelete(DeleteBehavior.Restrict);
+
+            vorschlag.HasQueryFilter(v => _mandant.Uebergreifend || v.RegionId == _mandant.RegionId);
+        });
+
         // Sprachen gelten für die ganze Plattform, ohne Regionsfilter.
         modell.Entity<Sprache>(sprache =>
         {
@@ -247,6 +265,9 @@ public sealed class SoforthilfeDbContext : DbContext
                     break;
                 case Verifizierung nachweis:
                     region = nachweis.RegionId;
+                    break;
+                case Vorschlag vorschlag:
+                    region = vorschlag.RegionId;
                     break;
                 case Protokolleintrag protokoll:
                     // Ein Notfall-Stopp ohne Anmeldung und Referenzdaten werden ohne Region protokolliert.

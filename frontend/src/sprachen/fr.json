@@ -184,6 +184,7 @@
   },
   "anfrage": {
     "erfasst": "Votre demande est enregistrée et ouverte.",
+    "vorschlaegeGefunden": "Votre demande est enregistrée. Des personnes adaptées ont été trouvées.",
     "erfasstAm": "Enregistrée le {datum}",
     "adresse": "Adresse",
     "zeitfenster": "Créneau",

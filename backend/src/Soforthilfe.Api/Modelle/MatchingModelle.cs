@@ -35,3 +35,29 @@ public sealed record KandidatAntwort(
         k.Profil.EinsatzradiusKm,
         k.Profil.Einsatzbereit);
 }
+
+/// <summary>
+/// Vorschlag des Smart-Matchings nach Rang. Name erst für angemeldete Personen; Telefonnummer und Adresse gibt es
+/// hier nie.
+/// </summary>
+public sealed record VorschlagAntwort(
+    Guid Id,
+    Guid HelferprofilId,
+    int Rang,
+    double Punktzahl,
+    int DistanzMeter,
+    string Anzeigename,
+    Helfertyp Typ,
+    string? Betriebsname,
+    string Plz,
+    string Ort,
+    bool JetztVerfuegbar,
+    double Bewertungsschnitt,
+    int AnzahlBewertungen,
+    int AnzahlEinsaetze,
+    bool PartnerBevorzugt)
+{
+    public static VorschlagAntwort Aus(VorschlagInfo v) => new(
+        v.Id, v.HelferprofilId, v.Rang, v.Punktzahl, v.DistanzMeter, v.Anzeigename, v.Typ, v.Betriebsname, v.Plz, v.Ort,
+        v.JetztVerfuegbar, v.Bewertungsschnitt, v.AnzahlBewertungen, v.AnzahlEinsaetze, v.PartnerBevorzugt);
+}

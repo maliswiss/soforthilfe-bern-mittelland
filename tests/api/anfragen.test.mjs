@@ -84,7 +84,8 @@ test('Anfrage per Kategorie, per Freitext oder mit beidem', async () => {
   // Mit dem Code zeigt die Oberfläche den Namen in der gewählten Sprache
   assert.equal(perKategorie.inhalt.kategorieCode, kostenlos.code);
   assert.equal(perKategorie.inhalt.bezahlpflichtig, false);
-  assert.equal(perKategorie.inhalt.status, 1, 'offen');
+  // Offen oder, wenn das Smart-Matching passende Helfende gefunden hat, «Vorschläge vorhanden»
+  assert.ok([1, 2].includes(perKategorie.inhalt.status), `Status ${perKategorie.inhalt.status}`);
   assert.equal(perKategorie.inhalt.prioritaet, 1, 'mittel');
   assert.equal(perKategorie.inhalt.plz, '3011');
   assert.equal(perKategorie.inhalt.ort, 'Bern');

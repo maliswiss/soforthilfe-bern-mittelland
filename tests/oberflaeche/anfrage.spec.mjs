@@ -45,7 +45,8 @@ test('Anfrage ohne Konto beginnen, registrieren und erfassen', async ({ page }) 
 
   // Detailansicht der erfassten Anfrage
   await expect(page).toHaveURL(/\/anfragen\/[0-9a-f-]{36}$/);
-  await expect(page.getByRole('status')).toHaveText('Ihre Anfrage ist erfasst und offen.');
+  // Offen oder, mit passenden Helfenden in der Nähe, mit Vorschlägen
+  await expect(page.getByRole('status')).toHaveText(/^Ihre Anfrage ist erfasst/);
   await expect(page.locator('main')).toContainText('3011 Bern');
   await expect(page.locator('main')).toContainText('Dringlichkeit mittel');
 

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Soforthilfe.Datenzugriff;
 using Soforthilfe.Datenzugriff.Mandanten;
 using Soforthilfe.Datenzugriff.Modell;
+using Soforthilfe.Dienste.Matching;
 using Soforthilfe.Dienste.Notfall;
 using Soforthilfe.Dienste.Orte;
 using Soforthilfe.Dienste.Protokoll;
@@ -19,7 +20,8 @@ public sealed partial class AnfrageDienst(
     INotfallPruefung notfallPruefung,
     IProtokollDienst protokoll,
     IOrtDienst orte,
-    IEinordnung einordnung) : IAnfrageDienst
+    IEinordnung einordnung,
+    IMatchingDienst matching) : IAnfrageDienst
 {
     // Schweizer Postleitzahlen sind vierstellig und beginnen nicht mit 0.
     [GeneratedRegex("^[1-9][0-9]{3}$")]
@@ -115,6 +117,9 @@ public sealed partial class AnfrageDienst(
         // Der Weg der Einordnung wird nachvollziehbar protokolliert; «Offen», wenn keine Stufe entschieden hat.
         await protokoll.SchreibenAsync(ProtokollAktionen.AnfrageEingeordnet, ProtokollAktionen.ObjektAnfrage,
             anfrage.Id.ToString(), eingeordnet.Weg?.ToString() ?? "Offen", abbruch);
+
+        // Mit Kategorie gleich die besten Vorschläge; mit mindestens einem Vorschlag gilt der Status «Vorgeschlagen».
+        await matching.VorschlaegeErzeugenAsync(anfrage.Id, abbruch);
 
         anfrage.Kategorie = kategorie;
         return new AnfrageErgebnis(Info(anfrage), null);

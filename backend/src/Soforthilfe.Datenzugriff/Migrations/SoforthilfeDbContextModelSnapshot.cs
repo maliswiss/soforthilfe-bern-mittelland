@@ -690,6 +690,78 @@ namespace Soforthilfe.Datenzugriff.Migrations
                     b.ToTable("Verifizierungen", (string)null);
                 });
 
+            modelBuilder.Entity("Soforthilfe.Datenzugriff.Modell.Vorschlag", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("AnfrageId")
+                        .HasColumnType("uuid");
+
+                    b.Property<int>("DistanzMeter")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTimeOffset>("ErstelltAm")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<double>("GewichtBewertung")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("GewichtDistanz")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("GewichtErfahrung")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("GewichtFaehigkeit")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("GewichtVerfuegbarkeit")
+                        .HasColumnType("double precision");
+
+                    b.Property<Guid>("HelferprofilId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("PartnerBevorzugt")
+                        .HasColumnType("boolean");
+
+                    b.Property<double>("Punktzahl")
+                        .HasColumnType("double precision");
+
+                    b.Property<int>("Rang")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("RegionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<double>("TeilpunkteBewertung")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("TeilpunkteDistanz")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("TeilpunkteErfahrung")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("TeilpunkteFaehigkeit")
+                        .HasColumnType("double precision");
+
+                    b.Property<double>("TeilpunkteVerfuegbarkeit")
+                        .HasColumnType("double precision");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HelferprofilId");
+
+                    b.HasIndex("RegionId");
+
+                    b.HasIndex("AnfrageId", "HelferprofilId")
+                        .IsUnique();
+
+                    b.ToTable("Vorschlaege", (string)null);
+                });
+
             modelBuilder.Entity("HelferprofilSkill", b =>
                 {
                     b.HasOne("Soforthilfe.Datenzugriff.Modell.Helferprofil", null)
@@ -794,6 +866,31 @@ namespace Soforthilfe.Datenzugriff.Migrations
                         .HasForeignKey("RegionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Helferprofil");
+                });
+
+            modelBuilder.Entity("Soforthilfe.Datenzugriff.Modell.Vorschlag", b =>
+                {
+                    b.HasOne("Soforthilfe.Datenzugriff.Modell.Anfrage", "Anfrage")
+                        .WithMany()
+                        .HasForeignKey("AnfrageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Soforthilfe.Datenzugriff.Modell.Helferprofil", "Helferprofil")
+                        .WithMany()
+                        .HasForeignKey("HelferprofilId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Soforthilfe.Datenzugriff.Modell.Region", null)
+                        .WithMany()
+                        .HasForeignKey("RegionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Anfrage");
 
                     b.Navigation("Helferprofil");
                 });

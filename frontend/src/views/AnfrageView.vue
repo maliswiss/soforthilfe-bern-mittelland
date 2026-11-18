@@ -45,8 +45,8 @@ onMounted(async () => {
       {{ anfrage.freitext }}
     </p>
 
-    <p v-if="anfrage.status === 1" class="mt-6 max-w-2xl border-l-4 border-tanne bg-tanne-blass px-4 py-3" role="status">
-      {{ t('anfrage.erfasst') }}
+    <p v-if="anfrage.status === 1 || anfrage.status === 2" class="mt-6 max-w-2xl border-l-4 border-tanne bg-tanne-blass px-4 py-3" role="status">
+      {{ anfrage.status === 2 ? t('anfrage.vorschlaegeGefunden') : t('anfrage.erfasst') }}
     </p>
 
     <dl class="karte mt-6 max-w-2xl space-y-3 text-sm">

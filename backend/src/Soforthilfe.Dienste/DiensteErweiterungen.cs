@@ -60,8 +60,17 @@ public static class DiensteErweiterungen
         dienste.AddScoped<IHelferprofilDienst, HelferprofilDienst>();
         dienste.AddScoped<IVerifizierungDienst, VerifizierungDienst>();
 
-        // Matching: Kandidatensuche nach Postleitzahl, Fähigkeit und Suchradius.
+        // Matching: Kandidatensuche nach Postleitzahl, Fähigkeit und Suchradius, danach Smart-Matching mit den
+        // Gewichten aus «Matching:Gewichte». Ungültige Gewichte verhindern den Start.
         dienste.AddScoped<IKandidatenSuche, KandidatenSuche>();
+        var standard = MatchingGewichte.Standard;
+        dienste.AddSingleton(new MatchingGewichte(
+            konfiguration.GetValue("Matching:Gewichte:Distanz", standard.Distanz),
+            konfiguration.GetValue("Matching:Gewichte:Faehigkeit", standard.Faehigkeit),
+            konfiguration.GetValue("Matching:Gewichte:Bewertung", standard.Bewertung),
+            konfiguration.GetValue("Matching:Gewichte:Verfuegbarkeit", standard.Verfuegbarkeit),
+            konfiguration.GetValue("Matching:Gewichte:Erfahrung", standard.Erfahrung)).Normalisiert());
+        dienste.AddScoped<IMatchingDienst, MatchingDienst>();
 
         // Der Klassifikator wird beim Start einmal trainiert und danach nur noch gelesen.
         dienste.AddSingleton<ITextKlassifikator, TfIdfKlassifikator>();
