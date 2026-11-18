@@ -5,6 +5,7 @@ using Soforthilfe.Api.Fehlerbehandlung;
 using Soforthilfe.Api.Modelle;
 using Soforthilfe.Dienste.Anfragen;
 using Soforthilfe.Dienste.Konten;
+using Soforthilfe.Dienste.Matching;
 using Soforthilfe.Dienste.Verstaendnis;
 
 namespace Soforthilfe.Api.Controllers;
@@ -14,7 +15,10 @@ namespace Soforthilfe.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/anfragen")]
-public sealed class AnfragenController(IAnfrageDienst anfragen, IVerstaendnisDienst verstaendnis) : ControllerBase
+public sealed class AnfragenController(
+    IAnfrageDienst anfragen,
+    IVerstaendnisDienst verstaendnis,
+    IKandidatenSuche kandidaten) : ControllerBase
 {
     private const string Lesende = Rollen.Hilfesuchende + "," + Rollen.KontenEinsehen;
 
@@ -82,6 +86,15 @@ public sealed class AnfragenController(IAnfrageDienst anfragen, IVerstaendnisDie
     {
         var anfrage = await anfragen.LiesAsync(id, NurEigene(), abbruch);
         return anfrage is null ? NotFound() : Ok(anfrage);
+    }
+
+    // Kandidaten der Kandidatensuche, nur für Koordination und Verwaltung der Region der Anfrage.
+    [Authorize(Roles = Rollen.KontenEinsehen)]
+    [HttpGet("{id:guid}/kandidaten")]
+    public async Task<IActionResult> Kandidaten(Guid id, CancellationToken abbruch)
+    {
+        var ergebnis = await kandidaten.FuerAnfrageAsync(id, abbruch);
+        return ergebnis is null ? NotFound() : Ok(KandidatenAntwort.Aus(ergebnis));
     }
 
     private Guid? KontoId() => Guid.TryParse(User.FindFirstValue("sub"), out var id) ? id : null;

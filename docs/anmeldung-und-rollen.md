@@ -29,6 +29,7 @@
 | `POST /api/verifizierungen`, `GET /api/verifizierungen/meine` | nein | eigene Nachweise | nein | nein | nein |
 | `GET /api/verifizierungen/offen`, `POST /api/verifizierungen/{id}/entscheid` | nein | nein | eigene Region | nein | nein |
 | `GET /api/anfragen`, `GET /api/anfragen/{id}` | eigene | nein | eigene Region | eigene Region | alle Regionen |
+| `GET /api/anfragen/{id}/kandidaten` | nein | nein | eigene Region | eigene Region | alle Regionen |
 | `GET /api/konten` | nein | nein | eigene Region | eigene Region | alle Regionen |
 | `GET /api/protokoll` | nein | nein | eigene Region | eigene Region | alle Regionen und Einträge ohne Region |
 | `PUT /api/konten/{id}/rolle` | nein | nein | nein | eigene Region | alle Regionen |

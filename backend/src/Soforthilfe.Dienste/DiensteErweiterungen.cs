@@ -7,6 +7,7 @@ using Soforthilfe.Dienste.Helfende;
 using Soforthilfe.Dienste.Info;
 using Soforthilfe.Dienste.Kategorien;
 using Soforthilfe.Dienste.Konten;
+using Soforthilfe.Dienste.Matching;
 using Soforthilfe.Dienste.Nachweise;
 using Soforthilfe.Dienste.Notfall;
 using Soforthilfe.Dienste.Orte;
@@ -58,6 +59,10 @@ public static class DiensteErweiterungen
         dienste.AddScoped<IAnfrageDienst, AnfrageDienst>();
         dienste.AddScoped<IHelferprofilDienst, HelferprofilDienst>();
         dienste.AddScoped<IVerifizierungDienst, VerifizierungDienst>();
+
+        // Matching: Kandidatensuche nach Postleitzahl, Fähigkeit und Suchradius.
+        dienste.AddScoped<IKandidatenSuche, KandidatenSuche>();
+
         // Der Klassifikator wird beim Start einmal trainiert und danach nur noch gelesen.
         dienste.AddSingleton<ITextKlassifikator, TfIdfKlassifikator>();
 

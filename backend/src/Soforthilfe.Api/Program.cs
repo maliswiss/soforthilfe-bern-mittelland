@@ -6,6 +6,7 @@ using Soforthilfe.Api.Fehlerbehandlung;
 using Soforthilfe.Api.Konfiguration;
 using Soforthilfe.Api.Mandanten;
 using Soforthilfe.Dienste;
+using Soforthilfe.Dienste.Helfende;
 using Soforthilfe.Dienste.Orte;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -99,5 +100,8 @@ if (app.Configuration.GetValue<bool>("Testdaten:Laden"))
 {
     await app.Services.LadeTestdatenAsync(app.Configuration["TESTDATEN_PASSWORT"]);
 }
+
+// Helferprofile ohne Standort erhalten den Punkt ihrer Postleitzahl, damit die Kandidatensuche sie findet.
+await app.Services.ErgaenzeStandorteAsync();
 
 await app.RunAsync();

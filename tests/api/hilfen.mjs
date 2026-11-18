@@ -86,3 +86,34 @@ export const testkonto = (adresse) =>
 export function tokenInhalt(token) {
   return JSON.parse(Buffer.from(token.split('.')[1], 'base64url').toString('utf8'));
 }
+
+/**
+ * Helfende Person mit gespeichertem Profil in Bern/Mittelland, auf Wunsch von der Koordination verifiziert
+ * (Nachweis «E-Mail-Adresse des Kontos»). Braucht für die Freigabe TESTDATEN_PASSWORT.
+ * @returns {Promise<{ token: string, profil: any }>}
+ */
+export async function helferprofil({ plz, ort, radiusKm = 10, skills, preise = {}, verifiziert = true, koordination }) {
+  const konto = await neuesKonto(BERN, HELFENDE);
+  const alle = (await aufruf('GET', '/api/skills')).inhalt;
+  const skillIds = skills.map((code) => alle.find((s) => s.code === code).id);
+  const gespeichert = await aufruf('PUT', '/api/helferprofil', {
+    token: konto.token,
+    daten: { typ: 0, plz, ort, radiusKm, skillIds, ...preise },
+  });
+  if (gespeichert.status !== 200) {
+    throw new Error(`Helferprofil nicht gespeichert: ${gespeichert.status}`);
+  }
+
+  if (verifiziert) {
+    const nachweis = await aufruf('POST', '/api/verifizierungen', { token: konto.token, daten: { art: 3, nachweiswert: null } });
+    const entscheid = await aufruf('POST', `/api/verifizierungen/${nachweis.inhalt.id}/entscheid`, {
+      token: koordination ?? await testkonto('dora.probe@beispiel.invalid'),
+      daten: { freigeben: true, bemerkung: null },
+    });
+    if (entscheid.status !== 200) {
+      throw new Error(`Freigabe fehlgeschlagen: ${entscheid.status}`);
+    }
+  }
+
+  return { token: konto.token, profil: gespeichert.inhalt };
+}
