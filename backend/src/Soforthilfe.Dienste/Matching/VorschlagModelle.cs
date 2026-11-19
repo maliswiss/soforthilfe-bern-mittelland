@@ -1,11 +1,12 @@
 using Soforthilfe.Datenzugriff.Modell;
+using Soforthilfe.Dienste.Preise;
 
 namespace Soforthilfe.Dienste.Matching;
 
 /// <summary>
 /// Vorschlag zu einer Anfrage, wie ihn die anfragende Person und die Koordination sehen: ohne Telefonnummer und
-/// Adresse der helfenden Person, die Distanz zwischen den Punkten der Postleitzahlen, mit Begründung und Beitrag
-/// jedes Kriteriums.
+/// Adresse der helfenden Person, die Distanz zwischen den Punkten der Postleitzahlen, mit Begründung, Beitrag
+/// jedes Kriteriums und bei kostenpflichtigen Kategorien den Preisangaben.
 /// </summary>
 public sealed record VorschlagInfo(
     Guid Id,
@@ -27,4 +28,5 @@ public sealed record VorschlagInfo(
     MatchingGewichte Gewichte,
     string Begruendung,
     IReadOnlyList<KriteriumInfo> Kriterien,
+    PreisInfo? Preis,
     DateTimeOffset ErstelltAm);

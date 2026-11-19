@@ -59,12 +59,13 @@ public sealed record VorschlagAntwort(
     int AnzahlEinsaetze,
     bool PartnerBevorzugt,
     string Begruendung,
-    IReadOnlyList<KriteriumAntwort> Kriterien)
+    IReadOnlyList<KriteriumAntwort> Kriterien,
+    PreisInfo? Preis)
 {
     public static VorschlagAntwort Aus(VorschlagInfo v) => new(
         v.Id, v.HelferprofilId, v.Rang, v.Punktzahl, v.DistanzMeter, v.Anzeigename, v.Typ, v.Betriebsname, v.Plz, v.Ort,
         v.JetztVerfuegbar, v.Bewertungsschnitt, v.AnzahlBewertungen, v.AnzahlEinsaetze, v.PartnerBevorzugt,
-        v.Begruendung, v.Kriterien.Select(KriteriumAntwort.Aus).ToList());
+        v.Begruendung, v.Kriterien.Select(KriteriumAntwort.Aus).ToList(), v.Preis);
 }
 
 /// <summary>

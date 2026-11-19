@@ -22,7 +22,7 @@ Die Schnittstelle ist eine REST-API unter `/api`. Sie spricht JSON; Feldnamen be
 | GET | `/api/anfragen` | Hilfesuchende (eigene), Koordination, Mandantenadministration, Plattformbetrieb | Anfragen der Region |
 | GET | `/api/anfragen/{id}` | wie oben | einzelne Anfrage; fremde Anfragen liefern `404` |
 | POST | `/api/anfragen/vorschau` | offen | Unverbindliche Vorschau zu Kategorie und Postleitzahl: bis drei Helfende mit Begründung und Preisangaben; Namen nur angemeldet, Telefonnummern nie ([matching.md](matching.md)) |
-| GET | `/api/anfragen/{id}/vorschlaege` | Hilfesuchende (eigene), Koordination, Mandantenadministration, Plattformbetrieb | Vorschläge des Smart-Matchings nach Rang mit Punktzahl, Begründung und Teilpunkten aller Kriterien ([matching.md](matching.md)) |
+| GET | `/api/anfragen/{id}/vorschlaege` | Hilfesuchende (eigene), Koordination, Mandantenadministration, Plattformbetrieb | Vorschläge des Smart-Matchings nach Rang mit Punktzahl, Begründung, Teilpunkten aller Kriterien und bei kostenpflichtigen Kategorien den Preisangaben ([matching.md](matching.md)) |
 | GET | `/api/anfragen/{id}/kandidaten` | Koordination, Mandantenadministration, Plattformbetrieb | Kandidaten der Kandidatensuche nach Postleitzahl, Fähigkeit und Suchradius, nächste zuerst ([matching.md](matching.md)) |
 | GET | `/api/konten` | Koordination, Mandantenadministration, Plattformbetrieb | Konten der Region, ohne Telefonnummern |
 | PUT | `/api/konten/{id}/rolle` | Mandantenadministration, Plattformbetrieb | Rolle eines Kontos ändern |

@@ -75,10 +75,11 @@ public sealed class MatchingDienst(
     public async Task<IReadOnlyList<VorschlagInfo>?> VorschlaegeAsync(Guid anfrageId, Guid? nurVon, CancellationToken abbruch)
     {
         // Der Regionsfilter blendet fremde Regionen aus; nurVon beschränkt auf die eigenen Anfragen.
-        var vorhanden = await datenbank.Anfragen
+        var anfrage = await datenbank.Anfragen
             .AsNoTracking()
-            .AnyAsync(a => a.Id == anfrageId && (nurVon == null || a.KontoId == nurVon), abbruch);
-        if (!vorhanden)
+            .Include(a => a.Kategorie)
+            .FirstOrDefaultAsync(a => a.Id == anfrageId && (nurVon == null || a.KontoId == nurVon), abbruch);
+        if (anfrage is null)
         {
             return null;
         }
@@ -91,7 +92,12 @@ public sealed class MatchingDienst(
             .OrderBy(v => v.Rang)
             .ToListAsync(abbruch);
 
-        return vorschlaege.Select(Info).ToList();
+        // Preisangaben wie jetzt, damit der Preis vor der Zusage dem aktuellen Profil entspricht (Anforderung A9).
+        var bezahlpflichtig = anfrage.Kategorie?.Kostenpflichtig ?? false;
+        var jetzt = DateTimeOffset.UtcNow;
+        return vorschlaege
+            .Select(v => Info(v, preise.Berechnen(HelferprofilDienst.Preise(v.Helferprofil!), bezahlpflichtig, jetzt)))
+            .ToList();
     }
 
     public async Task<VorschauErgebnis?> VorschauAsync(VorschauKriterien kriterien, CancellationToken abbruch)
@@ -161,7 +167,7 @@ public sealed class MatchingDienst(
         ErstelltAm = jetzt,
     };
 
-    private static VorschlagInfo Info(Vorschlag v)
+    private static VorschlagInfo Info(Vorschlag v, PreisInfo? preis)
     {
         var profil = v.Helferprofil!;
         var teilpunkte = new Teilpunkte(v.TeilpunkteDistanz, v.TeilpunkteFaehigkeit, v.TeilpunkteBewertung,
@@ -188,6 +194,7 @@ public sealed class MatchingDienst(
             verwendet,
             v.Begruendung,
             Begruendung.Kriterien(teilpunkte, verwendet),
+            preis,
             v.ErstelltAm);
     }
 }

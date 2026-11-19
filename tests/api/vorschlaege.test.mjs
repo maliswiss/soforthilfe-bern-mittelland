@@ -65,6 +65,7 @@ test('Die drei besten Kandidaten nach Punktzahl, Status «Vorschläge vorhanden�
     assert.ok(Math.abs(v.punktzahl - erwartetePunktzahl(v.distanzMeter, 15)) < 0.001, `Punktzahl ${v.punktzahl}`);
     assert.equal(v.anzeigename, 'Test Person');
     assert.equal(v.partnerBevorzugt, false);
+    assert.equal(v.preis, null, 'kostenlose Kategorie ohne Preis');
     assert.ok(!('telefon' in v) && !('adresse' in v));
   }
 
@@ -76,6 +77,25 @@ test('Die drei besten Kandidaten nach Punktzahl, Status «Vorschläge vorhanden�
   // Andere Hilfesuchende und andere Regionen sehen nichts
   assert.equal((await vorschlaege((await neuesKonto()).token, erfasst.id)).status, 404);
   assert.equal((await vorschlaege(await testkonto('greta.muster@beispiel.invalid'), erfasst.id)).status, 404);
+});
+
+test('Kostenpflichtige Kategorie: Vorschläge mit Preisangaben vor der Zusage', { skip: OHNE_TESTPASSWORT }, async () => {
+  const dora = await koordination();
+  const betrieb = await helferprofil({
+    ...ort, radiusKm: 10, skills: ['lieferdienst'], koordination: dora, typ: 1, betriebsname: 'Vorschlag Lieferdienst AG',
+    preise: { anfahrtChf: 15, stundenansatzChf: 60, mwstPflichtig: true },
+  });
+
+  const { token } = await neuesKonto();
+  const erfasst = await anfrage(token, 'lieferdienst', 2);
+  const liste = (await vorschlaege(token, erfasst.id)).inhalt;
+  const eintrag = liste.find((v) => v.helferprofilId === betrieb.profil.id);
+  assert.ok(eintrag, 'Betrieb unter den Vorschlägen');
+  assert.equal(eintrag.betriebsname, 'Vorschlag Lieferdienst AG');
+  assert.equal(eintrag.preis.anfahrtChf, 15);
+  assert.equal(eintrag.preis.stundenansatzChf, 60);
+  assert.equal(eintrag.preis.mwstPflichtig, true);
+  assert.equal(typeof eintrag.preis.richtpreisErsteStunde, 'number');
 });
 
 test('Ohne passende Kandidaten bleibt die Anfrage offen', { skip: OHNE_TESTPASSWORT }, async () => {

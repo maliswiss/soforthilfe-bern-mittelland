@@ -81,6 +81,21 @@ Die Distanz steht unter 1 km in Metern, sonst in Kilometern mit einer Stelle; be
 }
 ```
 
+## Vorschlagsliste
+
+Die Anfrage zeigt ihre Vorschläge unter «Vorschläge» ([screenflow.md](screenflow.md), Bildschirm 05):
+
+| Teil | Inhalt |
+|---|---|
+| Kopf | Rang und Name, bei Betrieben der Betriebsname; Betrieb oder Privatperson; Punktzahl |
+| Begründung | der gespeicherte Text des Vorschlags |
+| Angaben | Entfernung («im gleichen Postleitzahlgebiet», in Metern oder Kilometern) und Verfügbarkeit; bei Partnern der Hinweis auf den Vorzug bei gleichwertiger Eignung |
+| Preis | bei kostenpflichtigen Kategorien Richtpreis für die erste Stunde mit Anfahrt, Stundenansatz und Zuschlägen, berechnet beim Abruf aus dem aktuellen Profil (Anforderung A9) |
+| Kontakt | Hinweis, dass die Telefonnummer erst nach der Zusage sichtbar wird |
+| Reihenfolge | zugeklappt unter «Wie kommt diese Reihenfolge zustande?» mit Pfeil: je Kriterium die Teilpunkte, darunter die Punktzahl |
+
+Die Kriterien erscheinen über ihre Codes in der gewählten Sprache; der Begründungstext bleibt deutsch.
+
 ## Vorschau ohne Anmeldung
 
 Schon vor der Anmeldung zeigt `POST /api/anfragen/vorschau`, wer helfen könnte: dieselbe Kandidatensuche und Punktzahl wie bei den Vorschlägen, aber ohne Anfrage und ohne Speichern. Ohne gewählte Dringlichkeit gilt die übliche der Kategorie.
@@ -102,8 +117,9 @@ Die gestaffelte Preisgabe entscheidet die Schnittstelle, nicht die Oberfläche: 
 | Komponententests `KandidatenSucheTests` | Suchradius je Dringlichkeit; Grenzen von Such- und Einsatzradius; Reihenfolge |
 | Komponententests `PunktzahlTests` | Teilpunkte je Kriterium; gewichtete Punktzahl mit Beispiel; Gewichte auf Summe 1, ungültige Gewichte; Reihenfolge; Partner nur bei gleichwertiger Punktzahl |
 | Schnittstellentests `tests/api/vorschau.test.mjs` | ungültige Eingaben mit Feld; Dringlichkeit und Ort aus Kategorie und Postleitzahl; ohne Anmeldung ohne Namen, angemeldet mit Namen, Telefonnummer nie; Preise bei kostenpflichtigen Kategorien; Region aus der Postleitzahl |
+| Oberflächentests `tests/oberflaeche/vorschlaege.spec.mjs` | Vorschlagsliste mit Begründung, Entfernung, Preis, Hinweis zur Telefonnummer und zugeklappten Teilpunkten je Kriterium mit Punktzahl |
 | Oberflächentests `tests/oberflaeche/vorschau.spec.mjs` | Vorschau ohne Anmeldung mit verdecktem Namen und Preis; nach der Anmeldung mit Namen und weiter zum Erfassen |
 | Komponententests `BegruendungTests` | Text mit und ohne Bewertungen, Einzahl, Partner; Distanz in Metern und Kilometern; Kriterien mit Beitrag und Summe |
 | Schnittstellentests `tests/api/begruendung.test.mjs` | Text je Vorschlag; alle Kriterien mit Teilpunkten, Gewicht und Beitrag; Summe gleich Punktzahl |
-| Schnittstellentests `tests/api/vorschlaege.test.mjs` | Zugriff je Rolle; drei beste nach Punktzahl; Punktzahl bei hoher Dringlichkeit; Status «Vorschläge vorhanden»; Protokoll mit Anzahl; ohne Kandidaten offen |
+| Schnittstellentests `tests/api/vorschlaege.test.mjs` | Zugriff je Rolle; drei beste nach Punktzahl; Punktzahl bei hoher Dringlichkeit; Status «Vorschläge vorhanden»; Protokoll mit Anzahl; Preisangaben bei kostenpflichtigen Kategorien; ohne Kandidaten offen |
 | Schnittstellentests `tests/api/kandidaten.test.mjs` | Zugriff je Rolle; verifiziert, Fähigkeit, Such- und Einsatzradius je Dringlichkeit; Preise bei kostenpflichtigen Kategorien; ohne Kategorie; fremde Region |

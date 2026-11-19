@@ -10,17 +10,23 @@ import PreisHinweis from '../components/PreisHinweis.vue';
 import HinweisFeld from '../components/HinweisFeld.vue';
 import PrioritaetsMarke from '../components/PrioritaetsMarke.vue';
 import StatusMarke from '../components/StatusMarke.vue';
+import VorschlagListe from '../components/VorschlagListe.vue';
 
 const route = useRoute();
 const { t } = useI18n();
 const konto = useKonto();
 
 const anfrage = ref(null);
+const vorschlaege = ref(null);
 const fehler = ref('');
 
 onMounted(async () => {
   try {
     anfrage.value = await holen(`/anfragen/${route.params.id}`, konto.token);
+    // Vorschläge gibt es bei offenen Anfragen mit Kategorie
+    if (anfrage.value.kategorieId && (anfrage.value.status === 1 || anfrage.value.status === 2)) {
+      vorschlaege.value = await holen(`/anfragen/${route.params.id}/vorschlaege`, konto.token);
+    }
   } catch (problem) {
     fehler.value = problem.message;
   }
@@ -64,6 +70,8 @@ onMounted(async () => {
     </dl>
 
     <PreisHinweis v-if="anfrage.bezahlpflichtig" :bezahlpflichtig="true" class="mt-4 max-w-2xl" />
+
+    <VorschlagListe v-if="vorschlaege" :vorschlaege="vorschlaege" />
 
     <RouterLink :to="{ name: 'meine-anfragen' }" class="knopf-leise mt-6">{{ t('anfrage.zurueck') }}</RouterLink>
   </div>
