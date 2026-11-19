@@ -19,7 +19,7 @@ test('Beschreibung mit Notfallhinweis führt zur Notfallseite statt zur Anfrage'
   await expect(page).toHaveURL(/\/$/);
 });
 
-test('Alltägliche Beschreibung führt weiter zur Anmeldung', async ({ page }) => {
+test('Alltägliche Beschreibung führt ohne Anmeldung weiter zur Vorschau', async ({ page }) => {
   await anliegenBeschreiben(page, 'Mein Schlüssel ist im Schloss abgebrochen.');
-  await expect(page).toHaveURL(/\/anmeldung/);
+  await expect(page).toHaveURL(/\/vorschau$/);
 });

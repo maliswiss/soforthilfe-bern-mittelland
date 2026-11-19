@@ -81,12 +81,28 @@ Die Distanz steht unter 1 km in Metern, sonst in Kilometern mit einer Stelle; be
 }
 ```
 
+## Vorschau ohne Anmeldung
+
+Schon vor der Anmeldung zeigt `POST /api/anfragen/vorschau`, wer helfen könnte: dieselbe Kandidatensuche und Punktzahl wie bei den Vorschlägen, aber ohne Anfrage und ohne Speichern. Ohne gewählte Dringlichkeit gilt die übliche der Kategorie.
+
+| Angabe | ohne Anmeldung | angemeldet | nach der Zusage |
+|---|---|---|---|
+| Begründung, Punktzahl, Distanz, Bewertung, Verfügbarkeit, Preisangaben | ja | ja | ja |
+| Betrieb oder Privatperson | ja | ja | ja |
+| Name, bei Betrieben der Betriebsname | nein | ja | ja |
+| Telefonnummer | nein | nein | ja (Release 3) |
+| Adresse, Kennung des Profils | nein | nein | nein |
+
+Die gestaffelte Preisgabe entscheidet die Schnittstelle, nicht die Oberfläche: Ohne Anmeldung enthält die Antwort keinen Namen, die Oberfläche zeigt nur einen verwischten Platzhalter. Ohne Anmeldung bestimmt die Postleitzahl die Region, wie bei der Registrierung; Postleitzahlen ohne Region oder ausserhalb des Ortschaftenverzeichnisses werden mit Hinweis auf das Feld `plz` abgewiesen. Angemeldet gilt die Region des Kontos, für den Plattformbetrieb die Region der Postleitzahl.
+
 ## Tests
 
 | Test | Prüft |
 |---|---|
 | Komponententests `KandidatenSucheTests` | Suchradius je Dringlichkeit; Grenzen von Such- und Einsatzradius; Reihenfolge |
 | Komponententests `PunktzahlTests` | Teilpunkte je Kriterium; gewichtete Punktzahl mit Beispiel; Gewichte auf Summe 1, ungültige Gewichte; Reihenfolge; Partner nur bei gleichwertiger Punktzahl |
+| Schnittstellentests `tests/api/vorschau.test.mjs` | ungültige Eingaben mit Feld; Dringlichkeit und Ort aus Kategorie und Postleitzahl; ohne Anmeldung ohne Namen, angemeldet mit Namen, Telefonnummer nie; Preise bei kostenpflichtigen Kategorien; Region aus der Postleitzahl |
+| Oberflächentests `tests/oberflaeche/vorschau.spec.mjs` | Vorschau ohne Anmeldung mit verdecktem Namen und Preis; nach der Anmeldung mit Namen und weiter zum Erfassen |
 | Komponententests `BegruendungTests` | Text mit und ohne Bewertungen, Einzahl, Partner; Distanz in Metern und Kilometern; Kriterien mit Beitrag und Summe |
 | Schnittstellentests `tests/api/begruendung.test.mjs` | Text je Vorschlag; alle Kriterien mit Teilpunkten, Gewicht und Beitrag; Summe gleich Punktzahl |
 | Schnittstellentests `tests/api/vorschlaege.test.mjs` | Zugriff je Rolle; drei beste nach Punktzahl; Punktzahl bei hoher Dringlichkeit; Status «Vorschläge vorhanden»; Protokoll mit Anzahl; ohne Kandidaten offen |

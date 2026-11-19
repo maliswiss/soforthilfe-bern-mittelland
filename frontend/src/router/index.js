@@ -5,6 +5,8 @@ const routen = [
   { path: '/', name: 'startseite', component: () => import('../views/StartseiteView.vue') },
   { path: '/anmeldung', name: 'anmeldung', component: () => import('../views/AnmeldungView.vue') },
   { path: '/registrierung', name: 'registrierung', component: () => import('../views/RegistrierungView.vue') },
+  // Unverbindliche Vorschau, auch ohne Anmeldung
+  { path: '/vorschau', name: 'vorschau', component: () => import('../views/VorschauView.vue') },
   {
     path: '/anfrage/erfassen',
     name: 'anfrage-erfassen',

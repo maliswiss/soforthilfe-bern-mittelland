@@ -28,6 +28,15 @@ export async function anliegenBeschreiben(seite, text) {
   await seite.getByRole('button', { name: 'Hilfe finden' }).click();
 }
 
+/// Ohne Konto über die Vorschau: Postleitzahl eingeben, suchen, Konto erstellen und danach die Anfrage erfassen.
+export async function ueberVorschauRegistrieren(seite, plz = '3011') {
+  await seite.getByLabel('Postleitzahl').fill(plz);
+  await seite.getByRole('button', { name: 'Helfende in der Nähe suchen' }).click();
+  await seite.getByRole('link', { name: 'Konto erstellen und Angaben freischalten' }).click();
+  await registrieren(seite);
+  await seite.getByRole('link', { name: 'Anfrage erfassen' }).click();
+}
+
 /// Registrierung mit gültigen Angaben; danach ist die Person angemeldet. Die Postleitzahl bestimmt die Region,
 /// den Ort ergänzt das Ortschaftenverzeichnis.
 export async function registrieren(seite, { adresse = neueAdresse(), telefon = '031 123 45 67', plz = '3011', ort = 'Bern' } = {}) {

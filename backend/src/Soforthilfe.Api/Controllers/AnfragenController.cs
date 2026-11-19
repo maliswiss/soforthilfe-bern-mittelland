@@ -3,9 +3,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Soforthilfe.Api.Fehlerbehandlung;
 using Soforthilfe.Api.Modelle;
+using Soforthilfe.Datenzugriff.Modell;
 using Soforthilfe.Dienste.Anfragen;
 using Soforthilfe.Dienste.Konten;
 using Soforthilfe.Dienste.Matching;
+using Soforthilfe.Dienste.Orte;
+using Soforthilfe.Dienste.Regionen;
 using Soforthilfe.Dienste.Verstaendnis;
 
 namespace Soforthilfe.Api.Controllers;
@@ -19,7 +22,9 @@ public sealed class AnfragenController(
     IAnfrageDienst anfragen,
     IVerstaendnisDienst verstaendnis,
     IKandidatenSuche kandidaten,
-    IMatchingDienst matching) : ControllerBase
+    IMatchingDienst matching,
+    IOrtDienst orte,
+    IRegionDienst regionen) : ControllerBase
 {
     private const string Lesende = Rollen.Hilfesuchende + "," + Rollen.KontenEinsehen;
 
@@ -34,6 +39,64 @@ public sealed class AnfragenController(
 
         var ergebnis = await verstaendnis.VerstehenAsync(eingabe.KategorieId, eingabe.Freitext, abbruch);
         return Ok(VerstaendnisAntwort.Aus(ergebnis));
+    }
+
+    // Unverbindliche Vorschau, auch ohne Anmeldung, mit gestaffelter Preisgabe: ohne Anmeldung ohne Namen, angemeldet
+    // mit Namen; Telefonnummern erst nach der Zusage, nie in der Vorschau. Ohne Anmeldung bestimmt die Postleitzahl die
+    // Region, wie bei der Registrierung; angemeldet gilt die Region des Kontos.
+    [HttpPost("vorschau")]
+    public async Task<IActionResult> Vorschau(VorschauEingabe eingabe, CancellationToken abbruch)
+    {
+        var plz = eingabe.Plz.Trim();
+        if (plz.Length != 4 || !plz.All(char.IsAsciiDigit))
+        {
+            return Ungueltig("Postleitzahl ungültig", "Bitte eine vierstellige Postleitzahl angeben.", "plz");
+        }
+
+        if (eingabe.Prioritaet is < 0 or > 2)
+        {
+            return Ungueltig("Dringlichkeit ungültig", "Zulässig sind tief, mittel und hoch.", "prioritaet");
+        }
+
+        var ortschaften = await orte.NachPlzAsync(plz, abbruch);
+        var ort = string.IsNullOrWhiteSpace(eingabe.Ort) ? ortschaften.FirstOrDefault()?.Ort : eingabe.Ort.Trim();
+        var angemeldet = User.Identity?.IsAuthenticated == true;
+
+        string? regionFuerSuche = null;
+        if (!angemeldet || User.IsInRole(Rollen.Plattformbetrieb))
+        {
+            if (ortschaften.Count == 0)
+            {
+                return Ungueltig("Postleitzahl unbekannt",
+                    "Diese Postleitzahl steht nicht im amtlichen Ortschaftenverzeichnis.", "plz");
+            }
+
+            var kennung = ortschaften.Select(o => o.Region).FirstOrDefault(r => r is not null);
+            if (kennung is null)
+            {
+                return Ungueltig("Keine Region", $"Für die Postleitzahl {plz} gibt es noch keine Region auf der Plattform.", "plz");
+            }
+
+            if (angemeldet)
+            {
+                // Der Plattformbetrieb arbeitet regionsübergreifend; gesucht wird in der Region der Postleitzahl.
+                regionFuerSuche = kennung;
+            }
+            else if (regionen.Aktuelle is { } gewaehlt && gewaehlt.Kennung != kennung)
+            {
+                return Ungueltig("Postleitzahl ausserhalb der Region", "Diese Postleitzahl liegt ausserhalb der gewählten Region.", "plz");
+            }
+            else if (regionen.Aktuelle is null && await regionen.SetzeAktuelleAsync(kennung, abbruch) is null)
+            {
+                return Ungueltig("Keine Region", $"Für die Postleitzahl {plz} gibt es noch keine Region auf der Plattform.", "plz");
+            }
+        }
+
+        var ergebnis = await matching.VorschauAsync(
+            new VorschauKriterien(eingabe.KategorieId, plz, ort, (Prioritaet?)eingabe.Prioritaet, regionFuerSuche), abbruch);
+        return ergebnis is null
+            ? Ungueltig("Kategorie unbekannt", "Unbekannte Kategorie.", "kategorieId")
+            : Ok(VorschauAntwort.Aus(ergebnis, plz, ort, angemeldet));
     }
 
     // Nur Hilfesuchende erfassen eine Anfrage.

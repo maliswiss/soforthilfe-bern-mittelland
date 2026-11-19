@@ -17,6 +17,12 @@ export function zahl(wert) {
   return new Intl.NumberFormat(kultur()).format(Number(wert ?? 0));
 }
 
+/// Zahl mit zwei Nachkommastellen, z. B. Punktzahl 0.77.
+export function zahl2(wert) {
+  const format = new Intl.NumberFormat(kultur(), { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return format.format(Number(wert ?? 0));
+}
+
 /// Liest Eingaben wie «215.50», «215,50» oder «1'200» ein. Ungültige Eingaben ergeben null.
 export function betragLesen(text) {
   const bereinigt = String(text ?? '')

@@ -1,5 +1,7 @@
+using System.ComponentModel.DataAnnotations;
 using Soforthilfe.Datenzugriff.Modell;
 using Soforthilfe.Dienste.Matching;
+using Soforthilfe.Dienste.Preise;
 
 namespace Soforthilfe.Api.Modelle;
 
@@ -71,4 +73,83 @@ public sealed record VorschlagAntwort(
 public sealed record KriteriumAntwort(string Kriterium, double Teilpunkte, double Gewicht, double Beitrag)
 {
     public static KriteriumAntwort Aus(KriteriumInfo k) => new(k.Kriterium, k.Teilpunkte, k.Gewicht, k.Beitrag);
+}
+
+/// <summary>
+/// Eingabe der unverbindlichen Vorschau: Kategorie, Postleitzahl, optional Ort und Dringlichkeit (0 tief, 1 mittel,
+/// 2 hoch).
+/// </summary>
+public sealed record VorschauEingabe(
+    Guid KategorieId,
+    [Required, StringLength(10)] string Plz,
+    [StringLength(120)] string? Ort = null,
+    int? Prioritaet = null);
+
+/// <summary>
+/// Vorschau mit gestaffelter Preisgabe: ohne Anmeldung ohne Namen, angemeldet mit Namen. Telefonnummer, Adresse und
+/// Kennung der Helfenden gibt es in der Vorschau nie; die Telefonnummer folgt erst nach der Zusage.
+/// </summary>
+public sealed record VorschauAntwort(
+    Guid KategorieId,
+    string Kategorie,
+    string Code,
+    bool Bezahlpflichtig,
+    string Plz,
+    string? Ort,
+    int Prioritaet,
+    int SuchradiusKm,
+    bool Angemeldet,
+    IReadOnlyList<VorschauEintragAntwort> Eintraege)
+{
+    public static VorschauAntwort Aus(VorschauErgebnis e, string plz, string? ort, bool angemeldet) => new(
+        e.Kategorie.Id,
+        e.Kategorie.Bezeichnung,
+        e.Kategorie.Kennung,
+        e.Kategorie.Kostenpflichtig,
+        plz,
+        ort,
+        (int)e.Prioritaet,
+        e.SuchradiusKm,
+        angemeldet,
+        e.Eintraege.Select(v => VorschauEintragAntwort.Aus(v, angemeldet)).ToList());
+}
+
+/// <summary>
+/// Eintrag der Vorschau. <c>Name</c> nur angemeldet: bei Betrieben der Betriebsname, sonst der Name des Kontos.
+/// </summary>
+public sealed record VorschauEintragAntwort(
+    int Rang,
+    string? Name,
+    bool IstBetrieb,
+    int DistanzMeter,
+    double Punktzahl,
+    string Begruendung,
+    IReadOnlyList<KriteriumAntwort> Kriterien,
+    bool JetztVerfuegbar,
+    double Bewertungsschnitt,
+    int AnzahlBewertungen,
+    int AnzahlEinsaetze,
+    bool PartnerBevorzugt,
+    PreisInfo? Preis)
+{
+    public static VorschauEintragAntwort Aus(VorschauEintrag v, bool angemeldet)
+    {
+        var profil = v.Profil;
+        var istBetrieb = profil.Typ == Helfertyp.Betrieb;
+        var name = istBetrieb ? profil.Betriebsname ?? profil.Konto?.Anzeigename : profil.Konto?.Anzeigename;
+        return new(
+            v.Rang,
+            angemeldet ? name : null,
+            istBetrieb,
+            v.DistanzMeter,
+            v.Punktzahl,
+            v.Begruendung,
+            v.Kriterien.Select(KriteriumAntwort.Aus).ToList(),
+            profil.Einsatzbereit,
+            profil.Bewertungsschnitt,
+            profil.AnzahlBewertungen,
+            profil.AnzahlEinsaetze,
+            v.PartnerBevorzugt,
+            v.Preis);
+    }
 }

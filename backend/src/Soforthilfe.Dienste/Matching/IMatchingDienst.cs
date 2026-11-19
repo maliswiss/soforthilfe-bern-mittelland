@@ -17,4 +17,10 @@ public interface IMatchingDienst
     /// (nurVon gesetzt).
     /// </summary>
     Task<IReadOnlyList<VorschlagInfo>?> VorschlaegeAsync(Guid anfrageId, Guid? nurVon, CancellationToken abbruch);
+
+    /// <summary>
+    /// Unverbindliche Vorschau in der Region der laufenden Anfrage: dieselbe Suche und Punktzahl wie bei Vorschlägen,
+    /// aber ohne Anfrage und ohne Speichern. Null bei unbekannter Kategorie oder ohne Region.
+    /// </summary>
+    Task<VorschauErgebnis?> VorschauAsync(VorschauKriterien kriterien, CancellationToken abbruch);
 }

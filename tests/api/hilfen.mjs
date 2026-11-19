@@ -92,13 +92,13 @@ export function tokenInhalt(token) {
  * (Nachweis «E-Mail-Adresse des Kontos»). Braucht für die Freigabe TESTDATEN_PASSWORT.
  * @returns {Promise<{ token: string, profil: any }>}
  */
-export async function helferprofil({ plz, ort, radiusKm = 10, skills, preise = {}, verifiziert = true, koordination }) {
+export async function helferprofil({ plz, ort, radiusKm = 10, skills, preise = {}, verifiziert = true, koordination, typ = 0, betriebsname = null }) {
   const konto = await neuesKonto(BERN, HELFENDE);
   const alle = (await aufruf('GET', '/api/skills')).inhalt;
   const skillIds = skills.map((code) => alle.find((s) => s.code === code).id);
   const gespeichert = await aufruf('PUT', '/api/helferprofil', {
     token: konto.token,
-    daten: { typ: 0, plz, ort, radiusKm, skillIds, ...preise },
+    daten: { typ, betriebsname, plz, ort, radiusKm, skillIds, ...preise },
   });
   if (gespeichert.status !== 200) {
     throw new Error(`Helferprofil nicht gespeichert: ${gespeichert.status}`);

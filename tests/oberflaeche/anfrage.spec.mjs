@@ -2,7 +2,7 @@
 
 import { test, expect } from '@playwright/test';
 import {
-  anliegenBeschreiben, anmelden, registrieren, konsoleBeobachten, erwarteKeineFehler,
+  anliegenBeschreiben, anmelden, registrieren, ueberVorschauRegistrieren, konsoleBeobachten, erwarteKeineFehler,
   neueAdresse, TESTPASSWORT, OHNE_TESTPASSWORT
 } from './hilfen.mjs';
 
@@ -20,15 +20,17 @@ test('Anfrage ohne Konto beginnen, registrieren und erfassen', async ({ page }) 
   const fehler = konsoleBeobachten(page);
   await anliegenBeschreiben(page, 'Der Wasserhahn in der Küche tropft seit heute Morgen stark.');
 
-  // Ohne Anmeldung geht es zuerst zur Anmeldung, von dort zur Registrierung
-  await expect(page).toHaveURL(/\/anmeldung/);
-  await page.getByRole('link', { name: 'Jetzt registrieren' }).click();
-  await registrieren(page);
+  // Ohne Anmeldung zuerst die unverbindliche Vorschau, von dort zur Registrierung und zurück
+  await expect(page).toHaveURL(/\/vorschau$/);
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Wer könnte helfen?');
+  await ueberVorschauRegistrieren(page, '3011');
 
-  // Nach der Registrierung geht es mit dem Entwurf weiter
+  // Nach der Registrierung geht es mit dem Entwurf weiter, die Postleitzahl der Vorschau ist übernommen
   await expect(page.getByRole('heading', { name: 'Wo und wann?' })).toBeVisible();
   await expect(page.getByText('Der Wasserhahn in der Küche tropft seit heute Morgen stark.')).toBeVisible();
+  await expect(page.getByLabel('Postleitzahl')).toHaveValue('3011');
 
+  await page.getByLabel('Postleitzahl').fill('');
   await page.getByRole('button', { name: 'Anfrage senden' }).click();
   await expect(page.getByRole('alert')).toHaveText('Bitte eine vierstellige Postleitzahl eingeben.');
 

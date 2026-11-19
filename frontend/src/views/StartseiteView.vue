@@ -82,7 +82,9 @@ async function hilfeFinden() {
   // Beim Freitext bleibt die Einordnung ein Vorschlag; die Person kann sie im nächsten Schritt ändern
   entwurf.einordnung = eingabeart.value === 'freitext' ? einordnung : null;
 
-  router.push({ name: 'anfrage-erfassen' });
+  // Ohne Anmeldung zuerst die unverbindliche Vorschau, sofern die Kategorie feststeht; sonst zur Anfrage
+  const kategorieBekannt = Boolean(entwurf.kategorieId || entwurf.einordnung?.kategorieId);
+  router.push({ name: !konto.angemeldet && kategorieBekannt ? 'vorschau' : 'anfrage-erfassen' });
 }
 </script>
 

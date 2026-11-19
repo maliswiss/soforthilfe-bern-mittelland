@@ -2,13 +2,12 @@
 // die Kategorie kommt aus der Wahl der Person oder aus der Verständniskette.
 
 import { test, expect } from '@playwright/test';
-import { anliegenBeschreiben, registrieren, konsoleBeobachten, erwarteKeineFehler } from './hilfen.mjs';
+import { anliegenBeschreiben, registrieren, ueberVorschauRegistrieren, konsoleBeobachten, erwarteKeineFehler } from './hilfen.mjs';
 
 test('Erkannte bezahlpflichtige Kategorie: Preisangaben vor der Zusage beim Erfassen und in der Anfrage', async ({ page }) => {
   const fehler = konsoleBeobachten(page);
   await anliegenBeschreiben(page, 'Die Heizung ist ausgefallen und die Wohnung wird kalt.');
-  await page.getByRole('link', { name: 'Jetzt registrieren' }).click();
-  await registrieren(page);
+  await ueberVorschauRegistrieren(page, '3011');
 
   // Vorschlag der Verständniskette mit Begründung, änderbar
   const einordnung = page.locator('[data-test=einordnung]');

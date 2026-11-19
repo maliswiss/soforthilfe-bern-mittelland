@@ -1,7 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Soforthilfe.Datenzugriff;
+using Soforthilfe.Datenzugriff.Mandanten;
 using Soforthilfe.Datenzugriff.Modell;
+using Soforthilfe.Dienste.Helfende;
+using Soforthilfe.Dienste.Orte;
+using Soforthilfe.Dienste.Preise;
 using Soforthilfe.Dienste.Protokoll;
+using Soforthilfe.Dienste.Verstaendnis;
 
 namespace Soforthilfe.Dienste.Matching;
 
@@ -13,7 +18,10 @@ public sealed class MatchingDienst(
     SoforthilfeDbContext datenbank,
     IKandidatenSuche kandidatenSuche,
     MatchingGewichte gewichte,
-    IProtokollDienst protokoll) : IMatchingDienst
+    IProtokollDienst protokoll,
+    IOrtDienst orte,
+    IPreisrechner preise,
+    IMandantenKontext mandant) : IMatchingDienst
 {
     public async Task<int> VorschlaegeErzeugenAsync(Guid anfrageId, CancellationToken abbruch)
     {
@@ -85,6 +93,48 @@ public sealed class MatchingDienst(
 
         return vorschlaege.Select(Info).ToList();
     }
+
+    public async Task<VorschauErgebnis?> VorschauAsync(VorschauKriterien kriterien, CancellationToken abbruch)
+    {
+        var kategorie = await datenbank.Kategorien.AsNoTracking().FirstOrDefaultAsync(k => k.Id == kriterien.KategorieId, abbruch);
+        var regionId = kriterien.RegionKennung is { } kennung
+            ? await datenbank.Regionen.AsNoTracking()
+                .Where(r => r.Kennung == kennung && r.Aktiv)
+                .Select(r => (Guid?)r.Id)
+                .FirstOrDefaultAsync(abbruch)
+            : mandant.RegionId;
+        if (regionId is not Guid region || kategorie is null)
+        {
+            return null;
+        }
+
+        // Ohne gewählte Dringlichkeit die übliche der Kategorie, wie beim Erfassen ohne Signalwort.
+        var prioritaet = kriterien.Prioritaet ?? Dringlichkeit.Bestimmen(null, kategorie.Kennung).Prioritaet;
+        var suchradius = Suchradius.FuerPrioritaet(prioritaet);
+        var standort = await orte.PunktZuPlzAsync(kriterien.Plz, kriterien.Ort, abbruch);
+        var kandidaten = await kandidatenSuche.SuchenAsync(new KandidatenKriterien(region, kategorie.Id,
+            kategorie.Kostenpflichtig, kriterien.Plz, standort, suchradius), abbruch);
+
+        var jetzt = DateTimeOffset.UtcNow;
+        var eintraege = Punktzahl.Ordnen(kandidaten.Select(k => Punktzahl.Bewerten(k, suchradius, gewichte)))
+            .Take(Punktzahl.AnzahlVorschlaege)
+            .Select((b, index) => new VorschauEintrag(
+                index + 1,
+                b.Kandidat.Profil,
+                (int)Math.Round(b.Kandidat.DistanzMeter),
+                Math.Round(b.Punktzahl, 4),
+                b.PartnerBevorzugt,
+                Begruendung.Text(b.Kandidat.Profil, b.Kandidat.DistanzMeter, kategorie.Bezeichnung, b.PartnerBevorzugt),
+                Begruendung.Kriterien(Gerundet(b.Teilpunkte), gewichte),
+                preise.Berechnen(HelferprofilDienst.Preise(b.Kandidat.Profil), kategorie.Kostenpflichtig, jetzt)))
+            .ToList();
+
+        return new VorschauErgebnis(kategorie, prioritaet, suchradius, eintraege);
+    }
+
+    // Teilpunkte wie gespeichert, auf vier Stellen.
+    private static Teilpunkte Gerundet(Teilpunkte t) => new(Math.Round(t.Distanz, 4), Math.Round(t.Faehigkeit, 4),
+        Math.Round(t.Bewertung, 4), Math.Round(t.Verfuegbarkeit, 4), Math.Round(t.Erfahrung, 4));
 
     private Vorschlag Neu(Anfrage anfrage, BewerteterKandidat eintrag, int rang, DateTimeOffset jetzt) => new()
     {

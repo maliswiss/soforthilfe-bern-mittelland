@@ -23,14 +23,16 @@ flowchart TD
     H --> N{"Notfall-<br/>hinweis?"}
     N -->|"Ja"| NF["Notfallseite<br/>144 anrufen"]
     N -->|"Nein"| A{"Angemeldet?"}
-    A -->|"Nein"| AN["Anmeldung oder Registrierung<br/>Region aus der Postleitzahl"]
-    AN --> E
+    A -->|"Nein"| VS["Vorschau<br/>ohne Namen und Telefonnummern"]
+    VS --> AN["Anmeldung oder Registrierung<br/>Region aus der Postleitzahl"]
+    AN --> VS2["Vorschau mit Namen"]
+    VS2 --> E
     A -->|"Ja"| E["Wo und wann?<br/>Postleitzahl, Ort, Adresse, Zeitfenster"]
     E --> D["Anfrage erfasst<br/>Status offen"]
     D --> M["Meine Anfragen"]
 ```
 
-Die Eingabe der Startseite bleibt während Anmeldung oder Registrierung im Entwurf erhalten; danach geht es direkt zu «Wo und wann?».
+Die Eingabe der Startseite bleibt während Anmeldung oder Registrierung im Entwurf erhalten. Ohne Anmeldung zeigt zuerst die unverbindliche Vorschau, wer helfen könnte; nach Anmeldung oder Registrierung erscheint sie mit Namen, und die Postleitzahl geht weiter zu «Wo und wann?». Bleibt die Kategorie beim Freitext offen, führt der Weg ohne Vorschau direkt zur Anmeldung.
 
 ## Helferprofil und Freigabe
 
@@ -61,6 +63,7 @@ Nach der Anmeldung landen Helfende im Helferprofil und die Koordination bei den 
 | 09 | Helferprofil | `/helfen/profil` | Helfende | Typ, Betriebsname, Postleitzahl und Ort, Adresse, Radius, Fähigkeiten, Preisangaben mit Vorschau des Richtpreises; Nachweise einreichen, Stand der Verifizierung und eingereichte Nachweise mit Bemerkung der Koordination |
 | 10 | Koordination | `/koordination` | Koordination | offene Verifizierungen der Region mit Profilangaben, Bemerkung, «Freigeben» und «Ablehnen»; Protokoll der Region |
 | 11 | Sprachen | `/sprachen` | Plattformbetrieb | importierte Sprachen mit Anzahl Texte und Stand, «Einschalten», «Ausschalten», «Texte ersetzen» und «Löschen»; Sprachdatei importieren mit Prüfung im Browser und deutscher Vorlage ([mehrsprachigkeit.md](mehrsprachigkeit.md)) |
+| 12 | Vorschau | `/vorschau` | offen | «Wer könnte helfen?»: Postleitzahl und Ort, bis drei Helfende mit Begründung, Punktzahl und Preisangaben; ohne Anmeldung Name und Telefonnummer verdeckt, angemeldet mit Namen; «Konto erstellen und Angaben freischalten», «Anmelden» oder «Anfrage erfassen» ([matching.md](matching.md)) |
 
 ## Navigation
 
