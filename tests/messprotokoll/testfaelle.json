@@ -1,0 +1,48 @@
+{
+  "_hinweis": "Testfälle für die Messung des Matchings in Release 2: mindestens 16 von 20 Fällen mit geeignetem, begründetem Vorschlag auf Rang 1. Je Fall Freitext oder Kategorie, Ort, die erwartete Kategorie und die Helfenden, die auf Rang 1 als geeignet gelten (soll). Dazu vier Notfälle, die gestoppt werden müssen. Die Texte stehen weder in den Trainingsdaten noch im Kalibrierungssatz. Festgelegt vor der Messung; gemessen wird auf einer frischen Datenbank mit Testdaten und den Messdaten unter «helfende».",
+  "region": "bern-mittelland",
+  "faelle": [
+    { "nr": 1, "sprache": "de", "plz": "3011", "ort": "Bern", "freitext": "Ich habe mich ausgesperrt, der Schlüssel steckt innen.", "erwartet": "schluesseldienst", "soll": ["Schlüsseldienst Fuchs GmbH"] },
+    { "nr": 2, "sprache": "fr", "plz": "3011", "ort": "Bern", "freitext": "Je ne peux plus entrer chez moi, la porte s'est fermée toute seule.", "erwartet": "schluesseldienst", "soll": ["Schlüsseldienst Fuchs GmbH"] },
+    { "nr": 3, "sprache": "de", "plz": "3014", "ort": "Bern", "freitext": "Der Wasserhahn in der Küche tropft stark und unter der Spüle ist alles nass.", "erwartet": "sanitaer-elektro", "soll": ["Wyss Sanitär und Heizung"] },
+    { "nr": 4, "sprache": "fr", "plz": "3006", "ort": "Bern", "freitext": "Plus de courant dans la cuisine, le disjoncteur saute sans arrêt.", "erwartet": "sanitaer-elektro", "soll": ["Elektro Schneider AG"] },
+    { "nr": 5, "sprache": "de", "plz": "3018", "ort": "Bern", "freitext": "Mein Auto springt nicht an, die Batterie ist leer. Ich stehe auf dem Parkplatz.", "erwartet": "pannenhilfe", "soll": ["Abschleppdienst Aebi"] },
+    { "nr": 6, "sprache": "fr", "plz": "3027", "ort": "Bern", "freitext": "Ma voiture est en panne sur le parking, la batterie est à plat.", "erwartet": "pannenhilfe", "soll": ["Abschleppdienst Aebi"] },
+    { "nr": 7, "sprache": "de", "plz": "3012", "ort": "Bern", "freitext": "Mein Laptop startet nicht mehr und ich brauche ihn morgen für die Arbeit.", "erwartet": "it-soforthilfe", "soll": ["Nina Hofer"] },
+    { "nr": 8, "sprache": "fr", "plz": "3012", "ort": "Bern", "freitext": "Mon imprimante ne fonctionne plus avec l'ordinateur, je n'arrive pas à imprimer.", "erwartet": "it-soforthilfe", "soll": ["Nina Hofer"] },
+    { "nr": 9, "sprache": "de", "plz": "3007", "ort": "Bern", "freitext": "Nach dem Wasserschaden muss der Keller gründlich gereinigt und getrocknet werden.", "erwartet": "reinigung", "soll": ["Rossi Reinigungen"] },
+    { "nr": 10, "sprache": "de", "plz": "3098", "ort": "Köniz", "freitext": "Am Samstag muss ein Kühlschrank in den Keller getragen werden.", "erwartet": "transporthilfe", "soll": ["Daniel Moser"] },
+    { "nr": 11, "sprache": "fr", "plz": "3005", "ort": "Bern", "freitext": "Pouvez-vous m'aider à transporter une armoire jusqu'à la déchetterie ?", "erwartet": "transporthilfe", "soll": ["Claudia Zurbrügg"] },
+    { "nr": 12, "sprache": "fr", "plz": "3013", "ort": "Bern", "freitext": "Qui pourrait m'apporter du pain et du lait ? Je ne peux pas sortir.", "erwartet": "lieferdienst", "soll": ["Jonas Berger"] },
+    { "nr": 13, "sprache": "de", "plz": "3098", "ort": "Köniz", "freitext": "Ich suche eine Begleitung zum Arzttermin am Donnerstag, ich gehe nicht gern allein.", "erwartet": "begleitung", "soll": ["Ruth Gerber"] },
+    { "nr": 14, "sprache": "de", "plz": "3006", "ort": "Bern", "kategorie": "kleine-reparatur", "erwartet": "kleine-reparatur", "soll": ["Marco Bieri"] },
+    { "nr": 15, "sprache": "de", "plz": "3072", "ort": "Ostermundigen", "freitext": "Die Wohnungstür geht nicht mehr auf, ich stehe draussen.", "erwartet": "schluesseldienst", "soll": ["Schlüsseldienst Fuchs GmbH"] },
+    { "nr": 16, "sprache": "fr", "plz": "3073", "ort": "Gümligen", "freitext": "Mon ordinateur a un virus, il est devenu très lent.", "erwartet": "it-soforthilfe", "soll": ["Kunz IT-Support"] },
+    { "nr": 17, "sprache": "de", "plz": "3076", "ort": "Worb", "freitext": "Das WLAN zu Hause funktioniert nicht mehr, der Router blinkt rot.", "erwartet": "it-soforthilfe", "soll": ["Kunz IT-Support"] },
+    { "nr": 18, "sprache": "de", "plz": "3110", "ort": "Münsingen", "freitext": "Die Heizung ist ausgefallen und es wird kalt in der Wohnung.", "erwartet": "sanitaer-elektro", "soll": ["Haustechnik Aare GmbH"] },
+    { "nr": 19, "sprache": "fr", "plz": "3084", "ort": "Wabern", "freitext": "La baignoire déborde, l'eau ne s'arrête plus.", "erwartet": "sanitaer-elektro", "soll": ["Elektro Schneider AG"] },
+    { "nr": 20, "sprache": "de", "plz": "3052", "ort": "Zollikofen", "freitext": "Wer könnte diese Woche mit meinem Hund spazieren gehen? Ich bin krank im Bett.", "erwartet": "nachbarschaftshilfe", "soll": ["Andrea Lüthi"] }
+  ],
+  "notfaelle": [
+    { "nr": "N1", "sprache": "de", "freitext": "Mein Vater hat plötzlich starke Brustschmerzen." },
+    { "nr": "N2", "sprache": "de", "freitext": "Meine Nachbarin ist gestürzt und bewusstlos." },
+    { "nr": "N3", "sprache": "fr", "freitext": "Mon mari ne respire plus normalement." },
+    { "nr": "N4", "sprache": "fr", "freitext": "Elle a fait un AVC, elle ne parle plus." }
+  ],
+  "helfende": [
+    { "name": "Schlüsseldienst Fuchs GmbH", "typ": 1, "plz": "3011", "ort": "Bern", "radiusKm": 20, "skills": ["schluesseldienst", "kleine-reparatur"], "preise": { "anfahrtChf": 60, "stundenansatzChf": 120, "nachtzuschlagProzent": 50, "wochenendzuschlagProzent": 25, "mwstPflichtig": true } },
+    { "name": "Wyss Sanitär und Heizung", "typ": 1, "plz": "3014", "ort": "Bern", "radiusKm": 15, "skills": ["sanitaer-elektro"], "preise": { "anfahrtChf": 45, "stundenansatzChf": 110, "nachtzuschlagProzent": 50, "wochenendzuschlagProzent": 25, "mwstPflichtig": true } },
+    { "name": "Elektro Schneider AG", "typ": 1, "plz": "3006", "ort": "Bern", "radiusKm": 15, "skills": ["sanitaer-elektro"], "preise": { "anfahrtChf": 50, "stundenansatzChf": 115, "nachtzuschlagProzent": 50, "wochenendzuschlagProzent": 25, "mwstPflichtig": true } },
+    { "name": "Haustechnik Aare GmbH", "typ": 1, "plz": "3110", "ort": "Münsingen", "radiusKm": 15, "skills": ["sanitaer-elektro"], "preise": { "anfahrtChf": 40, "stundenansatzChf": 105, "nachtzuschlagProzent": 40, "wochenendzuschlagProzent": 20, "mwstPflichtig": true } },
+    { "name": "Abschleppdienst Aebi", "typ": 1, "plz": "3018", "ort": "Bern", "radiusKm": 25, "skills": ["pannenhilfe"], "preise": { "anfahrtChf": 80, "stundenansatzChf": 130, "nachtzuschlagProzent": 40, "wochenendzuschlagProzent": 20, "mwstPflichtig": true } },
+    { "name": "Kunz IT-Support", "typ": 1, "plz": "3072", "ort": "Ostermundigen", "radiusKm": 15, "skills": ["it-soforthilfe"], "preise": { "anfahrtChf": 30, "stundenansatzChf": 90, "nachtzuschlagProzent": 30, "wochenendzuschlagProzent": 20, "mwstPflichtig": true } },
+    { "name": "Nina Hofer", "typ": 0, "plz": "3012", "ort": "Bern", "radiusKm": 8, "skills": ["it-soforthilfe"], "preise": { "anfahrtChf": 10, "stundenansatzChf": 45 } },
+    { "name": "Rossi Reinigungen", "typ": 1, "plz": "3007", "ort": "Bern", "radiusKm": 15, "skills": ["reinigung"], "preise": { "anfahrtChf": 40, "stundenansatzChf": 75, "nachtzuschlagProzent": 30, "wochenendzuschlagProzent": 20, "mwstPflichtig": true } },
+    { "name": "Daniel Moser", "typ": 0, "plz": "3098", "ort": "Köniz", "radiusKm": 10, "skills": ["transporthilfe"], "preise": { "anfahrtChf": 20, "stundenansatzChf": 40 } },
+    { "name": "Claudia Zurbrügg", "typ": 0, "plz": "3005", "ort": "Bern", "radiusKm": 10, "skills": ["transporthilfe", "begleitung", "nachbarschaftshilfe"], "preise": { "anfahrtChf": 15, "stundenansatzChf": 35 } },
+    { "name": "Jonas Berger", "typ": 0, "plz": "3013", "ort": "Bern", "radiusKm": 8, "skills": ["lieferdienst"], "preise": { "anfahrtChf": 8, "stundenansatzChf": 30 } },
+    { "name": "Ruth Gerber", "typ": 0, "plz": "3098", "ort": "Köniz", "radiusKm": 8, "skills": ["begleitung", "nachbarschaftshilfe"] },
+    { "name": "Marco Bieri", "typ": 0, "plz": "3006", "ort": "Bern", "radiusKm": 10, "skills": ["kleine-reparatur"], "preise": { "anfahrtChf": 15, "stundenansatzChf": 50 } },
+    { "name": "Andrea Lüthi", "typ": 0, "plz": "3052", "ort": "Zollikofen", "radiusKm": 8, "skills": ["nachbarschaftshilfe"] }
+  ]
+}

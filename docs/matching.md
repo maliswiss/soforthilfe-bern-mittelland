@@ -110,6 +110,10 @@ Schon vor der Anmeldung zeigt `POST /api/anfragen/vorschau`, wer helfen könnte:
 
 Die gestaffelte Preisgabe entscheidet die Schnittstelle, nicht die Oberfläche: Ohne Anmeldung enthält die Antwort keinen Namen, die Oberfläche zeigt nur einen verwischten Platzhalter. Ohne Anmeldung bestimmt die Postleitzahl die Region, wie bei der Registrierung; Postleitzahlen ohne Region oder ausserhalb des Ortschaftenverzeichnisses werden mit Hinweis auf das Feld `plz` abgewiesen. Angemeldet gilt die Region des Kontos, für den Plattformbetrieb die Region der Postleitzahl.
 
+## Messung
+
+Testfälle, erwartete Ergebnisse und Messdaten der Messung stehen in [messung-matching.md](messung-matching.md).
+
 ## Tests
 
 | Test | Prüft |

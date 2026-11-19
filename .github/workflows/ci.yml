@@ -55,6 +55,11 @@ jobs:
         with:
           node-version: 22
 
+      # Die Testfälle der Messung müssen zu Stammdaten und Ortschaftenverzeichnis passen, bevor gemessen wird.
+      - name: Testfälle der Messung prüfen
+        working-directory: .
+        run: node --test "tests/messprotokoll/*.test.mjs"
+
       - name: Alle versionierten Dateien prüfen
         run: node scripts/hygiene/pruefe-dateien.mjs --alle
 
