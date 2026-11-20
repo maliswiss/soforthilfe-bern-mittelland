@@ -75,3 +75,35 @@ test('Kostenlose Fähigkeiten brauchen keine Preisangaben', async () => {
   assert.equal(inhalt.anfahrtChf, null);
   assert.equal(inhalt.mwstPflichtig, false);
 });
+
+test('Grenzen 20 und 7 Uhr in Schweizer Ortszeit, auch in der Sommerzeit', async () => {
+  const { inhalt } = await richtpreis({
+    ...BETRIEB,
+    // Mittwoch im Juli (UTC+2) und im Dezember (UTC+1), jeweils eine Minute vor und genau an der Grenze
+    zeitpunkte: ['2026-07-15T17:59:00Z', '2026-07-15T18:00:00Z', '2026-12-16T05:59:00Z', '2026-12-16T06:00:00Z'],
+  });
+  assert.deepEqual(inhalt.map((p) => p.angewandterZuschlag), [null, 'nacht', 'nacht', null]);
+  assert.deepEqual(inhalt.map((p) => p.richtpreisErsteStunde), [145.95, 197.3, 197.3, 145.95]);
+});
+
+test('Wochenende von Samstag 0 Uhr bis Sonntag 24 Uhr; nachts gilt der höhere Zuschlag', async () => {
+  const { inhalt } = await richtpreis({
+    ...BETRIEB,
+    // Freitag 19 Uhr, Samstag 0 Uhr, Sonntag 12 Uhr, Montag 7 Uhr
+    zeitpunkte: ['2026-11-13T19:00:00+01:00', '2026-11-14T00:00:00+01:00', '2026-11-15T12:00:00+01:00', '2026-11-16T07:00:00+01:00'],
+  });
+  assert.deepEqual(inhalt.map((p) => p.angewandterZuschlag), [null, 'nacht', 'wochenende', null]);
+
+  // Mit höherem Wochenendzuschlag gewinnt das Wochenende auch nachts
+  const umgekehrt = (await richtpreis({ ...BETRIEB, nachtzuschlagProzent: 20, wochenendzuschlagProzent: 40, zeitpunkte: ['2026-11-14T23:00:00+01:00'] })).inhalt;
+  assert.equal(umgekehrt[0].angewandterZuschlag, 'wochenende');
+  assert.equal(umgekehrt[0].angewandterZuschlagProzent, 40);
+});
+
+test('Der Richtpreis ist auf 5 Rappen gerundet', async () => {
+  const { inhalt } = await richtpreis({ anfahrtChf: 33.3, stundenansatzChf: 77.7, mwstPflichtig: true, zeitpunkte: ['2026-11-11T10:00:00+01:00'] });
+  const preis = inhalt[0].richtpreisErsteStunde;
+  // (33.30 + 77.70) · 1.081 = 119.991, gerundet 120.00
+  assert.equal(preis, 120);
+  assert.equal(Math.round(preis * 100) % 5, 0);
+});

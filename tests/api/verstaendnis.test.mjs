@@ -4,6 +4,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import { aufruf, neuesKonto } from './hilfen.mjs';
 
 const KATEGORIEAUSWAHL = 0;
@@ -131,4 +132,55 @@ test('Eine Anfrage nur mit Freitext erhält die erkannte Kategorie', async () =>
   // Ohne Sprachmodell bleibt die Kategorie leer; mit Sprachmodell darf es eine wählen
   const mitSprachmodell = (await verstehen({ freitext: 'Grüezi mitenand' })).inhalt.erfassungsweg === SPRACHMODELL;
   assert.ok(mitSprachmodell || offen.inhalt.kategorieId === null);
+});
+
+test('Die Texte der Messung werden richtig eingeordnet oder stehen mit der richtigen Kategorie zur Auswahl', async () => {
+  const faelle = JSON.parse(fs.readFileSync(new URL('../messprotokoll/testfaelle.json', import.meta.url), 'utf8')).faelle
+    .filter((f) => f.freitext);
+  let richtig = 0;
+
+  for (const { nr, freitext, erwartet } of faelle) {
+    const { status, inhalt } = await verstehen({ freitext });
+    assert.equal(status, 200, `Fall ${nr}`);
+    assert.equal(inhalt.notfall, false, `Fall ${nr}`);
+    if (sprachmodellHatEntschieden(inhalt)) {
+      continue;
+    }
+
+    if (inhalt.kategorieId) {
+      // Nie sicher falsch: eine eingeordnete Kategorie muss die erwartete sein
+      assert.equal(inhalt.code, erwartet, `Fall ${nr}: «${freitext}»`);
+      assert.ok([REGELN, MASCHINELLES_LERNEN].includes(inhalt.erfassungsweg), `Fall ${nr}`);
+      assert.ok(inhalt.konfidenz > 0 && inhalt.konfidenz <= 1, `Fall ${nr}: Sicherheit ${inhalt.konfidenz}`);
+      richtig += 1;
+    } else {
+      // Unsicher: die erwartete Kategorie steht unter den drei ähnlichsten
+      assert.ok(inhalt.alternativen.some((a) => a.code === erwartet), `Fall ${nr}: ${erwartet} nicht zur Auswahl`);
+    }
+  }
+
+  assert.ok(richtig >= 16, `nur ${richtig} von ${faelle.length} direkt eingeordnet`);
+});
+
+test('Alternativen: höchstens drei, ohne Doppelte, nach Ähnlichkeit geordnet', async () => {
+  for (const freitext of ['Kann jemand etwas für mich erledigen?', 'Ich brauche dringend Unterstützung zu Hause.']) {
+    const { inhalt } = await verstehen({ freitext });
+    if (inhalt.kategorieId) {
+      continue;
+    }
+    const liste = inhalt.alternativen;
+    assert.ok(liste.length <= 3, freitext);
+    assert.equal(new Set(liste.map((a) => a.code)).size, liste.length, freitext);
+    assert.deepEqual(liste.map((a) => a.aehnlichkeit), [...liste.map((a) => a.aehnlichkeit)].sort((a, b) => b - a), freitext);
+  }
+});
+
+test('Ein Freitext über 2000 Zeichen wird abgewiesen', async () => {
+  const lang = 'Bitte helfen Sie mir beim Tragen. '.repeat(70);
+  assert.ok(lang.length > 2000);
+  assert.equal((await verstehen({ freitext: lang })).status, 400);
+
+  const { token } = await neuesKonto();
+  const erfasst = await aufruf('POST', '/api/anfragen', { token, daten: { freitext: lang, plz: '3011', ort: 'Bern' } });
+  assert.equal(erfasst.status, 400);
 });

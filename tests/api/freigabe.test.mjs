@@ -2,7 +2,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { aufruf, anmelden, neuesKonto, testkonto, BERN, BIEL, HELFENDE, OHNE_TESTPASSWORT } from './hilfen.mjs';
+import { aufruf, anmelden, neuesKonto, testkonto, helferprofil, BERN, BIEL, HELFENDE, OHNE_TESTPASSWORT } from './hilfen.mjs';
 
 const UID = 0;
 const REFERENZ = 4;
@@ -164,4 +164,35 @@ test('Die Bemerkung ist auf 500 Zeichen begrenzt', { skip: OHNE_TESTPASSWORT }, 
 
   assert.equal((await entscheiden(dora, inhalt.id, false, 'x'.repeat(501))).status, 400);
   assert.equal((await entscheiden(dora, inhalt.id, false, 'x'.repeat(500))).status, 200);
+});
+
+test('Erst die Freigabe macht Helfende vermittelbar; in Prüfung und abgelehnt nicht', { skip: OHNE_TESTPASSWORT }, async () => {
+  const dora = await testkonto('dora.probe@beispiel.invalid');
+  const kategorien = (await aufruf('GET', '/api/kategorien')).inhalt;
+  const begleitung = kategorien.find((k) => k.code === 'begleitung');
+
+  // Zwei Profile in 3152 Mamishaus, je mit eingereichtem Nachweis
+  const freigegeben = await helferprofil({ plz: '3152', ort: 'Mamishaus', skills: ['begleitung'], verifiziert: false });
+  const abgelehnt = await helferprofil({ plz: '3152', ort: 'Mamishaus', skills: ['begleitung'], verifiziert: false });
+  const nachweis = async (h) => (await aufruf('POST', '/api/verifizierungen', { token: h.token, daten: { art: 3, nachweiswert: null } })).inhalt.id;
+  const nachweisFrei = await nachweis(freigegeben);
+  const nachweisAb = await nachweis(abgelehnt);
+
+  const { token } = await neuesKonto();
+  const anfrage = (await aufruf('POST', '/api/anfragen', {
+    token, daten: { kategorieId: begleitung.id, plz: '3152', ort: 'Mamishaus', prioritaet: 1 },
+  })).inhalt;
+  const kandidaten = async () => (await aufruf('GET', `/api/anfragen/${anfrage.id}/kandidaten`, { token: dora })).inhalt.kandidaten
+    .map((k) => k.helferprofilId);
+
+  // In Prüfung: noch nicht vermittelbar
+  assert.ok(!(await kandidaten()).includes(freigegeben.profil.id));
+  assert.ok(!(await kandidaten()).includes(abgelehnt.profil.id));
+
+  await aufruf('POST', `/api/verifizierungen/${nachweisFrei}/entscheid`, { token: dora, daten: { freigeben: true, bemerkung: null } });
+  await aufruf('POST', `/api/verifizierungen/${nachweisAb}/entscheid`, { token: dora, daten: { freigeben: false, bemerkung: 'Angaben unvollständig' } });
+
+  const danach = await kandidaten();
+  assert.ok(danach.includes(freigegeben.profil.id), 'nach der Freigabe vermittelbar');
+  assert.ok(!danach.includes(abgelehnt.profil.id), 'abgelehnt nicht vermittelbar');
 });

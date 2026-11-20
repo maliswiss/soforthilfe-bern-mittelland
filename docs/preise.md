@@ -77,7 +77,7 @@ Beim Freitext bestimmt die [Verständniskette](verstaendniskette.md) die Kategor
 | Test | Prüft |
 |---|---|
 | Einheitentests `PreisrechnerTests` | Werktag, Nacht, Wochenende, höherer Zuschlag, Grenzen 20 und 7 Uhr, Ortszeit aus UTC, ohne MWST, fehlende Angaben, kostenlose Leistungen, Rundung auf 5 Rappen, einstellbarer MWST-Satz |
-| Schnittstellentests `tests/api/preise.test.mjs` | Richtpreis zu vier Zeitpunkten, ohne MWST, fehlende Angaben, höchstens zehn Zeitpunkte, ungültige Beträge, Pflicht bei bezahlpflichtigen Fähigkeiten, keine Pflicht bei kostenlosen |
+| Schnittstellentests `tests/api/preise.test.mjs` | Richtpreis zu vier Zeitpunkten, ohne MWST, fehlende Angaben, höchstens zehn Zeitpunkte, ungültige Beträge, Pflicht bei bezahlpflichtigen Fähigkeiten, keine Pflicht bei kostenlosen; Grenzen 20 und 7 Uhr in Winter- und Sommerzeit, Wochenende von Samstag bis Sonntag, höherer Zuschlag auch zugunsten des Wochenendes, Rundung auf 5 Rappen |
 | Rauchtest | Richtpreis nachts mit MWST, Profil ohne Preise abgewiesen |
 | Oberflächentests `tests/oberflaeche/preise.spec.mjs` | Preishinweis bei erkannter bezahlpflichtiger Kategorie vor und nach dem Absenden, kein Preishinweis bei kostenloser Kategorie, Wahl aus den ähnlichsten Kategorien bestimmt den Preishinweis |
 | Oberflächentests `tests/oberflaeche/helferprofil.spec.mjs` | Vorschau im Helferprofil mit Richtpreis, Zuschlag, Stundenansatz und MWST |
