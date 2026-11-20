@@ -69,3 +69,17 @@ Die Einheitentests in [`NotfallPruefungTests.cs`](../backend/tests/Soforthilfe.T
 | Begriffsliste | 1 | jeder Begriff normalisiert und eindeutig | bestanden |
 
 Ausführen im Ordner `backend` mit `dotnet test --solution Soforthilfe.slnx`; die CI führt die Tests bei jedem Push aus.
+
+Die Schnittstellentests in [`tests/api/notfall.test.mjs`](../tests/api/notfall.test.mjs) prüfen den Notfall-Stopp von aussen:
+
+| Test | Prüft |
+|---|---|
+| Akute Hinweise | Deutsch, Französisch und Englisch stoppen auch ohne Anmeldung, mit Fundstelle und Hinweis auf 144 |
+| Kein Notfall | alltägliche Anliegen, «Notfall: Wasserrohrbruch», Brand und Einbruch |
+| Notfälle der Messung | die vier Notfälle aus [`testfaelle.json`](../tests/messprotokoll/testfaelle.json) stoppen im Verständnis-Schritt ohne Einordnung und beim Erfassen mit `451`; keine Anfrage gespeichert |
+| Gewählte Kategorie | ein Notfallhinweis stoppt auch, wenn eine Kategorie gewählt ist |
+| Schreibweisen | Grossbuchstaben, «ohnmaechtig» und «ohnmächtig», zusammengesetzte Wörter, Akzente, Italienisch; Fundstelle wie geschrieben |
+| Kurze Begriffe | «wehen» und «avc» nur als ganzes Wort («Schneewehen» und «Navcom» stoppen nicht) |
+| Erfassen | Antwort `451` mit Hinweis auf 144, nichts gespeichert |
+
+Die Protokolleinträge prüft [`tests/api/protokoll.test.mjs`](../tests/api/protokoll.test.mjs).

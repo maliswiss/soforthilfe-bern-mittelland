@@ -3,7 +3,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { aufruf, neuesKonto, BERN, BIEL, OHNE_TESTPASSWORT } from './hilfen.mjs';
+import { aufruf, neuesKonto, testkonto, BERN, BIEL, OHNE_TESTPASSWORT } from './hilfen.mjs';
 
 const orte = (plz) => aufruf('GET', `/api/orte?plz=${encodeURIComponent(plz)}`);
 
@@ -120,4 +120,23 @@ test('Ungültige oder fehlende Koordinaten werden abgewiesen', async () => {
 test('Koordinaten werden nur im Rumpf angenommen, nie in der Adresse', async () => {
   const { status } = await aufruf('GET', '/api/orte/umgebung?breitengrad=46.9466&laengengrad=7.444');
   assert.equal(status, 405);
+});
+
+test('Freigegebener Standort in Biel/Seeland ergibt diese Region', async () => {
+  const biel = await umgebung({ breitengrad: 47.1368, laengengrad: 7.2468 });
+  assert.equal(biel.status, 200);
+  assert.equal(biel.inhalt.plz.startsWith('25'), true, biel.inhalt.plz);
+  assert.equal(biel.inhalt.region, BIEL);
+});
+
+test('Der Standort wird weder gespeichert noch protokolliert', { skip: OHNE_TESTPASSWORT }, async () => {
+  const betrieb = await testkonto('hans.betrieb@beispiel.invalid');
+  const vorher = (await aufruf('GET', '/api/protokoll?anzahl=1', { token: betrieb })).inhalt[0]?.id ?? 0;
+
+  assert.equal((await umgebung({ breitengrad: 46.9466, laengengrad: 7.444 })).status, 200);
+
+  // Andere Tests schreiben gleichzeitig; kein neuer Eintrag darf vom Standort stammen.
+  const neu = (await aufruf('GET', '/api/protokoll?anzahl=500', { token: betrieb })).inhalt.filter((e) => e.id > vorher);
+  assert.ok(neu.every((e) => !/Standort|Umgebung/.test(e.aktion)), JSON.stringify(neu.map((e) => e.aktion)));
+  assert.ok(neu.every((e) => !String(e.detail ?? '').includes('46.94')), 'keine Koordinaten im Protokoll');
 });

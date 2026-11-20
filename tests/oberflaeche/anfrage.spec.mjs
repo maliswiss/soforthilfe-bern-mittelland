@@ -30,7 +30,9 @@ test('Anfrage ohne Konto beginnen, registrieren und erfassen', async ({ page }) 
   await expect(page.getByText('Der Wasserhahn in der Küche tropft seit heute Morgen stark.')).toBeVisible();
   await expect(page.getByLabel('Postleitzahl')).toHaveValue('3011');
 
+  // Beide Felder leeren, damit der Ort unten sicher erst aus dem Verzeichnis kommt
   await page.getByLabel('Postleitzahl').fill('');
+  await page.getByLabel('Ort', { exact: true }).fill('');
   await page.getByRole('button', { name: 'Anfrage senden' }).click();
   await expect(page.getByRole('alert')).toHaveText('Bitte eine vierstellige Postleitzahl eingeben.');
 
