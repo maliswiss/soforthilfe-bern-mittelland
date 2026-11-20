@@ -104,3 +104,67 @@ test('Ohne passende Kandidaten bleibt die Anfrage offen', { skip: OHNE_TESTPASSW
   assert.equal(erfasst.status, 1, 'offen');
   assert.deepEqual((await vorschlaege(token, erfasst.id)).inhalt, []);
 });
+
+// 3155 Helgisried-Rohrbach liegt abseits; die Profile ziehen am Ende weg und sind dann wieder in Prüfung.
+const helgisried = { plz: '3155', ort: 'Helgisried-Rohrbach' };
+
+async function wegziehen(helfer) {
+  const profil = (await aufruf('GET', '/api/helferprofil', { token: helfer.token })).inhalt;
+  await aufruf('PUT', '/api/helferprofil', {
+    token: helfer.token,
+    daten: { typ: profil.typ, betriebsname: profil.betriebsname, plz: '3011', ort: 'Bern', radiusKm: profil.radiusKm, skillIds: profil.skills.map((s) => s.id) },
+  });
+}
+
+async function anfrageHelgisried(token) {
+  const kategorien = (await aufruf('GET', '/api/kategorien')).inhalt;
+  const kategorieId = kategorien.find((k) => k.code === 'begleitung').id;
+  const erfasst = await aufruf('POST', '/api/anfragen', { token, daten: { kategorieId, prioritaet: 0, ...helgisried } });
+  assert.equal(erfasst.status, 201);
+  return erfasst.inhalt;
+}
+
+test('Nicht verfügbare Helfende bleiben Kandidaten, mit weniger Punkten für die Verfügbarkeit', { skip: OHNE_TESTPASSWORT }, async (t) => {
+  const dora = await koordination();
+  const bereit = await helferprofil({ ...helgisried, radiusKm: 10, skills: ['begleitung'], koordination: dora });
+  const pause = await helferprofil({ ...helgisried, radiusKm: 10, skills: ['begleitung'], koordination: dora });
+  t.after(() => Promise.all([wegziehen(bereit), wegziehen(pause)]));
+  await aufruf('PUT', '/api/helferprofil/verfuegbarkeit', { token: pause.token, daten: { jetztVerfuegbar: false } });
+
+  const { token } = await neuesKonto();
+  const erfasst = await anfrageHelgisried(token);
+  const kandidaten = (await aufruf('GET', `/api/anfragen/${erfasst.id}/kandidaten`, { token: dora })).inhalt.kandidaten;
+  assert.equal(kandidaten.find((k) => k.helferprofilId === pause.profil.id)?.jetztVerfuegbar, false, 'nicht verfügbar, aber Kandidat');
+
+  // Verfügbar 1, nicht verfügbar 0.4 Teilpunkte; bei gleicher Distanz 0.10 × 0.6 = 0.06 Punkte weniger
+  const liste = (await vorschlaege(token, erfasst.id)).inhalt;
+  const a = liste.find((v) => v.helferprofilId === bereit.profil.id);
+  const b = liste.find((v) => v.helferprofilId === pause.profil.id);
+  assert.ok(a && b, 'beide unter den Vorschlägen');
+  const teil = (v) => v.kriterien.find((k) => k.kriterium === 'verfuegbarkeit').teilpunkte;
+  assert.equal(teil(a), 1);
+  assert.equal(teil(b), 0.4);
+  assert.ok(Math.abs(a.punktzahl - b.punktzahl - 0.06) < 0.001, `${a.punktzahl} gegen ${b.punktzahl}`);
+  assert.ok(a.rang < b.rang);
+  assert.match(b.begruendung, /derzeit nicht verfügbar/);
+});
+
+test('Gespeicherte Vorschläge ändern sich nicht, wenn sich das Profil danach ändert', { skip: OHNE_TESTPASSWORT }, async (t) => {
+  const dora = await koordination();
+  const helfer = await helferprofil({ ...helgisried, radiusKm: 10, skills: ['begleitung'], koordination: dora });
+  t.after(() => wegziehen(helfer));
+  const { token } = await neuesKonto();
+  const erfasst = await anfrageHelgisried(token);
+  const vorher = (await vorschlaege(token, erfasst.id)).inhalt;
+  assert.ok(vorher.some((v) => v.helferprofilId === helfer.profil.id && v.jetztVerfuegbar));
+
+  await aufruf('PUT', '/api/helferprofil/verfuegbarkeit', { token: helfer.token, daten: { jetztVerfuegbar: false } });
+  const nachher = (await vorschlaege(token, erfasst.id)).inhalt;
+
+  // Rang, Punktzahl, Teilpunkte und Begründung bleiben; nur die angezeigte Verfügbarkeit ist die aktuelle
+  const fest = (v) => ({ id: v.id, rang: v.rang, punktzahl: v.punktzahl, begruendung: v.begruendung, kriterien: v.kriterien });
+  assert.deepEqual(nachher.map(fest), vorher.map(fest));
+  const eigener = nachher.find((v) => v.helferprofilId === helfer.profil.id);
+  assert.equal(eigener.jetztVerfuegbar, false);
+  assert.match(eigener.begruendung, /jetzt verfügbar/);
+});

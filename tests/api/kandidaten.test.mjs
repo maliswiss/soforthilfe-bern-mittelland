@@ -108,3 +108,31 @@ test('Ohne Kategorie keine Suche; Anfragen anderer Regionen gibt es nicht', { sk
   const greta = await testkonto('greta.muster@beispiel.invalid');
   assert.equal((await kandidaten(greta, offen.inhalt.id)).status, 404);
 });
+
+test('Profiländerungen wirken sofort: kleinerer Einsatzradius, neuer Ort erst nach erneuter Prüfung', { skip: OHNE_TESTPASSWORT }, async () => {
+  // 3533 Bowil liegt 2.8 km von 3532 Zäziwil, weit weg von den Profilen anderer Tests
+  const dora = await koordination();
+  const helfer = await helferprofil({ plz: '3533', ort: 'Bowil', radiusKm: 10, skills: ['nachbarschaftshilfe'], koordination: dora });
+  const { token } = await neuesKonto();
+  const erfasst = await anfrage(token, 'nachbarschaftshilfe', 1, '3532', 'Zäziwil');
+  const dabei = async () => (await kandidaten(dora, erfasst.id)).inhalt.kandidaten.some((k) => k.helferprofilId === helfer.profil.id);
+  assert.ok(await dabei(), 'im Einsatzradius');
+
+  const profil = (await aufruf('GET', '/api/helferprofil', { token: helfer.token })).inhalt;
+  const speichern = (aenderung) => aufruf('PUT', '/api/helferprofil', {
+    token: helfer.token,
+    daten: { typ: profil.typ, betriebsname: profil.betriebsname, plz: profil.plz, ort: profil.ort, radiusKm: profil.radiusKm, skillIds: profil.skills.map((s) => s.id), ...aenderung },
+  });
+
+  // Einsatzradius 2 km: keine neue Prüfung, aber Zäziwil liegt nicht mehr im eigenen Gebiet
+  assert.equal((await speichern({ radiusKm: 2 })).status, 200);
+  assert.ok(!(await dabei()), 'ausserhalb des eigenen Einsatzradius');
+  assert.equal((await speichern({ radiusKm: 10 })).status, 200);
+  assert.ok(await dabei(), 'wieder im Einsatzradius');
+
+  // Ein neuer Ort ist prüfrelevant: bis zur erneuten Freigabe nicht vermittelbar
+  const umgezogen = await speichern({ plz: '3532', ort: 'Zäziwil' });
+  assert.equal(umgezogen.status, 200);
+  assert.equal(umgezogen.inhalt.verifizierung, 1, 'in Prüfung');
+  assert.ok(!(await dabei()), 'in Prüfung nach dem Ortswechsel');
+});

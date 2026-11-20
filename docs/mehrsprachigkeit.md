@@ -35,7 +35,7 @@ Der Plattformbetrieb importiert weitere Sprachen oder korrigierte Texte im laufe
 | Code | zwei Kleinbuchstaben nach ISO 639-1, zum Beispiel `it`; der Import von `de` oder `fr` ergänzt die mitgelieferten Texte |
 | Name | eigener Name der Sprache, 2 bis 40 Zeichen, zum Beispiel «Italiano» |
 | Prüfung | höchstens 5 Ebenen, 3000 Texte und 1000 Zeichen je Text; Schlüssel aus Buchstaben, Ziffern, `_` und `-`; keine Zeichen `<`, `>`, `@` und `\|`; geschweifte Klammern nur als Platzhalter wie `{plz}` |
-| Grösse | Anfrage höchstens 1 MB |
+| Grösse | Anfrage höchstens 1 MB, sonst Status 413 |
 | Ersetzen | ein erneuter Import ersetzt alle Texte der Sprache |
 | Ein- und ausschalten | ausgeschaltete Sprachen erscheinen nicht im Umschalter und liefern keine Texte |
 | Protokoll | `Sprache.Importiert` mit Anzahl Texte, `Sprache.Aktiviert`, `Sprache.Deaktiviert`, `Sprache.Geloescht` |
@@ -68,6 +68,6 @@ Beim Start lädt die Oberfläche die Liste der aktiven Sprachen und die Texte de
 |---|---|
 | Oberflächentests `tests/oberflaeche/sprache.spec.mjs` | Wechsel auf Französisch mit Texten, Kategorienamen, Sprache des Dokuments und Fussbereich; Wahl bleibt nach dem Neuladen; Rückwechsel; Sprache des Browsers ohne gespeicherte Wahl |
 | Schnittstellentests `tests/api/anfragen.test.mjs` | Anfragen enthalten den Code der Kategorie |
-| Schnittstellentests `tests/api/sprachen.test.mjs` | Zugriff je Rolle; Import gilt sofort; erneuter Import ersetzt die Texte; ausschalten, löschen und Protokoll; ungültige Dateien mit Feld und Stelle |
+| Schnittstellentests `tests/api/sprachen.test.mjs` | Zugriff je Rolle; Import gilt sofort; erneuter Import ersetzt die Texte; ausschalten, löschen und Protokoll; ungültige Dateien mit Feld und Stelle; Grenzen für Anzahl, Länge, Ebenen und Schlüssel; über 1 MB Status 413; ein ungültiger erneuter Import lässt die bisherigen Texte unverändert |
 | Oberflächentests `tests/oberflaeche/sprachen.spec.mjs` | Prüfung im Browser mit betroffener Stelle; Import mit fehlenden und unbekannten Texten; neue Sprache sofort im Umschalter und für Besuchende; deutsche Texte als Ersatz; ausschalten und löschen; Zugang nur für den Plattformbetrieb |
 | Komponententests `SprachdateiTests` | Code, Name, Ebenen, Schlüssel, Längen, unzulässige Zeichen und Platzhalter |

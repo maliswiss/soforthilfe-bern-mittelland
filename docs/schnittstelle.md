@@ -185,6 +185,7 @@ Jeder Fehler ist ein Problem-Dokument (`application/problem+json`) mit zwei zus�
 | `404` | nicht vorhanden, auch für Daten einer fremden Region |
 | `405` | Methode nicht erlaubt, zum Beispiel Koordinaten per `GET` |
 | `409` | E-Mail-Adresse oder Region besteht bereits |
+| `413` | Anfrage zu gross, zum Beispiel eine Sprachdatei über 1 MB |
 | `415` | Medientyp nicht unterstützt, zum Beispiel ein Upload statt JSON |
 | `451` | Notfall-Stopp: Hinweis auf einen gesundheitlichen Notfall, die Anfrage wird nicht vermittelt |
 | `500` | interner Fehler, ohne technische Details, mit Verfolgungsnummer |
