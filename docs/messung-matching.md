@@ -7,8 +7,9 @@ Die Messung zeigt, ob das Matching zu typischen Anliegen geeignete und begründe
 | Punkt | Festlegung |
 |---|---|
 | Ziel | mindestens 16 von 20 Fällen mit geeignetem, begründetem Vorschlag |
-| Fall erfüllt | erkannte Kategorie wie erwartet, Rang 1 unter den Helfenden der Spalte «Soll», Vorschlag mit Begründung |
+| Fall erfüllt | erkannte Kategorie wie erwartet, Rang 1 unter den Helfenden der Spalte «Soll», Vorschlag mit Begründung; im Einzelnen die Kriterien K1 bis K6 unter [Messskript](#messskript) |
 | Notfälle | alle vier werden gestoppt (Hinweis auf 144) und protokolliert, ohne Anfrage und ohne Vorschlag |
+| Antwortzeit | je Fall höchstens 7 s vom Absenden bis zu den Vorschlägen, mit dem Sprachmodell auf dem Arbeitsgerät |
 | Umgebung | frische Datenbank mit Testdaten und den Messdaten unten; echtes Sprachmodell auf dem Arbeitsgerät; Messumgebung im Messprotokoll |
 | Region | Bern/Mittelland |
 
@@ -80,3 +81,40 @@ Fiktive Helfende, die vor der Messung über die Schnittstelle angelegt und von d
 | Neue Texte | kein Text aus den Trainingsdaten oder dem Kalibrierungssatz |
 | Erreichbarkeit | jede erwartete helfende Person hat die Fähigkeit und liegt im eigenen Einsatzradius und im Suchradius |
 | Erwartung | die nächste geeignete helfende Person gehört zu den erwarteten |
+| Auswertung | Kriterien K1 bis K6, Kennzahlen der Antwortzeit und Zellen der Tabellen ([`auswertung.test.mjs`](../tests/messprotokoll/auswertung.test.mjs)) |
+
+## Messskript
+
+[`tests/messprotokoll/messen.mjs`](../tests/messprotokoll/messen.mjs) misst gegen die laufende Schnittstelle:
+
+```
+node tests/messprotokoll/messen.mjs
+```
+
+| Schritt | Ablauf |
+|---|---|
+| Messdaten | legt die Helfenden aus `testfaelle.json` über die Schnittstelle an (Adressen `messung.…@beispiel.invalid`), die Koordination der Testdaten gibt sie frei, alle sind jetzt verfügbar; bei einem zweiten Lauf werden sie angemeldet und neu gespeichert |
+| Fälle | je Fall Verständnis, Anfrage erfassen und Vorschläge laden mit einem neuen Konto für Hilfesuchende; gemessen wird jeder Schritt und die Zeit vom Absenden bis zu den Vorschlägen |
+| Notfälle | Verständnis und Erfassen müssen stoppen (`451`), die Zahl der Einträge `Notfall.Stopp` im Protokoll muss steigen |
+| Protokoll | Markdown und CSV (Semikolon, für Tabellenkalkulationen) in `docs/messprotokolle/`, Name `r2-matching-<Datum>-<Zeit>` |
+| Ergebnis | Exit-Code 0 nur, wenn mindestens 16 Fälle geeignet und alle Notfälle gestoppt und protokolliert sind |
+
+Ein Fall ist geeignet, wenn alle Kriterien erfüllt sind ([`auswertung.mjs`](../tests/messprotokoll/auswertung.mjs)):
+
+| Kriterium | Prüfung |
+|---|---|
+| K1 | Kategorie wie erwartet erkannt oder gewählt |
+| K2 | ein bis drei Vorschläge |
+| K3 | alle Vorschläge innerhalb des Suchradius der Anfrage |
+| K4 | jeder Vorschlag mit Begründung und allen fünf Teilpunkten; die Beiträge ergeben die Punktzahl |
+| K5 | Rang 1 gehört zu den Helfenden der Spalte «Soll» |
+| K6 | Preisangaben bei kostenpflichtiger Kategorie, keine bei kostenloser |
+
+| Umgebung | Bedeutung |
+|---|---|
+| `API_URL` | Adresse der Schnittstelle, Standard `http://localhost:5000` |
+| `TESTDATEN_PASSWORT` | Anmeldung der Koordination der Testdaten, auch Passwort der Konten der Messdaten |
+| `OLLAMA_BASE_URL` | nur für die Angabe im Protokoll, ob das Sprachmodell erreichbar ist |
+| `MESSPROTOKOLL_ORDNER` | Ablage der Protokolle, Standard `docs/messprotokolle` |
+
+Das Protokoll nennt die Messumgebung (Gerät, Betriebssystem, Node.js, Stand des Codes, Sprachmodell, Gewichte und Suchradius), je Fall Weg der Einordnung, Sicherheit, Dringlichkeit, Kriterien, Rang 1, Zeiten und Begründungen sowie die Notfälle. Es enthält nur fiktive Daten und keine Zugangsdaten.
