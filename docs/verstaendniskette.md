@@ -83,7 +83,18 @@ docker compose --profile sprachmodell up -d ollama
 docker compose exec ollama ollama pull llama3.2:3b
 ```
 
-Die CI startet kein Sprachmodell; dort endet die Kette beim maschinellen Lernen. Die Schnittstellentests lassen beide Fälle zu.
+### Attrappe in der CI
+
+Die CI startet statt des echten Modells eine Attrappe ([`tests/attrappe/sprachmodell.mjs`](../tests/attrappe/sprachmodell.mjs)). Sie beantwortet die Schnittstelle von Ollama (`POST /api/generate`, `GET /api/tags`) sofort und immer gleich; so laufen die Tests schnell und reproduzierbar, und die letzte Stufe wird trotzdem über HTTP geprüft. Das echte Modell läuft nur auf dem Arbeitsgerät, etwa für die Messung.
+
+| Text der Anfrage enthält | Antwort der Attrappe | Ergebnis der Kette |
+|---|---|---|
+| «Plimbo» | `{"kategorie":"nachbarschaftshilfe"}` | Nachbarschaftshilfe über das Sprachmodell |
+| «Quarzel» | `{"kategorie":"zauberei"}` | unbekannte Kennung, keine Kategorie |
+| «Wumpel» | Text statt JSON | unlesbar, keine Kategorie |
+| sonst | `{"kategorie":null}` | keine Kategorie, wie ein unsicheres Modell |
+
+Die Merkwörter kommen in keiner Sprache vor, darum lassen Regeln und maschinelles Lernen solche Texte offen. Für Tests zählt `GET /attrappe/aufrufe?enthaelt=<text>`, wie oft ein Text beim Modell ankam. Lokal: `node tests/attrappe/sprachmodell.mjs` starten (Port `ATTRAPPE_PORT`, Standard 11434), die Schnittstelle mit `OLLAMA_BASE_URL=http://localhost:11434` und die Schnittstellentests mit `SPRACHMODELL_ATTRAPPE=http://localhost:11434`. Ohne diesen Wert überspringen die Tests der Attrappe sich selbst; die übrigen Schnittstellentests lassen mit und ohne Sprachmodell beide Fälle zu.
 
 ## Kalibrierungssatz
 
@@ -138,6 +149,8 @@ Beim Erfassen ohne gewählte Kategorie (`POST /api/anfragen` nur mit Freitext) s
 | Einheitentests `SchluesselwortregelnTests` | Kategorien aus eindeutigen Schlüsselwörtern, Wortgrenzen, Gleichstand, Mehrheit der Treffer, Sicherheit, genanntes Schlüsselwort |
 | Einheitentests `SprachmodellTests` | ausgeschaltet ohne Adresse, erlaubte Kennung, Anfrage im JSON-Modus, unbekannte und unlesbare Antworten, Zwischenspeicher, Pause nach einem Fehler, Zeitlimit, Anweisung mit allen Kategorien |
 | Einheitentests `DringlichkeitTests` | Signalwörter für Eile und für «keine Eile», Vorrang des Texts vor der Kategorie, übliche Dringlichkeit je Kategorie, Wortgrenzen, Begründung |
+| Schnittstellentests `tests/api/sprachmodell.test.mjs` | mit der Attrappe: Kategorie und Weg des Sprachmodells beim Verstehen und Erfassen, unbekannte Kennung und unlesbare Antwort ohne Kategorie und ohne Pause, keine Frage an das Modell, wenn die Regeln entscheiden oder ein Notfall vorliegt, Zwischenspeicher |
+| Tests der Attrappe `tests/attrappe/sprachmodell.test.mjs` | Antworten im Format von Ollama, Merkwörter, Vorladen, Liste der Modelle, Zählen der Anfragen |
 | Schnittstellentests `tests/api/einordnungsweg.test.mjs` | gespeicherter Weg für Kategorieauswahl, Regeln, maschinelles Lernen und ohne Ergebnis, beim Erfassen und Lesen; Protokolleintrag mit Weg, ohne Freitext |
 | Schnittstellentests `tests/api/dringlichkeit.test.mjs` | Dringlichkeit mit Begründung im Verständnis-Schritt, keine bei Notfall, abgeleitet beim Erfassen, gewählte Dringlichkeit gilt |
 | Einheitentests `TfIdfKlassifikatorTests` | Kalibrierungssatz mit Kette und maschinellem Lernen allein, kein Trainingsbeispiel falsch, Entscheid ohne Schlüsselwort, offen bei knappem Abstand mit Rangfolge, unbekannte Wörter, Stammform |

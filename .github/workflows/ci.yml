@@ -60,6 +60,10 @@ jobs:
         working-directory: .
         run: node --test "tests/messprotokoll/*.test.mjs"
 
+      - name: Attrappe des Sprachmodells prüfen
+        working-directory: .
+        run: node --test "tests/attrappe/*.test.mjs"
+
       - name: Alle versionierten Dateien prüfen
         run: node scripts/hygiene/pruefe-dateien.mjs --alle
 
@@ -206,10 +210,31 @@ jobs:
           --configuration Release
           --no-build
 
+      - name: Node.js einrichten
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      # Statt des echten Sprachmodells: schnelle, immer gleiche Antworten im Format von Ollama.
+      - name: Attrappe des Sprachmodells starten
+        working-directory: .
+        run: |
+          nohup node tests/attrappe/sprachmodell.mjs > attrappe.log 2>&1 &
+          for versuch in $(seq 1 15); do
+            if curl -fsS http://localhost:11434/api/tags > /dev/null 2>&1; then
+              echo "Attrappe ist gestartet."
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Attrappe startet nicht."
+          exit 1
+
       - name: Schnittstelle mit Testdaten starten
         env:
           ASPNETCORE_URLS: http://localhost:5000
           Testdaten__Laden: "true"
+          OLLAMA_BASE_URL: http://localhost:11434
         run: |
           # Ohne Startprofil, damit die CI wie ein Container in der Umgebung «Production» läuft.
           nohup dotnet run --project src/Soforthilfe.Api --configuration Release --no-build --no-launch-profile > api.log 2>&1 &
@@ -263,15 +288,11 @@ jobs:
           API_URL: http://localhost:5000
         run: bash tests/rauchtest/schnittstelle.sh
 
-      - name: Node.js einrichten
-        uses: actions/setup-node@v7
-        with:
-          node-version: 22
-
       - name: Schnittstellentests
         working-directory: .
         env:
           API_URL: http://localhost:5000
+          SPRACHMODELL_ATTRAPPE: http://localhost:11434
         run: node --test "tests/api/*.test.mjs"
 
       - name: Oberfläche bauen und als Vorschau starten
