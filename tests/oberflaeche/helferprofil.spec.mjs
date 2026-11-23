@@ -1,4 +1,5 @@
-// Oberflächentests: Helferprofil mit Preisangaben, Nachweise ohne Ausweisdokumente und Freigabe durch die Koordination.
+// Oberflächentests: Helferprofil mit Preisangaben, Nachweise ohne Ausweisdokumente, Freigabe durch die Koordination,
+// Verfügbarkeit und welche Änderungen eine erneute Prüfung brauchen.
 
 import { test, expect } from '@playwright/test';
 import {
@@ -101,6 +102,61 @@ test('Die Koordination gibt einen Nachweis frei, die helfende Person sieht den n
   await expect(page).toHaveURL(/\/helfen\/profil$/);
   await expect(page.locator('[data-test=verifizierungsstand]')).toHaveText('Aktueller Stand: verifiziert');
   await expect(page.locator('[data-test=nachweise] li').first()).toContainText('Bemerkung der Koordination: Eintrag im UID-Register geprüft');
+});
+
+test('Verfügbarkeit und Einsatzradius gelten ohne neue Prüfung, ein neuer Ort braucht eine erneute Prüfung', { skip: OHNE_TESTPASSWORT }, async ({ page }) => {
+  // Verifizierte helfende Person, über die Schnittstelle vorbereitet
+  const adresse = neueAdresse();
+  const passwort = 'oberflaeche-passwort-123';
+  const registrierung = await page.request.post('/api/auth/registrierung', {
+    data: { eMail: adresse, passwort, anzeigename: 'Oberfläche Helfende', kontoart: 1, mandant: 'bern-mittelland' }
+  });
+  expect(registrierung.status()).toBe(200);
+  const kopf = { Authorization: `Bearer ${(await registrierung.json()).token}` };
+  const skills = await (await page.request.get('/api/skills')).json();
+  const begleitung = skills.find((s) => s.code === 'begleitung');
+  expect((await page.request.put('/api/helferprofil', {
+    headers: kopf, data: { typ: 0, plz: '3011', ort: 'Bern', radiusKm: 10, skillIds: [begleitung.id] }
+  })).status()).toBe(200);
+  const nachweis = await (await page.request.post('/api/verifizierungen', { headers: kopf, data: { art: 3, nachweiswert: null } })).json();
+  const koordination = await (await page.request.post('/api/auth/anmeldung', {
+    data: { eMail: 'dora.probe@beispiel.invalid', passwort: TESTPASSWORT }
+  })).json();
+  expect((await page.request.post(`/api/verifizierungen/${nachweis.id}/entscheid`, {
+    headers: { Authorization: `Bearer ${koordination.token}` }, data: { freigeben: true, bemerkung: null }
+  })).status()).toBe(200);
+
+  const fehler = konsoleBeobachten(page);
+  await anmelden(page, adresse, passwort);
+  await expect(page).toHaveURL(/\/helfen\/profil$/);
+  const stand = page.locator('[data-test=verifizierungsstand]');
+  const verfuegbarkeit = page.locator('[data-test=verfuegbarkeit]');
+  await expect(stand).toHaveText('Aktueller Stand: verifiziert');
+  await expect(verfuegbarkeit).toHaveText('Sie sind als jetzt verfügbar gemeldet.');
+
+  // Verfügbarkeit: gilt sofort, auch nach dem Neuladen, ohne neue Prüfung
+  await page.getByRole('button', { name: 'Als nicht verfügbar melden' }).click();
+  await expect(verfuegbarkeit).toHaveText('Sie sind zurzeit nicht als verfügbar gemeldet.');
+  await page.reload();
+  await expect(verfuegbarkeit).toHaveText('Sie sind zurzeit nicht als verfügbar gemeldet.');
+  await expect(stand).toHaveText('Aktueller Stand: verifiziert');
+  await page.getByRole('button', { name: 'Jetzt verfügbar melden' }).click();
+  await expect(verfuegbarkeit).toHaveText('Sie sind als jetzt verfügbar gemeldet.');
+
+  // Kleinerer Einsatzradius: gespeichert, weiterhin verifiziert
+  await page.getByLabel('Radius in Kilometern').fill('5');
+  await page.getByRole('button', { name: 'Profil speichern' }).click();
+  await expect(page.getByRole('status')).toHaveText('Das Profil ist gespeichert.');
+  await expect(stand).toHaveText('Aktueller Stand: verifiziert');
+
+  // Neuer Ort: die Koordination prüft erneut, der Nachweis liegt wieder zur Prüfung vor
+  await page.getByLabel('Postleitzahl').fill('3014');
+  await expect(page.getByLabel('Ort', { exact: true })).toHaveValue('Bern');
+  await page.getByRole('button', { name: 'Profil speichern' }).click();
+  await expect(page.getByRole('status')).toHaveText('Das Profil ist gespeichert.');
+  await expect(stand).toHaveText('Aktueller Stand: in Prüfung');
+  await expect(page.locator('[data-test=nachweise] li').first()).toContainText('in Prüfung');
+  await erwarteKeineFehler(fehler);
 });
 
 test('Helferprofil und Koordination nur mit der passenden Rolle', async ({ page }) => {

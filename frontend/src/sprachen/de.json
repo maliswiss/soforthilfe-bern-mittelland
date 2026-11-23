@@ -299,6 +299,12 @@
       "wochenendeTag": "Samstag, 10 Uhr",
       "wochenendeNacht": "Samstag, 22 Uhr"
     },
+    "verfuegbarkeit": "Verfügbarkeit",
+    "verfuegbarJa": "Sie sind als jetzt verfügbar gemeldet.",
+    "verfuegbarNein": "Sie sind zurzeit nicht als verfügbar gemeldet.",
+    "verfuegbarMelden": "Jetzt verfügbar melden",
+    "nichtVerfuegbarMelden": "Als nicht verfügbar melden",
+    "verfuegbarkeitHinweis": "Die Verfügbarkeit gilt sofort und braucht keine neue Prüfung. Wer nicht verfügbar ist, wird weiter vorgeschlagen, aber weiter hinten.",
     "speichern": "Profil speichern",
     "gespeichert": "Das Profil ist gespeichert.",
     "fehlerFaehigkeit": "Bitte wählen Sie mindestens eine Fähigkeit.",

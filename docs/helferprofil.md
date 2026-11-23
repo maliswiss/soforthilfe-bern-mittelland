@@ -13,7 +13,7 @@ Helfende Personen und Betriebe beschreiben im Helferprofil, was sie anbieten, wo
 | Fähigkeiten | mindestens eine bekannte Fähigkeit (`GET /api/skills`); beim Speichern werden alle Fähigkeiten ersetzt |
 | Adresse | freiwillig; sieht nur die anfragende Person, und erst nach der Zusage |
 | Preisangaben | Anfahrt, Stundenansatz, Nacht- und Wochenendzuschlag, MWST-Pflicht; Pflicht bei bezahlpflichtigen Fähigkeiten ([preise.md](preise.md)) |
-| Verfügbarkeit | «jetzt verfügbar» lässt sich jederzeit umschalten, ohne das Profil neu zu speichern |
+| Verfügbarkeit | «jetzt verfügbar» lässt sich im Helferprofil jederzeit umschalten, ohne das Profil neu zu speichern und ohne neue Prüfung; nicht Verfügbare werden weiter vorgeschlagen, aber weiter hinten |
 | Verifizierung | Stand der Prüfung durch die Koordination; Nachweise ohne Ausweisdokumente, Freigabe durch die Koordination der Region ([verifizierung.md](verifizierung.md)) |
 | Bewertung, Einsätze, Partner | führt die Plattform; nicht über das Profil änderbar |
 
@@ -60,4 +60,4 @@ Anlegen und Ändern erzeugen die Einträge `Helferprofil.Erstellt` und `Helferpr
 |---|---|
 | Schnittstellentests `tests/api/helferprofil.test.mjs` | Rollen, Anlegen, Lesen, Ändern mit ersetzten Fähigkeiten, Verfügbarkeit, ungültige Angaben ohne Speicherung, Protokoll ohne Personendaten |
 | Rauchtest | Profil anlegen, Rolle, Verfügbarkeit, Pflicht der Preisangaben |
-| Oberflächentests `tests/oberflaeche/helferprofil.spec.mjs` | Profil nach der Registrierung anlegen, Pflicht der Preise, Vorschau des Richtpreises, gespeicherte Angaben nach dem Neuladen |
+| Oberflächentests `tests/oberflaeche/helferprofil.spec.mjs` | Profil nach der Registrierung anlegen, Pflicht der Preise, Vorschau des Richtpreises, gespeicherte Angaben nach dem Neuladen; Verfügbarkeit umschalten; kleinerer Einsatzradius ohne, neuer Ort mit erneuter Prüfung |

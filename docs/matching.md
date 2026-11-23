@@ -121,7 +121,7 @@ Testfälle, erwartete Ergebnisse und Messdaten der Messung stehen in [messung-ma
 | Komponententests `KandidatenSucheTests` | Suchradius je Dringlichkeit; Grenzen von Such- und Einsatzradius; Reihenfolge |
 | Komponententests `PunktzahlTests` | Teilpunkte je Kriterium; gewichtete Punktzahl mit Beispiel; Gewichte auf Summe 1, ungültige Gewichte; Reihenfolge; Partner nur bei gleichwertiger Punktzahl |
 | Schnittstellentests `tests/api/vorschau.test.mjs` | ungültige Eingaben mit Feld; Dringlichkeit und Ort aus Kategorie und Postleitzahl; ohne Anmeldung ohne Namen, angemeldet mit Namen, Telefonnummer nie; Preise bei kostenpflichtigen Kategorien; Region aus der Postleitzahl |
-| Oberflächentests `tests/oberflaeche/vorschlaege.spec.mjs` | Vorschlagsliste mit Begründung, Entfernung, Preis, Hinweis zur Telefonnummer und zugeklappten Teilpunkten je Kriterium mit Punktzahl |
+| Oberflächentests `tests/oberflaeche/vorschlaege.spec.mjs` | Vorschlagsliste mit Begründung, Entfernung, Preis, Hinweis zur Telefonnummer und zugeklappten Teilpunkten je Kriterium mit Punktzahl; Sprachwechsel auf der Liste ohne neue Reihenfolge; Hinweis, wenn niemand Passendes in Reichweite ist |
 | Oberflächentests `tests/oberflaeche/vorschau.spec.mjs` | Vorschau ohne Anmeldung mit verdecktem Namen und Preis; nach der Anmeldung mit Namen und weiter zum Erfassen |
 | Komponententests `BegruendungTests` | Text mit und ohne Bewertungen, Einzahl, Partner; Distanz in Metern und Kilometern; Kriterien mit Beitrag und Summe |
 | Schnittstellentests `tests/api/begruendung.test.mjs` | Text je Vorschlag; alle Kriterien mit Teilpunkten, Gewicht und Beitrag; Summe gleich Punktzahl |

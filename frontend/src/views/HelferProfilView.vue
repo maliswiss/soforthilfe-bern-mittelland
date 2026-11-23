@@ -38,6 +38,8 @@ const preise = ref({
 
 const profilVorhanden = ref(false);
 const verifizierung = ref(null);
+const jetztVerfuegbar = ref(true);
+const verfuegbarkeitLaeuft = ref(false);
 const nachweise = ref([]);
 const nachweis = ref({ art: 0, nachweiswert: '' });
 const meldung = ref('');
@@ -94,6 +96,7 @@ function uebernehmen(profil) {
     mwstPflichtig: profil.mwstPflichtig
   };
   verifizierung.value = profil.verifizierung;
+  jetztVerfuegbar.value = profil.jetztVerfuegbar;
   profilVorhanden.value = true;
 }
 
@@ -212,6 +215,26 @@ async function speichern() {
     meldung.value = t('profil.gespeichert');
   } catch (problem) {
     fehler.value = problem.message;
+  }
+}
+
+// Verfügbarkeit gilt sofort und ist nicht prüfrelevant; nicht Verfügbare stehen in Vorschlägen weiter hinten
+async function verfuegbarkeitUmschalten() {
+  fehler.value = '';
+  meldung.value = '';
+  verfuegbarkeitLaeuft.value = true;
+  try {
+    const antwort = await senden(
+      '/helferprofil/verfuegbarkeit',
+      { jetztVerfuegbar: !jetztVerfuegbar.value },
+      konto.token,
+      'PUT'
+    );
+    jetztVerfuegbar.value = antwort.jetztVerfuegbar;
+  } catch (problem) {
+    fehler.value = problem.message;
+  } finally {
+    verfuegbarkeitLaeuft.value = false;
   }
 }
 
@@ -339,6 +362,19 @@ async function nachweisEinreichen() {
 
     <button type="submit" class="knopf w-full">{{ t('profil.speichern') }}</button>
   </form>
+
+  <section v-if="profilVorhanden" class="mt-8 max-w-2xl" aria-labelledby="verfuegbarkeit-titel">
+    <h2 id="verfuegbarkeit-titel" class="text-2xl">{{ t('profil.verfuegbarkeit') }}</h2>
+    <div class="karte mt-4 flex flex-wrap items-center justify-between gap-4">
+      <p class="text-sm" data-test="verfuegbarkeit" aria-live="polite">
+        {{ jetztVerfuegbar ? t('profil.verfuegbarJa') : t('profil.verfuegbarNein') }}
+      </p>
+      <button type="button" class="knopf-leise" :disabled="verfuegbarkeitLaeuft" @click="verfuegbarkeitUmschalten">
+        {{ jetztVerfuegbar ? t('profil.nichtVerfuegbarMelden') : t('profil.verfuegbarMelden') }}
+      </button>
+    </div>
+    <p class="mt-2 text-xs text-grau">{{ t('profil.verfuegbarkeitHinweis') }}</p>
+  </section>
 
   <section class="mt-8 max-w-2xl" aria-labelledby="verifizierung-titel">
     <h2 id="verifizierung-titel" class="text-2xl">{{ t('profil.verifizierung') }}</h2>

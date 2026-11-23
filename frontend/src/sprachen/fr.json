@@ -299,6 +299,12 @@
       "wochenendeTag": "Samedi, 10 h",
       "wochenendeNacht": "Samedi, 22 h"
     },
+    "verfuegbarkeit": "Disponibilité",
+    "verfuegbarJa": "Vous êtes annoncé·e comme disponible maintenant.",
+    "verfuegbarNein": "Vous n’êtes actuellement pas annoncé·e comme disponible.",
+    "verfuegbarMelden": "Me signaler disponible",
+    "nichtVerfuegbarMelden": "Me signaler indisponible",
+    "verfuegbarkeitHinweis": "La disponibilité s’applique immédiatement et ne nécessite pas de nouvelle vérification. Si vous n’êtes pas disponible, vous restez proposé·e, mais plus bas dans la liste.",
     "speichern": "Enregistrer le profil",
     "gespeichert": "Le profil est enregistré.",
     "fehlerFaehigkeit": "Veuillez choisir au moins une compétence.",

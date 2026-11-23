@@ -66,7 +66,7 @@ Beim Start lädt die Oberfläche die Liste der aktiven Sprachen und die Texte de
 
 | Test | Prüft |
 |---|---|
-| Oberflächentests `tests/oberflaeche/sprache.spec.mjs` | Wechsel auf Französisch mit Texten, Kategorienamen, Sprache des Dokuments und Fussbereich; Wahl bleibt nach dem Neuladen; Rückwechsel; Sprache des Browsers ohne gespeicherte Wahl |
+| Oberflächentests `tests/oberflaeche/sprache.spec.mjs` | Wechsel auf Französisch mit Texten, Kategorienamen, Sprache des Dokuments und Fussbereich; Wahl bleibt nach dem Neuladen; Rückwechsel; Sprache des Browsers ohne gespeicherte Wahl; Wechsel mitten im Formular mit erhaltenen Eingaben und Meldungen in der gewählten Sprache |
 | Schnittstellentests `tests/api/anfragen.test.mjs` | Anfragen enthalten den Code der Kategorie |
 | Schnittstellentests `tests/api/sprachen.test.mjs` | Zugriff je Rolle; Import gilt sofort; erneuter Import ersetzt die Texte; ausschalten, löschen und Protokoll; ungültige Dateien mit Feld und Stelle; Grenzen für Anzahl, Länge, Ebenen und Schlüssel; über 1 MB Status 413; ein ungültiger erneuter Import lässt die bisherigen Texte unverändert |
 | Oberflächentests `tests/oberflaeche/sprachen.spec.mjs` | Prüfung im Browser mit betroffener Stelle; Import mit fehlenden und unbekannten Texten; neue Sprache sofort im Umschalter und für Besuchende; deutsche Texte als Ersatz; ausschalten und löschen; Zugang nur für den Plattformbetrieb |
