@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  kriterienPruefen, geeignet, gehoertZuSoll, median, perzentil, mdZelle, csvZelle, stempel, KRITERIEN,
+  kriterienPruefen, geeignet, gehoertZuSoll, median, perzentil, mdZelle, csvZelle, stempel, schrittKennzahlen, KRITERIEN,
 } from './auswertung.mjs';
 
 const fall = { erwartet: 'sanitaer-elektro', soll: ['Wyss Sanitär und Heizung'] };
@@ -64,4 +64,17 @@ test('Zellen für Markdown und CSV, Zeitstempel in Schweizer Zeit', () => {
   assert.equal(csvZelle(null), '');
   assert.equal(stempel(new Date('2026-11-24T08:15:00Z')), '2026-11-24-09-15');
   assert.equal(stempel(new Date('2026-07-01T22:30:00Z')), '2026-07-02-00-30');
+});
+
+test('Kennzahlen je Schritt, Fälle ohne einen Schritt zählen dort nicht mit', () => {
+  const k = schrittKennzahlen([
+    { verstehen: 80, erfassen: 260, vorschlaege: 70, gesamt: 410 },
+    { verstehen: 5, erfassen: 40, vorschlaege: 10, gesamt: 55 },
+    { verstehen: 7, erfassen: 50, vorschlaege: 9, gesamt: 66 },
+    { verstehen: 9, gesamt: 9 },
+  ]);
+  assert.deepEqual(k.verstehen, { anzahl: 4, median: 8, p90: 80, max: 80 });
+  assert.deepEqual(k.erfassen, { anzahl: 3, median: 50, p90: 260, max: 260 });
+  assert.equal(k.gesamt.median, 61);
+  assert.deepEqual(schrittKennzahlen([]).gesamt, { anzahl: 0, median: null, p90: null, max: null });
 });

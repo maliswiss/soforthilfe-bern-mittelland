@@ -15,7 +15,7 @@ import { execSync } from 'node:child_process';
 import { performance } from 'node:perf_hooks';
 import { aufruf, anmelden, neuesKonto, testkonto, BASIS, BERN, HELFENDE, TESTPASSWORT } from '../api/hilfen.mjs';
 import {
-  kriterienPruefen, geeignet, name, median, perzentil, mdZelle, csvZelle, stempel,
+  kriterienPruefen, geeignet, name, median, perzentil, mdZelle, csvZelle, stempel, schrittKennzahlen, SCHRITTE,
   ZIEL_GEEIGNET, ZIEL_ANTWORTZEIT_MS, SUCHRADIUS_KM, WEGE, DRINGLICHKEIT, KRITERIEN_TEXT,
 } from './auswertung.mjs';
 
@@ -192,6 +192,14 @@ md.push(`| Geeigneter, begründeter Vorschlag | mindestens ${ZIEL_GEEIGNET} von 
 md.push(`| Antwortzeit je Fall | höchstens ${ZIEL_ANTWORTZEIT_MS / 1000} s | Median ${median(zeiten)} ms, 90 % bis ${perzentil(zeiten, 90)} ms, höchstens ${Math.max(...zeiten)} ms | ${imZiel} von ${faelle.length} im Zielbereich |`);
 md.push(`| Notfälle | alle gestoppt und protokolliert | ${notfallErgebnisse.filter((n) => n.gestoppt).length} von ${notfaelle.length} gestoppt | ${notfallErfuellt ? 'erfüllt' : 'nicht erfüllt'} |`);
 md.push('', `Weg der Einordnung: ${Object.entries(wege).map(([w, n]) => `${w} ${n}`).join(', ')}.`, '');
+
+// Antwortzeit je Schritt; der erste Fall enthält die ersten Abfragen nach dem Start
+md.push('## Antwortzeit je Schritt', '');
+md.push('| Schritt | Fälle | Median ms | 90 % bis ms | höchstens ms |', '|---|---|---|---|---|');
+for (const [schritt, k] of Object.entries(schrittKennzahlen(ergebnisse.map((e) => e.zeiten)))) {
+  md.push(`| ${SCHRITTE[schritt]} | ${k.anzahl} | ${k.median ?? '–'} | ${k.p90 ?? '–'} | ${k.max ?? '–'} |`);
+}
+md.push('', `Zielbereich: höchstens ${ZIEL_ANTWORTZEIT_MS / 1000} s je Fall. Der erste Fall enthält die ersten Abfragen und den Aufbau der Verbindungen nach dem Start der Schnittstelle.`, '');
 
 md.push('## Messumgebung', '');
 md.push('| Angabe | Wert |', '|---|---|');

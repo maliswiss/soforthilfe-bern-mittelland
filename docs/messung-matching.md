@@ -142,3 +142,22 @@ Beobachtungen:
 - Das Sprachmodell war erreichbar, wurde aber in keinem der 20 Fälle gebraucht: Regeln oder maschinelles Lernen haben jeweils sicher entschieden. Diese Messung sagt darum nichts über die Antwortzeit der letzten Stufe aus.
 - Am knappsten entschied das maschinelle Lernen in Fall 19 (Ähnlichkeit 0.14, Abstand zur zweitbesten Kategorie 0.07), richtig, aber nahe an der Schwelle.
 - Rang 1 lag in 15 Fällen in derselben Postleitzahl, sonst zwischen 914 m und 6.6 km entfernt, immer innerhalb des Suchradius.
+
+### Antwortzeit (Messung 1)
+
+Gemessen beim Aufrufer, je Schritt und je Fall vom Absenden bis zu den Vorschlägen. Das Messskript schreibt diese Tabelle ab jetzt selbst ins Protokoll.
+
+| Schritt | Median | 90 % bis | höchstens |
+|---|---|---|---|
+| Verständnis | 7 ms | 15 ms | 81 ms |
+| Erfassen mit Matching | 48 ms | 106 ms | 260 ms |
+| Vorschläge laden | 10 ms | 19 ms | 73 ms |
+| Gesamt je Fall | 64 ms | 138 ms | 414 ms |
+
+| Vergleich mit dem Zielbereich (höchstens 7 s) | Ergebnis |
+|---|---|
+| Fälle im Zielbereich | 20 von 20 |
+| Grösster Wert | 414 ms in Fall 1, der ersten Anfrage nach dem Start (erste Abfragen, Aufbau der Verbindungen); ohne Fall 1 höchstens 144 ms |
+| Fälle 16 bis 20 | etwa 135 ms statt etwa 60 ms, vor allem beim Erfassen (rund 105 ms), weiterhin weit unter dem Ziel |
+| Reserve | der langsamste Fall braucht weniger als 6 % des Zielbereichs |
+| Grenze der Aussage | ohne Sprachmodell: keine der 20 Anfragen erreichte die letzte Stufe, deren Zeitlimit beträgt 10 s |

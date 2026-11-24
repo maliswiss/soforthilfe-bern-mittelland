@@ -79,6 +79,20 @@ export function perzentil(werte, p) {
   return sortiert[Math.min(sortiert.length - 1, Math.max(0, Math.ceil((p / 100) * sortiert.length) - 1))];
 }
 
+export const SCHRITTE = { verstehen: 'Verständnis', erfassen: 'Erfassen mit Matching', vorschlaege: 'Vorschläge laden', gesamt: 'Gesamt je Fall' };
+
+/**
+ * Kennzahlen der Antwortzeit je Schritt: Anzahl, Median, 90 % und Höchstwert in Millisekunden.
+ * Fälle ohne einen Schritt (etwa ohne Kategorie) zählen dort nicht mit.
+ * @param {{ verstehen?: number, erfassen?: number, vorschlaege?: number, gesamt: number }[]} zeiten
+ */
+export function schrittKennzahlen(zeiten) {
+  return Object.fromEntries(Object.keys(SCHRITTE).map((schritt) => {
+    const werte = zeiten.map((z) => z[schritt]).filter((w) => typeof w === 'number');
+    return [schritt, { anzahl: werte.length, median: median(werte), p90: perzentil(werte, 90), max: werte.length ? Math.max(...werte) : null }];
+  }));
+}
+
 /** Zelle einer Markdown-Tabelle: ohne senkrechten Strich und Zeilenumbruch. */
 export function mdZelle(wert) {
   return String(wert ?? '').replace(/\|/g, '/').replace(/\r?\n/g, ' ');
