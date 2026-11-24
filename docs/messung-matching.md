@@ -81,7 +81,7 @@ Fiktive Helfende, die vor der Messung über die Schnittstelle angelegt und von d
 | Neue Texte | kein Text aus den Trainingsdaten oder dem Kalibrierungssatz |
 | Erreichbarkeit | jede erwartete helfende Person hat die Fähigkeit und liegt im eigenen Einsatzradius und im Suchradius |
 | Erwartung | die nächste geeignete helfende Person gehört zu den erwarteten |
-| Auswertung | Kriterien K1 bis K6, Kennzahlen der Antwortzeit und Zellen der Tabellen ([`auswertung.test.mjs`](../tests/messprotokoll/auswertung.test.mjs)) |
+| Auswertung | Kriterien K1 bis K6, Kennzahlen der Antwortzeit je Schritt, Prüfung der Notfall-Einträge und Zellen der Tabellen ([`auswertung.test.mjs`](../tests/messprotokoll/auswertung.test.mjs)) |
 
 ## Messskript
 
@@ -95,9 +95,9 @@ node tests/messprotokoll/messen.mjs
 |---|---|
 | Messdaten | legt die Helfenden aus `testfaelle.json` über die Schnittstelle an (Adressen `messung.…@beispiel.invalid`), die Koordination der Testdaten gibt sie frei, alle sind jetzt verfügbar; bei einem zweiten Lauf werden sie angemeldet und neu gespeichert |
 | Fälle | je Fall Verständnis, Anfrage erfassen und Vorschläge laden mit einem neuen Konto für Hilfesuchende; gemessen wird jeder Schritt und die Zeit vom Absenden bis zu den Vorschlägen |
-| Notfälle | Verständnis und Erfassen müssen stoppen (`451`), die Zahl der Einträge `Notfall.Stopp` im Protokoll muss steigen |
+| Notfälle | Verständnis und Erfassen müssen stoppen (`451`); je Schritt ein neuer Eintrag `Notfall.Stopp` ohne Bezug auf eine Anfrage, im Detail nur der erkannte Begriff, ohne Freitext und ohne Angaben zum Konto |
 | Protokoll | Markdown und CSV (Semikolon, für Tabellenkalkulationen) in `docs/messprotokolle/`, Name `r2-matching-<Datum>-<Zeit>` |
-| Ergebnis | Exit-Code 0 nur, wenn mindestens 16 Fälle geeignet und alle Notfälle gestoppt und protokolliert sind |
+| Ergebnis | Exit-Code 0 nur, wenn mindestens 16 Fälle geeignet und alle Notfälle gestoppt und wie beschrieben protokolliert sind |
 
 Ein Fall ist geeignet, wenn alle Kriterien erfüllt sind ([`auswertung.mjs`](../tests/messprotokoll/auswertung.mjs)):
 
@@ -161,3 +161,14 @@ Gemessen beim Aufrufer, je Schritt und je Fall vom Absenden bis zu den Vorschlä
 | Fälle 16 bis 20 | etwa 135 ms statt etwa 60 ms, vor allem beim Erfassen (rund 105 ms), weiterhin weit unter dem Ziel |
 | Reserve | der langsamste Fall braucht weniger als 6 % des Zielbereichs |
 | Grenze der Aussage | ohne Sprachmodell: keine der 20 Anfragen erreichte die letzte Stufe, deren Zeitlimit beträgt 10 s |
+
+### Notfälle (Messung 1)
+
+| Nr. | Sprache | Erkannter Begriff | Verständnis | Erfassen | Protokolleinträge | Zeit |
+|---|---|---|---|---|---|---|
+| N1 | de | Brustschmerzen | gestoppt, Hinweis 144 | `451`, keine Anfrage | 2 | 9 ms |
+| N2 | de | bewusstlos | gestoppt, Hinweis 144 | `451`, keine Anfrage | 2 | 15 ms |
+| N3 | fr | ne respire plus | gestoppt, Hinweis 144 | `451`, keine Anfrage | 2 | 25 ms |
+| N4 | fr | AVC | gestoppt, Hinweis 144 | `451`, keine Anfrage | 2 | 20 ms |
+
+Alle vier Notfälle stoppen in beiden Schritten, bevor eine Einordnung oder ein Vorschlag entsteht; je Schritt entsteht ein Eintrag «Notfall.Stopp» in der Region. Ab der nächsten Messung prüft das Messskript zusätzlich den Inhalt dieser Einträge ([`auswertung.mjs`](../tests/messprotokoll/auswertung.mjs)): je ein Eintrag aus Verständnis und Erfassen, ohne Bezug auf eine Anfrage, im Detail nur der erkannte Begriff, weder Wortlaut des Freitexts noch Kennung, Adresse oder Name des Kontos. Dieselben Regeln prüfen die Schnittstellentests in `tests/api/protokoll.test.mjs` bei jedem Lauf der CI.

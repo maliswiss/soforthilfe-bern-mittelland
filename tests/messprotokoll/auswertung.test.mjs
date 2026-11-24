@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  kriterienPruefen, geeignet, gehoertZuSoll, median, perzentil, mdZelle, csvZelle, stempel, schrittKennzahlen, KRITERIEN,
+  kriterienPruefen, geeignet, gehoertZuSoll, median, perzentil, mdZelle, csvZelle, stempel, schrittKennzahlen, notfallEintraegePruefen, KRITERIEN,
 } from './auswertung.mjs';
 
 const fall = { erwartet: 'sanitaer-elektro', soll: ['Wyss Sanitär und Heizung'] };
@@ -77,4 +77,22 @@ test('Kennzahlen je Schritt, Fälle ohne einen Schritt zählen dort nicht mit', 
   assert.deepEqual(k.erfassen, { anzahl: 3, median: 50, p90: 260, max: 260 });
   assert.equal(k.gesamt.median, 61);
   assert.deepEqual(schrittKennzahlen([]).gesamt, { anzahl: 0, median: null, p90: null, max: null });
+});
+
+test('Notfall im Protokoll: beide Schritte, ohne Anfrage, nur der Begriff, ohne Freitext und ohne Konto', () => {
+  const freitext = 'Meine Nachbarin ist gestürzt und bewusstlos.';
+  const konto = { adresse: 'test.123@beispiel.invalid', anzeigename: 'Test Person' };
+  const eintrag = (objekt, zusatz = {}) => ({
+    id: 1, aktion: 'Notfall.Stopp', objekt, objektId: null, detail: 'Erkanntes Schlüsselwort: bewusstlos', region: 'bern-mittelland', ...zusatz,
+  });
+  const gut = notfallEintraegePruefen([eintrag('Verstaendnis'), eintrag('Anfrage')], freitext, konto);
+  assert.equal(gut.erfuellt, true);
+  assert.equal(gut.anzahl, 2);
+
+  assert.equal(notfallEintraegePruefen([eintrag('Verstaendnis')], freitext, konto).erfuellt, false);
+  assert.equal(notfallEintraegePruefen([eintrag('Verstaendnis'), eintrag('Anfrage', { objektId: '42' })], freitext, konto).ohneAnfrage, false);
+  const mitText = notfallEintraegePruefen([eintrag('Verstaendnis', { detail: freitext }), eintrag('Anfrage')], freitext, konto);
+  assert.equal(mitText.ohneFreitext, false);
+  assert.equal(mitText.nurBegriff, false);
+  assert.equal(notfallEintraegePruefen([eintrag('Verstaendnis', { detail: 'Erkanntes Schlüsselwort: bewusstlos, Test Person' }), eintrag('Anfrage')], freitext, konto).ohneKonto, false);
 });

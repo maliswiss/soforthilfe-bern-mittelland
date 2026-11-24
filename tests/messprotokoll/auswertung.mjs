@@ -93,6 +93,28 @@ export function schrittKennzahlen(zeiten) {
   }));
 }
 
+/**
+ * Prüft die Protokolleinträge eines Notfall-Stopps: je ein Eintrag aus dem Verständnis-Schritt und aus dem
+ * Erfassen, ohne Bezug auf eine Anfrage und ohne Personendaten. Erlaubt ist nur der erkannte Begriff aus der
+ * festen Liste; der Wortlaut des Freitexts, Kennung, Adresse und Name des Kontos dürfen nicht vorkommen.
+ * @param {{ aktion: string, objekt: string|null, objektId: string|null, detail: string|null }[]} eintraege neue Einträge
+ * @param {string} freitext Text des Notfalls
+ * @param {{ id?: string, adresse?: string, anzeigename?: string }} konto anfragendes Konto
+ */
+export function notfallEintraegePruefen(eintraege, freitext, konto = {}) {
+  const text = JSON.stringify(eintraege);
+  const objekte = eintraege.map((e) => e.objekt).sort();
+  const pruefung = {
+    anzahl: eintraege.length,
+    beideSchritte: objekte.join(',') === 'Anfrage,Verstaendnis',
+    ohneAnfrage: eintraege.every((e) => e.aktion === 'Notfall.Stopp' && e.objektId === null),
+    nurBegriff: eintraege.every((e) => /^Erkanntes Schlüsselwort: [^.,;]{1,60}$/.test(e.detail ?? '')),
+    ohneFreitext: !text.includes(freitext) && !text.includes(freitext.slice(0, 20)),
+    ohneKonto: [konto.id, konto.adresse, konto.anzeigename].filter(Boolean).every((wert) => !text.includes(wert)),
+  };
+  return { ...pruefung, erfuellt: Object.values(pruefung).every((w) => w === true || typeof w === 'number') };
+}
+
 /** Zelle einer Markdown-Tabelle: ohne senkrechten Strich und Zeilenumbruch. */
 export function mdZelle(wert) {
   return String(wert ?? '').replace(/\|/g, '/').replace(/\r?\n/g, ' ');

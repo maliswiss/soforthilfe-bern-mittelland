@@ -16,6 +16,7 @@ import { performance } from 'node:perf_hooks';
 import { aufruf, anmelden, neuesKonto, testkonto, BASIS, BERN, HELFENDE, TESTPASSWORT } from '../api/hilfen.mjs';
 import {
   kriterienPruefen, geeignet, name, median, perzentil, mdZelle, csvZelle, stempel, schrittKennzahlen, SCHRITTE,
+  notfallEintraegePruefen,
   ZIEL_GEEIGNET, ZIEL_ANTWORTZEIT_MS, SUCHRADIUS_KM, WEGE, DRINGLICHKEIT, KRITERIEN_TEXT,
 } from './auswertung.mjs';
 
@@ -73,9 +74,10 @@ async function messdatenAnlegen(koordination) {
   }
 }
 
+// Einträge «Notfall.Stopp» der Region, sichtbar für die Koordination
 async function notfallEintraege(koordination) {
   const liste = await aufruf('GET', '/api/protokoll?aktion=Notfall.Stopp&anzahl=500', { token: koordination });
-  return Array.isArray(liste.inhalt) ? liste.inhalt.length : 0;
+  return Array.isArray(liste.inhalt) ? liste.inhalt : [];
 }
 
 async function sprachmodell() {
@@ -105,7 +107,8 @@ console.log(`Messung des Matchings gegen ${BASIS}: ${faelle.length} Fälle, ${no
 await messdatenAnlegen(koordination);
 console.log(`Messdaten: ${helfende.length} Helfende verifiziert und verfügbar`);
 
-const { token } = await neuesKonto();
+const hilfesuchend = await neuesKonto();
+const { token } = hilfesuchend;
 const kategorien = pruefen(await aufruf('GET', '/api/kategorien'), 200, 'Kategorien');
 const ergebnisse = [];
 
@@ -154,13 +157,14 @@ for (const fall of faelle) {
 // Notfälle: gestoppt im Verständnis-Schritt und beim Erfassen (451), jeder Stopp im Protokoll
 const notfallErgebnisse = [];
 for (const fall of notfaelle) {
-  const vorher = await notfallEintraege(koordination);
+  const vorher = new Set((await notfallEintraege(koordination)).map((e) => e.id));
   const verstanden = await gemessen(() => aufruf('POST', '/api/anfragen/verstehen', { token, daten: { freitext: fall.freitext } }));
   const erfasst = await aufruf('POST', '/api/anfragen', { token, daten: { freitext: fall.freitext, plz: '3011', ort: 'Bern' } });
-  const eintraege = (await notfallEintraege(koordination)) - vorher;
+  const neu = (await notfallEintraege(koordination)).filter((e) => !vorher.has(e.id));
+  const protokoll = notfallEintraegePruefen(neu, fall.freitext, { id: hilfesuchend.konto?.id, adresse: hilfesuchend.adresse, anzeigename: hilfesuchend.konto?.anzeigename });
   const gestoppt = verstanden.inhalt?.notfall === true && erfasst.status === 451;
-  notfallErgebnisse.push({ fall, gestoppt, eintraege, grund: verstanden.inhalt?.notfallGrund, ms: verstanden.ms, status: erfasst.status });
-  console.log(`  Notfall ${fall.nr}: ${gestoppt ? 'gestoppt' : 'NICHT gestoppt'}, ${eintraege} Protokolleinträge (${verstanden.ms} ms)`);
+  notfallErgebnisse.push({ fall, gestoppt, eintraege: neu.length, protokoll, grund: verstanden.inhalt?.notfallGrund, ms: verstanden.ms, status: erfasst.status });
+  console.log(`  Notfall ${fall.nr}: ${gestoppt ? 'gestoppt' : 'NICHT gestoppt'}, ${neu.length} Protokolleinträge ${protokoll.erfuellt ? 'ohne Personendaten' : 'NICHT wie erwartet'} (${verstanden.ms} ms)`);
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -169,7 +173,7 @@ for (const fall of notfaelle) {
 const anzahlGeeignet = ergebnisse.filter((e) => e.geeignet).length;
 const zeiten = ergebnisse.map((e) => e.zeiten.gesamt);
 const imZiel = ergebnisse.filter((e) => e.imZiel).length;
-const notfallErfuellt = notfallErgebnisse.every((n) => n.gestoppt && n.eintraege >= 1);
+const notfallErfuellt = notfallErgebnisse.every((n) => n.gestoppt && n.protokoll.erfuellt);
 const zielErfuellt = anzahlGeeignet >= ZIEL_GEEIGNET;
 const wege = {};
 for (const e of ergebnisse) {
@@ -249,11 +253,12 @@ for (const e of ergebnisse) {
 }
 
 md.push('## Notfälle', '');
-md.push('| Nr. | Sprache | Text | Gestoppt | Grund | Protokolleinträge | Zeit ms | Erfassen |', '|---|---|---|---|---|---|---|---|');
+md.push('| Nr. | Sprache | Text | Gestoppt | Grund | Protokolleinträge | Ohne Anfrage | Nur Begriff | Ohne Freitext und Konto | Zeit ms | Erfassen |', '|---|---|---|---|---|---|---|---|---|---|---|');
 for (const n of notfallErgebnisse) {
-  md.push(`| ${n.fall.nr} | ${n.fall.sprache} | ${mdZelle(n.fall.freitext)} | ${ja(n.gestoppt)} | ${mdZelle(n.grund ?? '–')} | ${n.eintraege} | ${n.ms} | ${n.status === 451 ? 'gestoppt (451)' : n.status} |`);
+  const p = n.protokoll;
+  md.push(`| ${n.fall.nr} | ${n.fall.sprache} | ${mdZelle(n.fall.freitext)} | ${ja(n.gestoppt)} | ${mdZelle(n.grund ?? '–')} | ${n.eintraege}${p.beideSchritte ? ' (Verständnis, Erfassen)' : ''} | ${ja(p.ohneAnfrage)} | ${ja(p.nurBegriff)} | ${ja(p.ohneFreitext && p.ohneKonto)} | ${n.ms} | ${n.status === 451 ? 'gestoppt (451)' : n.status} |`);
 }
-md.push('');
+md.push('', 'Geprüft wird je Notfall: Stopp im Verständnis-Schritt und beim Erfassen, je ein Eintrag «Notfall.Stopp» für beide Schritte, ohne Bezug auf eine Anfrage, im Detail nur der erkannte Begriff, weder Wortlaut des Freitexts noch Kennung, Adresse oder Name des Kontos.', '');
 
 // CSV für die Auswertung in einer Tabellenkalkulation
 const csv = [['Nr', 'Sprache', 'PLZ', 'Ort', 'Weg', 'Sicherheit', 'Dringlichkeit', 'Kategorie', 'Erwartet', ...K, 'Geeignet',
