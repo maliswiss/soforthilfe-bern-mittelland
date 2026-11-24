@@ -118,3 +118,27 @@ Ein Fall ist geeignet, wenn alle Kriterien erfüllt sind ([`auswertung.mjs`](../
 | `MESSPROTOKOLL_ORDNER` | Ablage der Protokolle, Standard `docs/messprotokolle` |
 
 Das Protokoll nennt die Messumgebung (Gerät, Betriebssystem, Node.js, Stand des Codes, Sprachmodell, Gewichte und Suchradius), je Fall Weg der Einordnung, Sicherheit, Dringlichkeit, Kriterien, Rang 1, Zeiten und Begründungen sowie die Notfälle. Es enthält nur fiktive Daten und keine Zugangsdaten.
+
+## Ergebnisse
+
+### Messung 1 (24.11.2026)
+
+[Messprotokoll](messprotokolle/r2-matching-2026-11-24-19-56.md) und [Tabelle](messprotokolle/r2-matching-2026-11-24-19-56.csv), Stand des Codes `41dc8e0`, frische Datenbank mit Testdaten und Messdaten.
+
+| Messgrösse | Ziel | Ergebnis | Bewertung |
+|---|---|---|---|
+| Geeigneter, begründeter Vorschlag | mindestens 16 von 20 | 20 von 20, alle Kriterien K1 bis K6 erfüllt | erfüllt |
+| Antwortzeit je Fall | höchstens 7 s | Median 64 ms, höchstens 414 ms | erfüllt |
+| Notfälle | alle gestoppt und protokolliert | 4 von 4 | erfüllt |
+
+| Angabe | Wert |
+|---|---|
+| Messumgebung | Intel Core i7-8650U, 8 logische Kerne, 32 GB Arbeitsspeicher, Windows; Schnittstelle mit `dotnet run`, PostgreSQL mit PostGIS als Container |
+| Sprachmodell | `llama3.2:3b` lokal in Ollama, nur auf dem Prozessor, vor der Messung geladen |
+| Weg der Einordnung | Regeln 15, maschinelles Lernen 4, Kategorieauswahl 1, Sprachmodell 0 |
+
+Beobachtungen:
+
+- Das Sprachmodell war erreichbar, wurde aber in keinem der 20 Fälle gebraucht: Regeln oder maschinelles Lernen haben jeweils sicher entschieden. Diese Messung sagt darum nichts über die Antwortzeit der letzten Stufe aus.
+- Am knappsten entschied das maschinelle Lernen in Fall 19 (Ähnlichkeit 0.14, Abstand zur zweitbesten Kategorie 0.07), richtig, aber nahe an der Schwelle.
+- Rang 1 lag in 15 Fällen in derselben Postleitzahl, sonst zwischen 914 m und 6.6 km entfernt, immer innerhalb des Suchradius.
