@@ -79,7 +79,7 @@ public static class DiensteErweiterungen
         var sprachmodell = new SprachmodellEinstellungen(
             konfiguration["OLLAMA_BASE_URL"],
             konfiguration["OLLAMA_MODELL"] is { Length: > 0 } modell ? modell : "llama3.2:3b",
-            TimeSpan.FromSeconds(konfiguration.GetValue("OLLAMA_ZEITLIMIT_SEKUNDEN", 10)),
+            TimeSpan.FromSeconds(konfiguration.GetValue("OLLAMA_ZEITLIMIT_SEKUNDEN", 7)),
             "30m");
         dienste.AddSingleton(sprachmodell);
         dienste.TryAddSingleton(TimeProvider.System);

@@ -12,7 +12,7 @@ public sealed record Notfallergebnis(bool IstNotfall, string? Schluesselwort, st
 }
 
 /// <summary>
-/// Regelbasierte Prüfung auf akute gesundheitliche Hinweise in Deutsch, Französisch, Italienisch
+/// Regelbasierte Prüfung auf akute gesundheitliche Hinweise in Deutsch, Mundart, Französisch, Italienisch
 /// und Englisch. Sie läuft immer, unabhängig vom Erfassungsweg; bei einem Treffer stoppt die
 /// Vermittlung und die Plattform verweist auf die Notrufnummer 144.
 /// </summary>
@@ -40,19 +40,28 @@ public sealed class NotfallPruefung : INotfallPruefung
         "notarzt", "ambulanz", "rettungsdienst", "reanimation", "wiederbelebung",
         "schwere verbrennung", "unfall mit verletzten", "schwer verletzt", "sturz aus hoehe",
         "anaphylaktisch", "allergischer schock", "geburt hat eingesetzt", "wehen", "lebensgefahr",
+        // Anzeichen eines Hirnschlags ohne Fachbegriff
+        "spricht undeutlich", "spricht verwaschen", "arm nicht mehr bewegen", "bein nicht mehr bewegen",
+        "gesicht haengt", "haengender mundwinkel",
+
+        // Mundart (Berndeutsch und weitere)
+        "schnuufet nuemm", "schnuufet nuem", "schnuufet nid", "schnuufet chuum", "chunnt kei luft",
+        "bechunnt kei luft", "nuemm aasprechbar", "nuemm ansprechbar", "zaemebroche",
 
         // Französisch
         "urgence medicale", "crise cardiaque", "arret cardiaque", "infarctus", "inconscient", "inconsciente",
         "evanoui", "evanouie", "ne respire plus", "respire mal", "hemorragie", "saigne beaucoup", "avc",
         "accident vasculaire", "overdose", "intoxication", "empoisonnement", "convulsion", "crise d epilepsie",
         "douleur thoracique", "douleurs dans la poitrine", "ambulance", "brulure grave", "choc anaphylactique",
-        "accouchement", "danger de mort",
+        "accouchement", "danger de mort", "ne peut plus bouger le bras",
 
         // Englisch
-        "heart attack", "stroke", "unconscious", "not breathing", "severe bleeding",
+        "heart attack", "stroke", "unconscious", "not breathing", "severe bleeding", "chest pain", "cant breathe",
+        "can t breathe", "cannot breathe", "difficulty breathing", "trouble breathing", "passed out", "seizure",
+        "heavy bleeding", "bleeding heavily", "slurred speech", "anaphylactic",
 
         // Italienisch
-        "infarto", "incosciente", "emorragia", "non respira",
+        "infarto", "incosciente", "emorragia", "non respira", "dolore al petto", "non riesce a respirare",
     ];
 
     public Notfallergebnis Pruefen(string? freitext)

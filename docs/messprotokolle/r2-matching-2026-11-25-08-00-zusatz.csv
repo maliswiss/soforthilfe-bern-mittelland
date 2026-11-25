@@ -1,0 +1,18 @@
+﻿Nr;Gruppe;Sprache;Erwartet;Notfall;Kategorie;Weg;Alternativen;Bewertung;ZeitMs
+Z1;Mundart;de-CH;schluesseldienst;0;schluesseldienst;Regeln;;richtig;10
+Z2;Mundart;de-CH;sanitaer-elektro;0;sanitaer-elektro;Regeln;;richtig;25
+Z3;Mundart;de-CH;lieferdienst;0;lieferdienst;Regeln;;richtig;16
+Z4;Mundart;de-CH;it-soforthilfe;0;it-soforthilfe;Regeln;;richtig;16
+Z5;Tippfehler;de;schluesseldienst;0;schluesseldienst;Maschinelles Lernen;;richtig;16
+Z6;Tippfehler;de;sanitaer-elektro;0;it-soforthilfe;Maschinelles Lernen;;falsch;17
+Z7;Umschreibung;de;pannenhilfe;0;pannenhilfe;Regeln;;richtig;16
+Z8;Umschreibung;de;begleitung;0;begleitung;Maschinelles Lernen;;richtig;17
+Z9;Umschreibung;de;reinigung;0;reinigung;Regeln;;richtig;16
+Z10;Umschreibung;de;kleine-reparatur;0;kleine-reparatur;Regeln;;richtig;17
+Z11;Andere Sprache;en;it-soforthilfe;0;it-soforthilfe;Regeln;;richtig;16
+Z12;Andere Sprache;en;transporthilfe;0;;;transporthilfe;hilfreich;10061
+Z13;Andere Sprache;it;lieferdienst;0;lieferdienst;Regeln;;richtig;13
+Z14;Langer Text;de;nachbarschaftshilfe;0;nachbarschaftshilfe;Regeln;;richtig;10
+Z15;Notfall;de-CH;notfall;0;;;sanitaer-elektro;verpasst;8
+Z16;Notfall;en;notfall;0;;;lieferdienst;verpasst;8
+Z17;Notfall;de;notfall;0;;;;verpasst;9

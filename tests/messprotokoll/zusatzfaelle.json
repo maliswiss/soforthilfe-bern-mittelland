@@ -1,0 +1,22 @@
+{
+  "_hinweis": "Zusatzmessung mit schwierigen Texten, getrennt von den 20 Testfällen der Messung: Mundart, Tippfehler, Umschreibungen ohne typische Schlüsselwörter, andere Sprachen, ein langer Text und drei Notfälle in ungewohnter Form. Sie zeigt Grenzen der Verständniskette und misst die Antwortzeit, wenn das Sprachmodell entscheidet. Je Fall die erwartete Kategorie oder «notfall». Festgelegt vor der Messung; die Texte stehen weder in den Trainingsdaten noch im Kalibrierungssatz.",
+  "faelle": [
+    { "nr": "Z1", "gruppe": "Mundart", "sprache": "de-CH", "freitext": "I ha mi usgschlosse, dr Schlüssu steckt dinne.", "erwartet": "schluesseldienst" },
+    { "nr": "Z2", "gruppe": "Mundart", "sprache": "de-CH", "freitext": "Ds Lavabo im Bad isch verstopft, ds Wasser lauft nümm ab.", "erwartet": "sanitaer-elektro" },
+    { "nr": "Z3", "gruppe": "Mundart", "sprache": "de-CH", "freitext": "Chönnt öpper für mi i d Apotheke? I bi chrank im Bett.", "erwartet": "lieferdienst" },
+    { "nr": "Z4", "gruppe": "Mundart", "sprache": "de-CH", "freitext": "Mi Compi startet nümm, dr Bildschirm blibt schwarz.", "erwartet": "it-soforthilfe" },
+    { "nr": "Z5", "gruppe": "Tippfehler", "sprache": "de", "freitext": "schlussel verlohren, komm nich mehr in die wonung", "erwartet": "schluesseldienst" },
+    { "nr": "Z6", "gruppe": "Tippfehler", "sprache": "de", "freitext": "heitzung geht nich, seit gestern eiskalt in der whonung", "erwartet": "sanitaer-elektro" },
+    { "nr": "Z7", "gruppe": "Umschreibung", "sprache": "de", "freitext": "Wir kommen mit dem Wagen nicht mehr vom Fleck, mitten auf der Landstrasse.", "erwartet": "pannenhilfe" },
+    { "nr": "Z8", "gruppe": "Umschreibung", "sprache": "de", "freitext": "Meine Mutter versteht die Briefe vom Amt nicht und bräuchte jemanden, der mit ihr hingeht.", "erwartet": "begleitung" },
+    { "nr": "Z9", "gruppe": "Umschreibung", "sprache": "de", "freitext": "Nach der Überschwemmung ist der Keller voller Schlamm und muss geputzt werden.", "erwartet": "reinigung" },
+    { "nr": "Z10", "gruppe": "Umschreibung", "sprache": "de", "freitext": "Das Regal ist von der Wand gefallen, kann jemand es wieder festschrauben?", "erwartet": "kleine-reparatur" },
+    { "nr": "Z11", "gruppe": "Andere Sprache", "sprache": "en", "freitext": "My phone fell into the water and won't turn on anymore.", "erwartet": "it-soforthilfe" },
+    { "nr": "Z12", "gruppe": "Andere Sprache", "sprache": "en", "freitext": "Could someone help me carry a sofa up to the third floor?", "erwartet": "transporthilfe" },
+    { "nr": "Z13", "gruppe": "Andere Sprache", "sprache": "it", "freitext": "Qualcuno può portarmi la spesa a casa? Non riesco a uscire.", "erwartet": "lieferdienst" },
+    { "nr": "Z14", "gruppe": "Langer Text", "sprache": "de", "freitext": "Seit meiner Knieoperation kann ich nicht mehr gut laufen. Mein Hund braucht aber jeden Tag seinen Spaziergang, und meine Nachbarn sind diese Woche in den Ferien. Wer hätte am Nachmittag eine Stunde Zeit, mit ihm an der Aare entlang zu gehen?", "erwartet": "nachbarschaftshilfe" },
+    { "nr": "Z15", "gruppe": "Notfall", "sprache": "de-CH", "freitext": "Mi Maa schnuufet nümm richtig und isch ganz bleich.", "erwartet": "notfall" },
+    { "nr": "Z16", "gruppe": "Notfall", "sprache": "en", "freitext": "My father has strong chest pain and can't breathe properly.", "erwartet": "notfall" },
+    { "nr": "Z17", "gruppe": "Notfall", "sprache": "de", "freitext": "Meine Frau kann plötzlich den rechten Arm nicht mehr bewegen und spricht undeutlich.", "erwartet": "notfall" }
+  ]
+}

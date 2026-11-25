@@ -10,6 +10,7 @@ import path from 'node:path';
 const wurzel = path.resolve(import.meta.dirname, '../..');
 const lesen = (...teile) => fs.readFileSync(path.join(wurzel, ...teile), 'utf8');
 const daten = JSON.parse(lesen('tests/messprotokoll/testfaelle.json'));
+const zusatz = JSON.parse(lesen('tests/messprotokoll/zusatzfaelle.json')).faelle;
 
 // Kategorien und Bezahlpflicht aus den Stammdaten
 const stammdaten = lesen('backend/src/Soforthilfe.Datenzugriff/Modell/Stammdaten.cs');
@@ -82,10 +83,10 @@ test('Messdaten: eindeutige Namen, bekannte Fähigkeiten, Preise bei kostenpflic
   }
 });
 
-test('Die Texte stehen weder in den Trainingsdaten noch im Kalibrierungssatz', () => {
+test('Die Texte, auch der Zusatzfälle, stehen weder in den Trainingsdaten noch im Kalibrierungssatz', () => {
   const quellen = lesen('backend/src/Soforthilfe.Dienste/Verstaendnis/Trainingsdaten.cs')
     + lesen('backend/tests/Soforthilfe.Tests/TfIdfKlassifikatorTests.cs');
-  for (const text of [...daten.faelle.map((f) => f.freitext).filter(Boolean), ...daten.notfaelle.map((n) => n.freitext)]) {
+  for (const text of [...daten.faelle.map((f) => f.freitext).filter(Boolean), ...daten.notfaelle.map((n) => n.freitext), ...zusatz.map((z) => z.freitext)]) {
     assert.ok(!quellen.includes(text), text);
   }
 });
@@ -110,4 +111,17 @@ test('Erwartete Helfende haben die Fähigkeit, sind erreichbar und die nächsten
     // Neue Helfende unterscheiden sich nur in der Distanz; der nächste geeignete gehört zu den erwarteten
     assert.ok(f.soll.includes(geeignet[0].name), `Fall ${f.nr}: nächster ist ${geeignet[0].name}`);
   }
+});
+
+test('Zusatzfälle: vollständig, eindeutig, bekannte Kategorien und mindestens drei Notfälle', () => {
+  assert.ok(zusatz.length >= 15);
+  assert.equal(new Set(zusatz.map((z) => z.nr)).size, zusatz.length);
+  assert.equal(new Set(zusatz.map((z) => z.freitext)).size, zusatz.length);
+  for (const z of zusatz) {
+    assert.match(z.nr, /^Z\d+$/, z.nr);
+    assert.ok(z.gruppe && z.sprache && z.freitext.length > 10, z.nr);
+    assert.ok(z.erwartet === 'notfall' || kategorien.has(z.erwartet), `${z.nr}: ${z.erwartet}`);
+    assert.ok(!daten.faelle.some((f) => f.freitext === z.freitext), `${z.nr}: nicht unter den 20 Fällen`);
+  }
+  assert.ok(zusatz.filter((z) => z.erwartet === 'notfall').length >= 3);
 });

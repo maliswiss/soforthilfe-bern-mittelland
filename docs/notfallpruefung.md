@@ -11,7 +11,7 @@ Die Plattform vermittelt keine medizinischen Leistungen. Jede Beschreibung in ei
 | 3 | Bewusst empfindlich | lieber einmal zu oft auf 144 verweisen als einen Notfall vermitteln |
 | 4 | Nur gesundheitliche Notfälle (144) | Feuerwehr (118) und Polizei (117) rufen Betroffene direkt an; Brand und Einbruch lösen keinen Notfall-Stopp aus |
 | 5 | Das allgemeine Wort «Notfall» allein genügt nicht | «Notfall: Wasserrohrbruch» ist kein medizinischer Notfall |
-| 6 | Sprachen Deutsch, Französisch, Englisch und Italienisch | Bern/Mittelland und Biel/Seeland sind zweisprachig, Gäste schreiben oft Englisch oder Italienisch |
+| 6 | Sprachen Deutsch, Französisch, Englisch und Italienisch, dazu häufige Wendungen in Mundart | Bern/Mittelland und Biel/Seeland sind zweisprachig, Gäste schreiben oft Englisch oder Italienisch, viele Menschen schreiben, wie sie sprechen |
 
 ## Ablauf
 
@@ -46,14 +46,16 @@ Nicht gespeichert werden Konto, Name, E-Mail-Adresse, Telefonnummer, IP-Adresse,
 
 | Bereich | Beispiele |
 |---|---|
-| Herz und Kreislauf | Herzinfarkt, Herzstillstand, Brustschmerzen, Schlaganfall, crise cardiaque, AVC, heart attack, infarto |
-| Bewusstsein | bewusstlos, ohnmächtig, nicht ansprechbar, kollabiert, zusammengebrochen, inconscient, évanoui, unconscious |
-| Atmung | Atemnot, atmet nicht, bekommt keine Luft, erstickt, ne respire plus, not breathing, non respira |
+| Herz und Kreislauf | Herzinfarkt, Herzstillstand, Brustschmerzen, Schlaganfall, crise cardiaque, AVC, heart attack, chest pain, infarto, dolore al petto |
+| Anzeichen eines Hirnschlags | spricht undeutlich, spricht verwaschen, Arm oder Bein nicht mehr bewegen, hängender Mundwinkel, slurred speech |
+| Mundart | schnuufet nümm, chunnt kei Luft, nümm aasprechbar, zämebroche |
+| Bewusstsein | bewusstlos, ohnmächtig, nicht ansprechbar, kollabiert, zusammengebrochen, inconscient, évanoui, unconscious, passed out |
+| Atmung | Atemnot, atmet nicht, bekommt keine Luft, erstickt, ne respire plus, not breathing, cannot breathe, non respira |
 | Blutung und Verletzung | starke Blutung, blutet stark, schwer verletzt, schwere Verbrennung, Sturz aus Höhe, hémorragie |
 | Vergiftung und Allergie | Vergiftung, Überdosis, allergischer Schock, intoxication, choc anaphylactique |
 | Weitere | Krampfanfall, Wehen, Notarzt, Ambulanz, Rettungsdienst, Reanimation, Lebensgefahr, danger de mort |
 
-Die vollständige Liste mit 77 Begriffen steht im Code; ein Test stellt sicher, dass jeder Begriff normalisiert und nur einmal vorhanden ist.
+Die vollständige Liste mit 107 Begriffen steht im Code; ein Test stellt sicher, dass jeder Begriff normalisiert und nur einmal vorhanden ist.
 
 ## Testfälle
 
@@ -61,10 +63,12 @@ Die Einheitentests in [`NotfallPruefungTests.cs`](../backend/tests/Soforthilfe.T
 
 | Gruppe | Anzahl | Beispiel | Erwartet |
 |---|---|---|---|
-| Akute Hinweise Deutsch | 12 | «Mein Mann ist bewusstlos auf dem Boden.» | Notfall, Fundstelle «bewusstlos» |
-| Akute Hinweise Französisch | 4 | «Je pense que c'est un AVC.» | Notfall, Fundstelle «AVC» |
-| Akute Hinweise Englisch und Italienisch | 2 | «Mia madre non respira bene» | Notfall, Fundstelle «non respira» |
-| Alltägliche Anliegen und leere Eingaben | 11 | «Notfall: Wasserrohrbruch im Keller» | kein Notfall |
+| Akute Hinweise Deutsch | 14 | «Mein Mann ist bewusstlos auf dem Boden.» | Notfall, Fundstelle «bewusstlos» |
+| Akute Hinweise Mundart | 2 | «Mi Maa schnuufet nümm richtig.» | Notfall, Fundstelle «schnuufet nümm» |
+| Akute Hinweise Französisch | 5 | «Je pense que c'est un AVC.» | Notfall, Fundstelle «AVC» |
+| Akute Hinweise Englisch und Italienisch | 5 | «My father has strong chest pain.» | Notfall, Fundstelle «chest pain» |
+| Alltägliche Anliegen und leere Eingaben | 16 | «Ds Velo het kei Luft meh im Hinterrad.» | kein Notfall |
+| Begriff für das Protokoll | 3 | «Herzinfarktverdacht bei meinem Nachbarn» | Begriff «herzinfarkt» aus der Liste |
 | Brand und Polizei | 4 | «In der Küche brennt es» | kein Notfall |
 | Begriffsliste | 1 | jeder Begriff normalisiert und eindeutig | bestanden |
 

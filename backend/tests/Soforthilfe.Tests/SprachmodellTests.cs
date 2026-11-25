@@ -1,6 +1,7 @@
 using System.Net;
 using System.Text;
 using Microsoft.Extensions.Logging.Abstractions;
+using Soforthilfe.Datenzugriff.Modell;
 using Soforthilfe.Dienste.Verstaendnis;
 
 namespace Soforthilfe.Tests;
@@ -85,6 +86,8 @@ public sealed class SprachmodellTests
         Assert.Contains("\"model\":\"llama3.2:3b\"", rumpf);
         Assert.Contains("\"format\":\"json\"", rumpf);
         Assert.Contains("\"stream\":false", rumpf);
+        Assert.Contains("\"temperature\":0", rumpf);
+        Assert.Contains("\"num_predict\":24", rumpf);
         Assert.Contains(Freitext, rumpf);
     }
 
@@ -155,5 +158,31 @@ public sealed class SprachmodellTests
         Assert.Contains("- lieferdienst: Lieferung Apotheke und Einkauf", anweisung);
         Assert.Contains("{\"kategorie\":null}", anweisung);
         Assert.EndsWith($"Anfrage: {Freitext}", anweisung);
+    }
+
+    [Fact]
+    public void Der_Anfang_der_Anweisung_ist_fuer_jede_Anfrage_gleich()
+    {
+        var erste = OllamaSprachmodell.Anweisung(Freitext, Kategorien);
+        var zweite = OllamaSprachmodell.Anweisung("Mein Sofa muss in den dritten Stock.", Kategorien);
+
+        var anfang = erste[..erste.LastIndexOf("Anfrage:", StringComparison.Ordinal)];
+        Assert.StartsWith(anfang, zweite);
+    }
+
+    [Fact]
+    public void Die_Kategorien_stehen_in_der_Reihenfolge_der_Startseite()
+    {
+        Kategorie[] ausDerDatenbank =
+        [
+            new() { Kennung = "lieferdienst", Bezeichnung = "Lieferung Apotheke und Einkauf", Reihenfolge = 3 },
+            new() { Kennung = "transporthilfe", Bezeichnung = "Transport- und Umzugshilfe", Reihenfolge = 1 },
+            new() { Kennung = "begleitung", Bezeichnung = "Begleitung und Orientierung", Reihenfolge = 2 },
+        ];
+
+        var kategorien = OllamaSprachmodell.KategorienFuerAnweisung(ausDerDatenbank);
+
+        Assert.Equal(new[] { "transporthilfe", "begleitung", "lieferdienst" }, kategorien.Select(k => k.Kennung).ToArray());
+        Assert.Equal(OllamaSprachmodell.KategorienFuerAnweisung(ausDerDatenbank.OrderByDescending(k => k.Kennung)), kategorien);
     }
 }

@@ -115,6 +115,35 @@ export function notfallEintraegePruefen(eintraege, freitext, konto = {}) {
   return { ...pruefung, erfuellt: Object.values(pruefung).every((w) => w === true || typeof w === 'number') };
 }
 
+// Bewertung der Zusatzfälle mit schwierigen Texten; «falsch», «verpasst» und «fehlalarm» sind Fehler
+export const ZUSATZ_BEWERTUNG = {
+  richtig: 'richtig eingeordnet',
+  gestoppt: 'als Notfall gestoppt',
+  hilfreich: 'offen, erwartete Kategorie zur Auswahl',
+  verfehlt: 'offen, erwartete Kategorie nicht zur Auswahl',
+  falsch: 'sicher, aber falsch eingeordnet',
+  verpasst: 'Notfall nicht erkannt',
+  fehlalarm: 'Notfall-Stopp ohne Notfall',
+};
+
+/**
+ * Bewertet einen Zusatzfall anhand der Antwort des Verständnis-Schritts.
+ * @param {{ erwartet: string }} fall erwartete Kategorie oder «notfall»
+ * @param {{ notfall?: boolean, code?: string|null, alternativen?: { code: string }[] }} antwort
+ */
+export function zusatzBewerten(fall, antwort) {
+  if (fall.erwartet === 'notfall') {
+    return antwort.notfall ? 'gestoppt' : 'verpasst';
+  }
+  if (antwort.notfall) {
+    return 'fehlalarm';
+  }
+  if (antwort.code) {
+    return antwort.code === fall.erwartet ? 'richtig' : 'falsch';
+  }
+  return (antwort.alternativen ?? []).some((a) => a.code === fall.erwartet) ? 'hilfreich' : 'verfehlt';
+}
+
 /** Zelle einer Markdown-Tabelle: ohne senkrechten Strich und Zeilenumbruch. */
 export function mdZelle(wert) {
   return String(wert ?? '').replace(/\|/g, '/').replace(/\r?\n/g, ' ');

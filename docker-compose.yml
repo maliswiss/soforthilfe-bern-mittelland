@@ -64,7 +64,7 @@ services:
       # Sprachmodell im internen Netz; ohne laufendes Modell endet die Verständniskette beim maschinellen Lernen.
       OLLAMA_BASE_URL: http://ollama:11434
       OLLAMA_MODELL: ${OLLAMA_MODELL:-llama3.2:3b}
-      OLLAMA_ZEITLIMIT_SEKUNDEN: ${OLLAMA_ZEITLIMIT_SEKUNDEN:-10}
+      OLLAMA_ZEITLIMIT_SEKUNDEN: ${OLLAMA_ZEITLIMIT_SEKUNDEN:-7}
 
   ollama:
     image: ollama/ollama:0.40.16

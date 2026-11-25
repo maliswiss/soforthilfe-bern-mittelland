@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using Soforthilfe.Datenzugriff.Modell;
 
 namespace Soforthilfe.Dienste.Verstaendnis;
 
@@ -43,8 +44,9 @@ public sealed class OllamaSprachmodell(
 {
     public const string KlientName = "sprachmodell";
 
-    // Kurze JSON-Antwort; begrenzt die Rechenzeit auf einem Rechner ohne Grafikkarte.
-    private const int MaxToken = 60;
+    // Kurze JSON-Antwort; begrenzt die Rechenzeit auf einem Rechner ohne Grafikkarte. Die längste Antwort,
+    // {"kategorie":"nachbarschaftshilfe"}, braucht rund ein Dutzend Token.
+    private const int MaxToken = 24;
     private const int MaxZwischenspeicher = 500;
     private static readonly TimeSpan PauseNachFehler = TimeSpan.FromMinutes(1);
 
@@ -72,17 +74,8 @@ public sealed class OllamaSprachmodell(
         try
         {
             var klient = fabrik.CreateClient(KlientName);
-            var rumpf = new
-            {
-                model = einstellungen.Modell,
-                prompt = Anweisung(freitext, kategorien),
-                stream = false,
-                format = "json",
-                keep_alive = einstellungen.BleibtGeladen,
-                options = new { temperature = 0, num_predict = MaxToken },
-            };
-
-            using var antwort = await klient.PostAsJsonAsync("api/generate", rumpf, frist.Token);
+            using var antwort = await klient.PostAsJsonAsync("api/generate",
+                Rumpf(einstellungen, Anweisung(freitext, kategorien), MaxToken), frist.Token);
             if (!antwort.IsSuccessStatusCode)
             {
                 return Fehlgeschlagen($"Status {(int)antwort.StatusCode}");
@@ -106,6 +99,31 @@ public sealed class OllamaSprachmodell(
             return Fehlgeschlagen(fehler.GetType().Name);
         }
     }
+
+    /// <summary>
+    /// Inhalt eines Auftrags an Ollama: JSON-Modus, ohne Zufall und mit begrenzter Länge der Antwort. Das Vorladen
+    /// beim Start schickt denselben Inhalt, damit Ollama den gleichbleibenden Anfang der Anweisung schon kennt.
+    /// </summary>
+    public static object Rumpf(SprachmodellEinstellungen einstellungen, string anweisung, int maxToken) => new
+    {
+        model = einstellungen.Modell,
+        prompt = anweisung,
+        stream = false,
+        format = "json",
+        keep_alive = einstellungen.BleibtGeladen,
+        options = new { temperature = 0, num_predict = maxToken },
+    };
+
+    /// <summary>
+    /// Kategorien für die Anweisung, immer in derselben Reihenfolge wie auf der Startseite. So bleibt der Anfang
+    /// der Anweisung bei jeder Anfrage gleich, und Ollama muss nur den Text der Anfrage neu verarbeiten.
+    /// </summary>
+    public static IReadOnlyList<(string Kennung, string Bezeichnung)> KategorienFuerAnweisung(IEnumerable<Kategorie> kategorien) =>
+        kategorien
+            .OrderBy(k => k.Reihenfolge)
+            .ThenBy(k => k.Kennung, StringComparer.Ordinal)
+            .Select(k => (k.Kennung, k.Bezeichnung))
+            .ToList();
 
     /// <summary>Anweisung an das Modell; die Antwort ist nur ein kleines JSON-Objekt mit einer erlaubten Kennung.</summary>
     public static string Anweisung(string freitext, IReadOnlyList<(string Kennung, string Bezeichnung)> kategorien)

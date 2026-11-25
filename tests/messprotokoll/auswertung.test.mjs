@@ -3,7 +3,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  kriterienPruefen, geeignet, gehoertZuSoll, median, perzentil, mdZelle, csvZelle, stempel, schrittKennzahlen, notfallEintraegePruefen, KRITERIEN,
+  kriterienPruefen, geeignet, gehoertZuSoll, median, perzentil, mdZelle, csvZelle, stempel, schrittKennzahlen, notfallEintraegePruefen, zusatzBewerten, ZUSATZ_BEWERTUNG, KRITERIEN,
 } from './auswertung.mjs';
 
 const fall = { erwartet: 'sanitaer-elektro', soll: ['Wyss Sanitär und Heizung'] };
@@ -95,4 +95,20 @@ test('Notfall im Protokoll: beide Schritte, ohne Anfrage, nur der Begriff, ohne 
   assert.equal(mitText.ohneFreitext, false);
   assert.equal(mitText.nurBegriff, false);
   assert.equal(notfallEintraegePruefen([eintrag('Verstaendnis', { detail: 'Erkanntes Schlüsselwort: bewusstlos, Test Person' }), eintrag('Anfrage')], freitext, konto).ohneKonto, false);
+});
+
+test('Zusatzfälle: richtig, hilfreich offen, verfehlt, falsch, Notfall gestoppt, verpasst oder Fehlalarm', () => {
+  const fall = { erwartet: 'transporthilfe' };
+  const alternativen = [{ code: 'kleine-reparatur' }, { code: 'transporthilfe' }];
+  assert.equal(zusatzBewerten(fall, { notfall: false, code: 'transporthilfe' }), 'richtig');
+  assert.equal(zusatzBewerten(fall, { notfall: false, code: 'it-soforthilfe' }), 'falsch');
+  assert.equal(zusatzBewerten(fall, { notfall: false, code: null, alternativen }), 'hilfreich');
+  assert.equal(zusatzBewerten(fall, { notfall: false, code: null, alternativen: alternativen.slice(0, 1) }), 'verfehlt');
+  assert.equal(zusatzBewerten(fall, { notfall: false, code: null }), 'verfehlt');
+  assert.equal(zusatzBewerten(fall, { notfall: true }), 'fehlalarm');
+  assert.equal(zusatzBewerten({ erwartet: 'notfall' }, { notfall: true }), 'gestoppt');
+  assert.equal(zusatzBewerten({ erwartet: 'notfall' }, { notfall: false, code: 'begleitung' }), 'verpasst');
+  for (const b of ['richtig', 'gestoppt', 'hilfreich', 'verfehlt', 'falsch', 'verpasst', 'fehlalarm']) {
+    assert.ok(ZUSATZ_BEWERTUNG[b], b);
+  }
 });

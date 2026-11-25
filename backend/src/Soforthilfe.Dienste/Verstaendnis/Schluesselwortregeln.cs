@@ -1,9 +1,10 @@
 namespace Soforthilfe.Dienste.Verstaendnis;
 
 /// <summary>
-/// Treffer der Regelstufe: Kennung der Kategorie, erstes gefundenes Schlüsselwort und Sicherheit.
+/// Treffer der Regelstufe: Kennung der Kategorie, erstes gefundenes Schlüsselwort und Sicherheit. Bei einem
+/// Tippfehler nennt «Schreibweise» das Wort aus dem Text (normalisiert), das dem Schlüsselwort ähnlich ist.
 /// </summary>
-public sealed record Regelergebnis(string Kennung, string Begriff, double Konfidenz);
+public sealed record Regelergebnis(string Kennung, string Begriff, double Konfidenz, string? Schreibweise = null);
 
 /// <summary>
 /// Regelstufe der Verständniskette: eindeutige Schlüsselwörter in Deutsch, Französisch, Italienisch und Englisch.
@@ -121,8 +122,14 @@ public static class Schluesselwortregeln
             .OrderByDescending(t => t.Begriffe.Count)
             .ToList();
 
+        // Ohne genauen Treffer: Tippfehler in längeren Wörtern zulassen, zum Beispiel «heitzung» für «heizung».
+        if (treffer.Count == 0)
+        {
+            return Aehnlich(woerter);
+        }
+
         // Eindeutig nur, wenn eine Kategorie mehr Treffer hat als jede andere.
-        if (treffer.Count == 0 || (treffer.Count > 1 && treffer[0].Begriffe.Count == treffer[1].Begriffe.Count))
+        if (treffer.Count > 1 && treffer[0].Begriffe.Count == treffer[1].Begriffe.Count)
         {
             return null;
         }
@@ -131,5 +138,63 @@ public static class Schluesselwortregeln
         var beste = treffer[0];
         var konfidenz = Math.Min(0.95, 0.7 + 0.1 * beste.Begriffe.Count - (treffer.Count > 1 ? 0.1 : 0));
         return new Regelergebnis(beste.Kennung, beste.Begriffe[0], Math.Round(konfidenz, 2));
+    }
+
+    // Kürzere Schlüsselwörter bleiben aussen vor: dort ergibt ein anderer Buchstabe zu oft ein anderes Wort,
+    // zum Beispiel «storen» und «stören» oder «bohren» und «Bohnen».
+    private const int MinLaengeBegriff = 7;
+    private const int MinLaengeWort = 6;
+    private const double KonfidenzAehnlich = 0.7;
+
+    // Ein Wort, das genau einen Buchstaben von einem einzelnen Schlüsselwort abweicht. Gilt nur, wenn alle
+    // solchen Wörter zur selben Kategorie gehören; die Sicherheit ist tiefer als bei einem genauen Treffer.
+    private static Regelergebnis? Aehnlich(string[] woerter)
+    {
+        var treffer = Begriffe
+            .SelectMany(k => k.Value
+                .Where(b => b.Length >= MinLaengeBegriff && !b.Contains(' '))
+                .SelectMany(b => woerter
+                    .Where(w => w.Length >= MinLaengeWort && EinBuchstabeAnders(w, b))
+                    .Select(w => (Kennung: k.Key, Begriff: b, Wort: w))))
+            .ToList();
+
+        if (treffer.Count == 0 || treffer.Select(t => t.Kennung).Distinct().Count() > 1)
+        {
+            return null;
+        }
+
+        return new Regelergebnis(treffer[0].Kennung, treffer[0].Begriff, KonfidenzAehnlich, treffer[0].Wort);
+    }
+
+    /// <summary>
+    /// Weichen zwei Wörter um genau einen Buchstaben ab: einer zu viel, einer zu wenig, ein anderer oder zwei
+    /// benachbarte vertauscht?
+    /// </summary>
+    public static bool EinBuchstabeAnders(string a, string b)
+    {
+        if (a == b || Math.Abs(a.Length - b.Length) > 1)
+        {
+            return false;
+        }
+
+        if (a.Length == b.Length)
+        {
+            var unterschiede = Enumerable.Range(0, a.Length).Where(i => a[i] != b[i]).ToList();
+            return unterschiede.Count == 1
+                || (unterschiede.Count == 2 && unterschiede[1] == unterschiede[0] + 1
+                    && a[unterschiede[0]] == b[unterschiede[1]] && a[unterschiede[1]] == b[unterschiede[0]]);
+        }
+
+        var (lang, kurz) = a.Length > b.Length ? (a, b) : (b, a);
+        for (var i = 0; i < kurz.Length; i++)
+        {
+            if (lang[i] != kurz[i])
+            {
+                return lang[(i + 1)..] == kurz[i..];
+            }
+        }
+
+        // Nur der letzte Buchstabe ist zusätzlich.
+        return true;
     }
 }

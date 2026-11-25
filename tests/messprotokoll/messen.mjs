@@ -16,12 +16,13 @@ import { performance } from 'node:perf_hooks';
 import { aufruf, anmelden, neuesKonto, testkonto, BASIS, BERN, HELFENDE, TESTPASSWORT } from '../api/hilfen.mjs';
 import {
   kriterienPruefen, geeignet, name, median, perzentil, mdZelle, csvZelle, stempel, schrittKennzahlen, SCHRITTE,
-  notfallEintraegePruefen,
+  notfallEintraegePruefen, zusatzBewerten, ZUSATZ_BEWERTUNG,
   ZIEL_GEEIGNET, ZIEL_ANTWORTZEIT_MS, SUCHRADIUS_KM, WEGE, DRINGLICHKEIT, KRITERIEN_TEXT,
 } from './auswertung.mjs';
 
 const wurzel = path.resolve(import.meta.dirname, '../..');
 const { faelle, notfaelle, helfende } = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, 'testfaelle.json'), 'utf8'));
+const zusatz = JSON.parse(fs.readFileSync(path.join(import.meta.dirname, 'zusatzfaelle.json'), 'utf8')).faelle;
 const K = Object.keys(KRITERIEN_TEXT);
 
 if (!TESTPASSWORT) {
@@ -103,7 +104,7 @@ function stand() {
 // Messung
 
 const koordination = await testkonto('dora.probe@beispiel.invalid');
-console.log(`Messung des Matchings gegen ${BASIS}: ${faelle.length} Fälle, ${notfaelle.length} Notfälle`);
+console.log(`Messung des Matchings gegen ${BASIS}: ${faelle.length} Fälle, ${notfaelle.length} Notfälle, ${zusatz.length} Zusatzfälle`);
 await messdatenAnlegen(koordination);
 console.log(`Messdaten: ${helfende.length} Helfende verifiziert und verfügbar`);
 
@@ -165,6 +166,16 @@ for (const fall of notfaelle) {
   const gestoppt = verstanden.inhalt?.notfall === true && erfasst.status === 451;
   notfallErgebnisse.push({ fall, gestoppt, eintraege: neu.length, protokoll, grund: verstanden.inhalt?.notfallGrund, ms: verstanden.ms, status: erfasst.status });
   console.log(`  Notfall ${fall.nr}: ${gestoppt ? 'gestoppt' : 'NICHT gestoppt'}, ${neu.length} Protokolleinträge ${protokoll.erfuellt ? 'ohne Personendaten' : 'NICHT wie erwartet'} (${verstanden.ms} ms)`);
+}
+
+// Zusatzmessung: schwierige Texte nur im Verständnis-Schritt, ohne Anfrage; misst auch die letzte Stufe
+const zusatzErgebnisse = [];
+for (const z of zusatz) {
+  const verstanden = await gemessen(() => aufruf('POST', '/api/anfragen/verstehen', { token, daten: { freitext: z.freitext } }));
+  const antwort = verstanden.inhalt ?? {};
+  const bewertung = verstanden.status === 200 ? zusatzBewerten(z, antwort) : 'verfehlt';
+  zusatzErgebnisse.push({ z, v: antwort, ms: verstanden.ms, bewertung });
+  console.log(`  Zusatz ${z.nr.padEnd(3)}: ${ZUSATZ_BEWERTUNG[bewertung].padEnd(46)} ${String(verstanden.ms).padStart(6)} ms  ${antwort.notfall ? 'Notfall' : (WEGE[antwort.erfassungsweg] ?? 'offen')}`);
 }
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -260,6 +271,25 @@ for (const n of notfallErgebnisse) {
 }
 md.push('', 'Geprüft wird je Notfall: Stopp im Verständnis-Schritt und beim Erfassen, je ein Eintrag «Notfall.Stopp» für beide Schritte, ohne Bezug auf eine Anfrage, im Detail nur der erkannte Begriff, weder Wortlaut des Freitexts noch Kennung, Adresse oder Name des Kontos.', '');
 
+// Zusatzmessung im Protokoll
+const zaehlen = (b) => zusatzErgebnisse.filter((e) => e.bewertung === b).length;
+const fehler = zusatzErgebnisse.filter((e) => ['falsch', 'verpasst', 'fehlalarm'].includes(e.bewertung));
+const mitSprachmodell = zusatzErgebnisse.filter((e) => e.v.erfassungsweg === 3).map((e) => e.ms);
+md.push('## Zusatzmessung mit schwierigen Texten', '');
+md.push('Getrennt von den 20 Fällen und ohne Ziel: Mundart, Tippfehler, Umschreibungen, andere Sprachen, ein langer Text und Notfälle in ungewohnter Form aus `tests/messprotokoll/zusatzfaelle.json`, nur der Verständnis-Schritt.', '');
+md.push('| Bewertung | Fälle |', '|---|---|');
+for (const [b, text] of Object.entries(ZUSATZ_BEWERTUNG)) {
+  md.push(`| ${text} | ${zaehlen(b)} |`);
+}
+md.push('', `Fehler (falsch, Notfall nicht erkannt, Fehlalarm): ${fehler.length ? fehler.map((e) => e.z.nr).join(', ') : 'keine'}. Entscheidungen des Sprachmodells: ${mitSprachmodell.length}${mitSprachmodell.length ? `, Antwortzeit Median ${median(mitSprachmodell)} ms, höchstens ${Math.max(...mitSprachmodell)} ms` : ''}.`, '');
+md.push('| Nr. | Gruppe | Sprache | Text | Erwartet | Ergebnis | Weg | Alternativen | Bewertung | Zeit ms |', '|---|---|---|---|---|---|---|---|---|---|');
+for (const e of zusatzErgebnisse) {
+  const ergebnis = e.v.notfall ? `Notfall (${mdZelle(e.v.notfallGrund ?? '')})` : (e.v.code ?? 'keine Kategorie');
+  const alternativen = (e.v.alternativen ?? []).map((a) => a.code).join(', ') || '–';
+  md.push(`| ${e.z.nr} | ${e.z.gruppe} | ${e.z.sprache} | ${mdZelle(e.z.freitext)} | ${e.z.erwartet} | ${ergebnis} | ${e.v.notfall ? '–' : (WEGE[e.v.erfassungsweg] ?? '–')} | ${alternativen} | ${ZUSATZ_BEWERTUNG[e.bewertung]} | ${e.ms} |`);
+}
+md.push('');
+
 // CSV für die Auswertung in einer Tabellenkalkulation
 const csv = [['Nr', 'Sprache', 'PLZ', 'Ort', 'Weg', 'Sicherheit', 'Dringlichkeit', 'Kategorie', 'Erwartet', ...K, 'Geeignet',
   'Rang1', 'DistanzRang1', 'AnzahlVorschlaege', 'ZeitVerstehenMs', 'ZeitErfassenMs', 'ZeitVorschlaegeMs', 'ZeitGesamtMs', 'ImZielbereich']];
@@ -277,10 +307,18 @@ fs.writeFileSync(`${basis}.md`, md.join('\n') + '\n', 'utf8');
 // Mit BOM, damit Tabellenkalkulationen die Umlaute erkennen; Zeilenenden wie im Repository (LF)
 fs.writeFileSync(`${basis}.csv`, '\uFEFF' + csv.map((z) => z.map(csvZelle).join(';')).join('\n') + '\n', 'utf8');
 
+const zusatzCsv = [['Nr', 'Gruppe', 'Sprache', 'Erwartet', 'Notfall', 'Kategorie', 'Weg', 'Alternativen', 'Bewertung', 'ZeitMs']];
+for (const e of zusatzErgebnisse) {
+  zusatzCsv.push([e.z.nr, e.z.gruppe, e.z.sprache, e.z.erwartet, e.v.notfall ? 1 : 0, e.v.code ?? '', WEGE[e.v.erfassungsweg] ?? '',
+    (e.v.alternativen ?? []).map((a) => a.code).join(' '), e.bewertung, e.ms]);
+}
+fs.writeFileSync(`${basis}-zusatz.csv`, '\uFEFF' + zusatzCsv.map((z) => z.map(csvZelle).join(';')).join('\n') + '\n', 'utf8');
+
 console.log('');
 console.log(`Geeignet: ${anzahlGeeignet} von ${faelle.length} (Ziel ${ZIEL_GEEIGNET}): ${zielErfuellt ? 'erfüllt' : 'nicht erfüllt'}`);
 console.log(`Antwortzeit: Median ${median(zeiten)} ms, höchstens ${Math.max(...zeiten)} ms, ${imZiel} von ${faelle.length} im Zielbereich`);
 console.log(`Notfälle: ${notfallErfuellt ? 'alle gestoppt und protokolliert' : 'nicht alle gestoppt oder protokolliert'}`);
 console.log(`Protokoll: ${basis}.md`);
 console.log(`Tabelle:   ${basis}.csv`);
+console.log(`Zusatz:    ${basis}-zusatz.csv (Fehler: ${fehler.length ? fehler.map((e) => e.z.nr).join(', ') : 'keine'})`);
 process.exitCode = zielErfuellt && notfallErfuellt ? 0 : 1;

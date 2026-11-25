@@ -42,8 +42,10 @@ Die Begriffe stehen je Kategorie in [`Schluesselwortregeln.cs`](../backend/src/S
 | Begriffe mit Leerzeichen als Wortfolge | «locked out», «kein strom» |
 | Eine Kategorie hat mehr Treffer als jede andere | «Nachbar hat den Schlüssel im Schloss abgebrochen» ergibt Schlüsseldienst (2 zu 1) |
 | Gleich viele Treffer in zwei Kategorien | «Katze im Auto» entscheidet nicht |
+| Ohne genauen Treffer: ein Buchstabe zu viel, zu wenig, anders oder vertauscht in einem Begriff ab 7 Zeichen | «heitzung» passt auf «heizung», «Comupter» auf «computer» |
+| Ähnliche Wörter in zwei Kategorien | «Heitzung kalt und Comupter kaputt» entscheidet nicht |
 
-Sicherheit: `0.7 + 0.1 × Treffer`, höchstens `0.95`; gibt es Treffer in einer weiteren Kategorie, `0.1` weniger. Die Begründung nennt das erste Schlüsselwort so, wie es geschrieben wurde, zum Beispiel «Erkannt über das Schlüsselwort «Heizung».».
+Sicherheit: `0.7 + 0.1 × Treffer`, höchstens `0.95`; gibt es Treffer in einer weiteren Kategorie, `0.1` weniger. Die Begründung nennt das erste Schlüsselwort so, wie es geschrieben wurde, zum Beispiel «Erkannt über das Schlüsselwort «Heizung».». Ein ähnlich geschriebenes Wort ergibt immer `0.7` und die Begründung «Erkannt über das ähnlich geschriebene Wort «heitzung».». Kürzere Begriffe bleiben dabei aussen vor, weil ein anderer Buchstabe dort zu oft ein anderes Wort ergibt («storen» und «stören», «bohren» und «Bohnen»).
 
 ## Maschinelles Lernen
 
@@ -69,9 +71,9 @@ Die letzte Stufe fragt ein lokal betriebenes Sprachmodell ([`Sprachmodell.cs`](.
 | Anbindung | nur über die konfigurierte Adresse `OLLAMA_BASE_URL`; ohne Adresse ist die Stufe ausgeschaltet |
 | Datenschutz | der Freitext geht nur an den eigenen Ollama-Dienst, nie an Dritte, und wird dort nicht gespeichert |
 | Modell | `OLLAMA_MODELL`, Standard `llama3.2:3b` (klein und schnell auf einem Rechner ohne Grafikkarte) |
-| Anweisung | erlaubte Kennungen mit Bezeichnung; Antwort nur als JSON `{"kategorie":"<kennung>"}` oder `{"kategorie":null}`; Temperatur 0, höchstens 60 Token |
+| Anweisung | erlaubte Kennungen mit Bezeichnung; Antwort nur als JSON `{"kategorie":"<kennung>"}` oder `{"kategorie":null}`; Kategorien in der Reihenfolge der Startseite; Temperatur 0, höchstens 24 Token |
 | Prüfung der Antwort | nur erlaubte Kennungen zählen; unbekannte, fehlende oder unlesbare Antworten ergeben keine Kategorie |
-| Geschwindigkeit | Zeitlimit `OLLAMA_ZEITLIMIT_SEKUNDEN` (Standard 10), gleiche Texte aus dem Zwischenspeicher, nach einem Fehler eine Minute ohne Anfrage an das Modell, Vorladen des Modells nach dem Start |
+| Geschwindigkeit | Zeitlimit `OLLAMA_ZEITLIMIT_SEKUNDEN` (Standard 7, wie der Zielbereich der [Messung](messung-matching.md)), gleiche Texte aus dem Zwischenspeicher, nach einem Fehler eine Minute ohne Anfrage an das Modell; nach dem Start lädt die Schnittstelle das Modell und lässt es den gleichbleibenden Anfang der Anweisung einmal verarbeiten, danach verarbeitet es bei jeder Anfrage nur noch deren Text |
 | Ohne Antwort | die Kette bietet die drei ähnlichsten Kategorien zur Auswahl an, wie ohne Sprachmodell |
 
 Die Begründung lautet «Eingeordnet durch das lokale Sprachmodell, weil Regeln und maschinelles Lernen nicht sicher entschieden haben.»; eine Sicherheit nennt das Modell nicht.
@@ -146,8 +148,8 @@ Beim Erfassen ohne gewählte Kategorie (`POST /api/anfragen` nur mit Freitext) s
 
 | Test | Prüft |
 |---|---|
-| Einheitentests `SchluesselwortregelnTests` | Kategorien aus eindeutigen Schlüsselwörtern, Wortgrenzen, Gleichstand, Mehrheit der Treffer, Sicherheit, genanntes Schlüsselwort |
-| Einheitentests `SprachmodellTests` | ausgeschaltet ohne Adresse, erlaubte Kennung, Anfrage im JSON-Modus, unbekannte und unlesbare Antworten, Zwischenspeicher, Pause nach einem Fehler, Zeitlimit, Anweisung mit allen Kategorien |
+| Einheitentests `SchluesselwortregelnTests` | Kategorien aus eindeutigen Schlüsselwörtern, Wortgrenzen, Gleichstand, Mehrheit der Treffer, Sicherheit, genanntes Schlüsselwort, Tippfehler in längeren Begriffen |
+| Einheitentests `SprachmodellTests` | ausgeschaltet ohne Adresse, erlaubte Kennung, Anfrage im JSON-Modus, unbekannte und unlesbare Antworten, Zwischenspeicher, Pause nach einem Fehler, Zeitlimit, Anweisung mit allen Kategorien, gleicher Anfang der Anweisung, Reihenfolge der Kategorien |
 | Einheitentests `DringlichkeitTests` | Signalwörter für Eile und für «keine Eile», Vorrang des Texts vor der Kategorie, übliche Dringlichkeit je Kategorie, Wortgrenzen, Begründung |
 | Schnittstellentests `tests/api/sprachmodell.test.mjs` | mit der Attrappe: Kategorie und Weg des Sprachmodells beim Verstehen und Erfassen, unbekannte Kennung und unlesbare Antwort ohne Kategorie und ohne Pause, keine Frage an das Modell, wenn die Regeln entscheiden oder ein Notfall vorliegt, Zwischenspeicher |
 | Tests der Attrappe `tests/attrappe/sprachmodell.test.mjs` | Antworten im Format von Ollama, Merkwörter, Vorladen, Liste der Modelle, Zählen der Anfragen |

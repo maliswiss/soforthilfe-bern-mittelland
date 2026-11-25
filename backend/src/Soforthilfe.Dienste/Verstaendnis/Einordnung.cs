@@ -47,6 +47,8 @@ public static class EinordnungTexte
 
     public static string Regel(string wort) => $"Erkannt über das Schlüsselwort «{wort}».";
 
+    public static string RegelAehnlich(string wort) => $"Erkannt über das ähnlich geschriebene Wort «{wort}».";
+
     public static string MaschinellesLernen(double aehnlichkeit, string kategorie, double abstand) =>
         string.Format(Kultur, "Klassifikation über maschinelles Lernen: Ähnlichkeit {0:0.00} zur Kategorie «{1}», "
             + "Abstand zur zweitbesten Kategorie {2:0.00}.", aehnlichkeit, kategorie, abstand);
@@ -79,8 +81,9 @@ public sealed class Einordnung(SoforthilfeDbContext datenbank, ITextKlassifikato
         var regel = Schluesselwortregeln.Anwenden(freitext);
         if (regel is not null && kategorien.FirstOrDefault(k => k.Kennung == regel.Kennung) is { } ueberRegel)
         {
-            return Ergebnis(ueberRegel, Erfassungsweg.Regeln, regel.Konfidenz,
-                EinordnungTexte.Regel(Textnormalisierung.Fundstelle(freitext, regel.Begriff)));
+            return Ergebnis(ueberRegel, Erfassungsweg.Regeln, regel.Konfidenz, regel.Schreibweise is null
+                ? EinordnungTexte.Regel(Textnormalisierung.Fundstelle(freitext, regel.Begriff))
+                : EinordnungTexte.RegelAehnlich(Textnormalisierung.Fundstelle(freitext, regel.Schreibweise)));
         }
 
         // Stufe 3: maschinelles Lernen, nur mit genügend Ähnlichkeit und Abstand zur zweitbesten Kategorie.
@@ -94,7 +97,7 @@ public sealed class Einordnung(SoforthilfeDbContext datenbank, ITextKlassifikato
         // Stufe 4: lokales Sprachmodell, nur wenn alle vorherigen Stufen offen bleiben. Ohne Antwort im Zeitlimit
         // geht es ohne Sprachmodell weiter.
         var antwort = await sprachmodell.KlassifizierenAsync(freitext,
-            kategorien.Select(k => (k.Kennung, k.Bezeichnung)).ToList(), abbruch);
+            OllamaSprachmodell.KategorienFuerAnweisung(kategorien), abbruch);
         if (antwort.Kennung is not null && kategorien.FirstOrDefault(k => k.Kennung == antwort.Kennung) is { } ueberModell)
         {
             return Ergebnis(ueberModell, Erfassungsweg.Sprachmodell, null, EinordnungTexte.Sprachmodell);

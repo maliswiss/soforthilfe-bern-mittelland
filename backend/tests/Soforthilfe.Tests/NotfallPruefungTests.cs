@@ -33,6 +33,15 @@ public sealed class NotfallPruefungTests
     // Englisch und Italienisch
     [InlineData("My father is having a heart attack", "heart attack")]
     [InlineData("Mia madre non respira bene", "non respira")]
+    // Mundart, Englisch und Anzeichen eines Hirnschlags ohne Fachbegriff (Zusatzmessung)
+    [InlineData("Mi Maa schnuufet nümm richtig.", "schnuufet nümm")]
+    [InlineData("D Grossmuetter chunnt kei Luft.", "chunnt kei Luft")]
+    [InlineData("My father has strong chest pain.", "chest pain")]
+    [InlineData("He cannot breathe properly.", "cannot breathe")]
+    [InlineData("He passed out in the kitchen.", "passed out")]
+    [InlineData("Meine Frau spricht undeutlich und wirkt verwirrt.", "spricht undeutlich")]
+    [InlineData("Er kann den rechten Arm nicht mehr bewegen.", "Arm nicht mehr bewegen")]
+    [InlineData("Il ne peut plus bouger le bras gauche.", "ne peut plus bouger le bras")]
     public void Erkennt_akute_gesundheitliche_Hinweise(string freitext, string erwartetesWort)
     {
         var ergebnis = _pruefung.Pruefen(freitext);
@@ -50,6 +59,11 @@ public sealed class NotfallPruefungTests
     [InlineData("Bitte Medikamente in der Apotheke abholen.")]
     [InlineData("Mon téléphone ne fonctionne plus, besoin d'aide.")]
     [InlineData("Die Fahnen verwehen im Wind, bitte Mast reparieren.")]
+    [InlineData("Ds Velo het kei Luft meh im Hinterrad.")]
+    [InlineData("My laptop is not responding anymore.")]
+    [InlineData("The shelf collapsed in the living room.")]
+    [InlineData("Der Schwenkarm der Lampe lässt sich nicht mehr bewegen.")]
+    [InlineData("Der Verkehr ist gelähmt, ich komme zu spät zum Umzug.")]
     [InlineData("")]
     [InlineData("   ")]
     [InlineData(null)]

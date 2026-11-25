@@ -3,7 +3,7 @@ using Soforthilfe.Dienste.Verstaendnis;
 namespace Soforthilfe.Tests;
 
 /// <summary>
-/// Regelstufe der Verständniskette: eindeutige Schlüsselwörter, Wortgrenzen und Gleichstand.
+/// Regelstufe der Verständniskette: eindeutige Schlüsselwörter, Wortgrenzen, Gleichstand und Tippfehler.
 /// </summary>
 public sealed class SchluesselwortregelnTests
 {
@@ -54,4 +54,50 @@ public sealed class SchluesselwortregelnTests
     [Fact]
     public void Das_erste_Schluesselwort_wird_genannt() =>
         Assert.Equal("ausgesperrt", Schluesselwortregeln.Anwenden("Ich habe mich ausgesperrt")?.Begriff);
+
+    [Theory]
+    [InlineData("heitzung geht nich, seit gestern eiskalt", "sanitaer-elektro", "heizung", "heitzung")]
+    [InlineData("Die Hiezung bleibt kalt", "sanitaer-elektro", "heizung", "hiezung")]
+    [InlineData("Der Comupter startet nicht mehr", "it-soforthilfe", "computer", "comupter")]
+    [InlineData("Kann jemand zur Apoteke gehen?", "lieferdienst", "apotheke", "apoteke")]
+    public void Ein_Tippfehler_in_einem_laengeren_Schluesselwort_wird_erkannt(
+        string freitext, string kennung, string begriff, string schreibweise)
+    {
+        var ergebnis = Schluesselwortregeln.Anwenden(freitext);
+
+        Assert.Equal(kennung, ergebnis?.Kennung);
+        Assert.Equal(begriff, ergebnis?.Begriff);
+        Assert.Equal(schreibweise, ergebnis?.Schreibweise);
+        Assert.Equal(0.7, ergebnis?.Konfidenz);
+    }
+
+    [Fact]
+    public void Ein_genauer_Treffer_geht_dem_Tippfehler_vor()
+    {
+        var ergebnis = Schluesselwortregeln.Anwenden("Schlussel verloren, ich komme nicht rein");
+
+        Assert.Equal("schluesseldienst", ergebnis?.Kennung);
+        Assert.Equal("komme nicht rein", ergebnis?.Begriff);
+        Assert.Null(ergebnis?.Schreibweise);
+    }
+
+    [Theory]
+    // Kurze Schlüsselwörter («storen», «bohren») gelten nicht als ähnlich
+    [InlineData("Ich möchte nicht stören")]
+    [InlineData("Wir kochen heute Bohnen")]
+    // Ähnliche Wörter in zwei Kategorien entscheiden nicht
+    [InlineData("Heitzung kalt und Comupter kaputt")]
+    public void Unsichere_Tippfehler_entscheiden_nicht(string freitext) =>
+        Assert.Null(Schluesselwortregeln.Anwenden(freitext));
+
+    [Theory]
+    [InlineData("heitzung", "heizung", true)]
+    [InlineData("heizng", "heizung", true)]
+    [InlineData("heizunk", "heizung", true)]
+    [InlineData("hiezung", "heizung", true)]
+    [InlineData("heizung", "heizung", false)]
+    [InlineData("heitzungg", "heizung", false)]
+    [InlineData("zeihung", "heizung", false)]
+    public void Genau_ein_Buchstabe_darf_abweichen(string wort, string begriff, bool erwartet) =>
+        Assert.Equal(erwartet, Schluesselwortregeln.EinBuchstabeAnders(wort, begriff));
 }

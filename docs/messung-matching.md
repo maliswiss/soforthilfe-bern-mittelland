@@ -78,10 +78,11 @@ Fiktive Helfende, die vor der Messung über die Schnittstelle angelegt und von d
 |---|---|
 | Aufbau | 20 Fälle und 4 Notfälle, Postleitzahl, Ort, Sprache, Freitext oder Kategorie |
 | Stammdaten | erwartete Kategorien und Fähigkeiten gibt es; kostenpflichtige Fähigkeiten mit Preisangaben |
-| Neue Texte | kein Text aus den Trainingsdaten oder dem Kalibrierungssatz |
+| Neue Texte | kein Text aus den Trainingsdaten oder dem Kalibrierungssatz, auch nicht bei den Zusatzfällen |
+| Zusatzfälle | mindestens 15 eindeutige Texte mit bekannter Kategorie oder «notfall», davon mindestens drei Notfälle |
 | Erreichbarkeit | jede erwartete helfende Person hat die Fähigkeit und liegt im eigenen Einsatzradius und im Suchradius |
 | Erwartung | die nächste geeignete helfende Person gehört zu den erwarteten |
-| Auswertung | Kriterien K1 bis K6, Kennzahlen der Antwortzeit je Schritt, Prüfung der Notfall-Einträge und Zellen der Tabellen ([`auswertung.test.mjs`](../tests/messprotokoll/auswertung.test.mjs)) |
+| Auswertung | Kriterien K1 bis K6, Kennzahlen der Antwortzeit je Schritt, Prüfung der Notfall-Einträge, Bewertung der Zusatzfälle und Zellen der Tabellen ([`auswertung.test.mjs`](../tests/messprotokoll/auswertung.test.mjs)) |
 
 ## Messskript
 
@@ -118,6 +119,31 @@ Ein Fall ist geeignet, wenn alle Kriterien erfüllt sind ([`auswertung.mjs`](../
 | `MESSPROTOKOLL_ORDNER` | Ablage der Protokolle, Standard `docs/messprotokolle` |
 
 Das Protokoll nennt die Messumgebung (Gerät, Betriebssystem, Node.js, Stand des Codes, Sprachmodell, Gewichte und Suchradius), je Fall Weg der Einordnung, Sicherheit, Dringlichkeit, Kriterien, Rang 1, Zeiten und Begründungen sowie die Notfälle. Es enthält nur fiktive Daten und keine Zugangsdaten.
+
+## Zusatzmessung mit schwierigen Texten
+
+Die 20 Fälle enthalten eindeutige Formulierungen; Regeln und maschinelles Lernen entscheiden sie allein. Die Zusatzmessung prüft darum getrennt, wie die Verständniskette mit schwierigen Texten umgeht und wie lange das Sprachmodell braucht. Die 17 Texte in [`tests/messprotokoll/zusatzfaelle.json`](../tests/messprotokoll/zusatzfaelle.json) sind vor der Messung festgelegt und stehen weder in den Trainingsdaten noch im Kalibrierungssatz. Gemessen wird nur der Verständnis-Schritt; ein festes Ziel gibt es nicht, ausser bei den Notfällen.
+
+| Gruppe | Fälle | Beispiel |
+|---|---|---|
+| Mundart | Z1 bis Z4 | «I ha mi usgschlosse, dr Schlüssu steckt dinne.» |
+| Tippfehler | Z5, Z6 | «heitzung geht nich, seit gestern eiskalt in der whonung» |
+| Umschreibung ohne typische Schlüsselwörter | Z7 bis Z10 | «Wir kommen mit dem Wagen nicht mehr vom Fleck …» |
+| Andere Sprache | Z11 bis Z13 | Englisch und Italienisch |
+| Langer Text | Z14 | drei Sätze mit Vorgeschichte |
+| Notfall in ungewohnter Form | Z15 bis Z17 | Mundart, Englisch, Anzeichen eines Hirnschlags ohne Fachbegriff |
+
+| Bewertung | Bedeutung |
+|---|---|
+| richtig eingeordnet | erkannte Kategorie wie erwartet |
+| als Notfall gestoppt | erwarteter Notfall erkannt; Ziel für alle Notfälle |
+| offen, erwartete Kategorie zur Auswahl | keine sichere Einordnung, die erwartete Kategorie steht unter den ähnlichsten |
+| offen, erwartete Kategorie nicht zur Auswahl | keine sichere Einordnung, die Person wählt selbst |
+| sicher, aber falsch eingeordnet | Fehler |
+| Notfall nicht erkannt | schwerer Fehler |
+| Notfall-Stopp ohne Notfall | Fehler |
+
+Das Messskript führt die Zusatzmessung nach den Notfällen aus und schreibt sie ins Protokoll und in eine eigene Tabelle (`…-zusatz.csv`).
 
 ## Ergebnisse
 
@@ -160,7 +186,7 @@ Gemessen beim Aufrufer, je Schritt und je Fall vom Absenden bis zu den Vorschlä
 | Grösster Wert | 414 ms in Fall 1, der ersten Anfrage nach dem Start (erste Abfragen, Aufbau der Verbindungen); ohne Fall 1 höchstens 144 ms |
 | Fälle 16 bis 20 | etwa 135 ms statt etwa 60 ms, vor allem beim Erfassen (rund 105 ms), weiterhin weit unter dem Ziel |
 | Reserve | der langsamste Fall braucht weniger als 6 % des Zielbereichs |
-| Grenze der Aussage | ohne Sprachmodell: keine der 20 Anfragen erreichte die letzte Stufe, deren Zeitlimit beträgt 10 s |
+| Grenze der Aussage | ohne Sprachmodell: keine der 20 Anfragen erreichte die letzte Stufe, deren Zeitlimit bei dieser Messung 10 s betrug |
 
 ### Notfälle (Messung 1)
 
@@ -172,3 +198,26 @@ Gemessen beim Aufrufer, je Schritt und je Fall vom Absenden bis zu den Vorschlä
 | N4 | fr | AVC | gestoppt, Hinweis 144 | `451`, keine Anfrage | 2 | 20 ms |
 
 Alle vier Notfälle stoppen in beiden Schritten, bevor eine Einordnung oder ein Vorschlag entsteht; je Schritt entsteht ein Eintrag «Notfall.Stopp» in der Region. Ab der nächsten Messung prüft das Messskript zusätzlich den Inhalt dieser Einträge ([`auswertung.mjs`](../tests/messprotokoll/auswertung.mjs)): je ein Eintrag aus Verständnis und Erfassen, ohne Bezug auf eine Anfrage, im Detail nur der erkannte Begriff, weder Wortlaut des Freitexts noch Kennung, Adresse oder Name des Kontos. Dieselben Regeln prüfen die Schnittstellentests in `tests/api/protokoll.test.mjs` bei jedem Lauf der CI.
+
+### Messung 2 vor den Korrekturen (25.11.2026)
+
+[Messprotokoll](messprotokolle/r2-matching-2026-11-25-08-00.md), [Tabelle](messprotokolle/r2-matching-2026-11-25-08-00.csv) und [Zusatzfälle](messprotokolle/r2-matching-2026-11-25-08-00-zusatz.csv), erste Messung mit den Zusatzfällen. Die 20 Fälle und die vier Notfälle ergaben dasselbe Bild wie Messung 1: 20 von 20 geeignet, Median 75 ms, höchstens 426 ms, alle Notfälle gestoppt und protokolliert, Wege der Einordnung unverändert.
+
+| Gruppe | Fälle | Ergebnis |
+|---|---|---|
+| Mundart | Z1 bis Z4 | alle richtig eingeordnet (Regeln) |
+| Tippfehler | Z5, Z6 | Z5 richtig (maschinelles Lernen); Z6 «heitzung» sicher, aber falsch eingeordnet (IT- und Handy-Soforthilfe) |
+| Umschreibung | Z7 bis Z10 | alle richtig eingeordnet (Regeln 3, maschinelles Lernen 1) |
+| Andere Sprache | Z11 bis Z13 | Z11 und Z13 richtig (Regeln); Z12 offen nach 10061 ms, die erwartete Kategorie stand zur Auswahl |
+| Langer Text | Z14 | richtig eingeordnet (Regeln) |
+| Notfall in ungewohnter Form | Z15 bis Z17 | keiner erkannt |
+
+Auffälligkeiten und Korrekturen:
+
+| Fall | Ursache | Korrektur |
+|---|---|---|
+| Z15 bis Z17 | die Begriffsliste kannte weder Mundart («schnuufet nümm») noch englische Wendungen wie «chest pain» noch Anzeichen eines Hirnschlags in Alltagssprache («spricht undeutlich», «Arm nicht mehr bewegen») | 30 Begriffe in Deutsch, Mundart, Französisch, Englisch und Italienisch ergänzt (107 statt 77), dazu Einheitentests mit Gegenbeispielen wie «Ds Velo het kei Luft meh» ([Notfallprüfung](notfallpruefung.md)) |
+| Z6 | die Regeln kannten nur genaue Schreibweisen; das maschinelle Lernen fand nur das Wort «geht», das in den Beispielen allein bei IT vorkommt | ein Buchstabe Abweichung in Schlüsselwörtern ab 7 Zeichen, Sicherheit 0.7 ([Regeln](verstaendniskette.md#regeln)) |
+| Z12 | erste Frage an das Sprachmodell nach dem Start: Ollama musste die ganze Anweisung mit allen Kategorien verarbeiten, was auf dem Prozessor vermutlich länger dauerte als das Zeitlimit von 10 s | das Vorladen verarbeitet die Anweisung bereits beim Start, die Kategorien stehen immer in derselben Reihenfolge, höchstens 24 statt 60 Token, Zeitlimit 7 s wie der Zielbereich ([Sprachmodell](verstaendniskette.md#sprachmodell)) |
+
+Weiterhin gilt: Kommt in einem Text nur ein einzelnes allgemeines Wort aus den Beispielen vor, kann das maschinelle Lernen sicher, aber falsch entscheiden. Die Regeln mit Tippfehlern fangen den Fall Z6 vorher ab; die Messung nach den Korrekturen zeigt, ob weitere Fälle betroffen sind.
