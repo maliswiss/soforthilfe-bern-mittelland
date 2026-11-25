@@ -221,3 +221,32 @@ Auffälligkeiten und Korrekturen:
 | Z12 | erste Frage an das Sprachmodell nach dem Start: Ollama musste die ganze Anweisung mit allen Kategorien verarbeiten, was auf dem Prozessor vermutlich länger dauerte als das Zeitlimit von 10 s | das Vorladen verarbeitet die Anweisung bereits beim Start, die Kategorien stehen immer in derselben Reihenfolge, höchstens 24 statt 60 Token, Zeitlimit 7 s wie der Zielbereich ([Sprachmodell](verstaendniskette.md#sprachmodell)) |
 
 Weiterhin gilt: Kommt in einem Text nur ein einzelnes allgemeines Wort aus den Beispielen vor, kann das maschinelle Lernen sicher, aber falsch entscheiden. Die Regeln mit Tippfehlern fangen den Fall Z6 vorher ab; die Messung nach den Korrekturen zeigt, ob weitere Fälle betroffen sind.
+
+### Messung 3 nach den Korrekturen (25.11.2026)
+
+[Messprotokoll](messprotokolle/r2-matching-2026-11-25-08-27.md), [Tabelle](messprotokolle/r2-matching-2026-11-25-08-27.csv) und [Zusatzfälle](messprotokolle/r2-matching-2026-11-25-08-27-zusatz.csv), Stand des Codes `6e95082`, frische Datenbank mit Testdaten und Messdaten, Sprachmodell nach dem Start vorgeladen.
+
+| Messgrösse | Ziel | Messung 2 (vorher) | Messung 3 (nachher) | Bewertung |
+|---|---|---|---|---|
+| Geeigneter, begründeter Vorschlag | mindestens 16 von 20 | 20 von 20 | 20 von 20, alle Kriterien K1 bis K6 erfüllt | erfüllt |
+| Antwortzeit je Fall | höchstens 7 s | Median 75 ms, höchstens 426 ms | Median 81 ms, höchstens 363 ms | erfüllt |
+| Notfälle | alle gestoppt und protokolliert | 4 von 4 | 4 von 4 | erfüllt |
+| Zusatzfälle mit Kategorie | – | 12 von 14 richtig | 14 von 14 richtig | – |
+| Zusatzfälle mit Notfall | alle gestoppt | 0 von 3 | 3 von 3 | erfüllt |
+| Antwortzeit des Sprachmodells (Z12) | höchstens 7 s | Zeitlimit erreicht nach 10061 ms | 4118 ms, richtig eingeordnet | erfüllt |
+| Fehler in den Zusatzfällen | – | Z6, Z15, Z16, Z17 | keine | – |
+
+| Schritt | Median | 90 % bis | höchstens |
+|---|---|---|---|
+| Verständnis | 9 ms | 25 ms | 87 ms |
+| Erfassen mit Matching | 46 ms | 122 ms | 200 ms |
+| Vorschläge laden | 12 ms | 24 ms | 76 ms |
+| Gesamt je Fall | 81 ms | 168 ms | 363 ms |
+
+Beobachtungen:
+
+- Die 20 Fälle sind unverändert: dieselben Wege der Einordnung (Regeln 15, maschinelles Lernen 4, Kategorieauswahl 1), dieselben Helfenden auf Rang 1 und Antwortzeiten in derselben Grössenordnung wie in Messung 1. Die Korrekturen haben keine bisher richtige Einordnung verändert.
+- Z5 und Z6 entscheiden jetzt die Regeln über ein ähnlich geschriebenes Wort; Z5 hatte vorher das maschinelle Lernen richtig eingeordnet.
+- Die drei Notfälle in ungewohnter Form stoppen mit den Begriffen «schnuufet nümm», «chest pain» und «spricht undeutlich».
+- Z12 ist der einzige Fall, der das Sprachmodell erreicht. Mit 4.1 s liegt er im Zielbereich, braucht aber ein Vielfaches der anderen Wege. Die Aussage beruht auf einer einzigen Entscheidung des Sprachmodells auf dem Prozessor des Arbeitsgeräts; die Zusatzmessung misst nur den Verständnis-Schritt.
+

@@ -1,0 +1,21 @@
+﻿Nr;Sprache;PLZ;Ort;Weg;Sicherheit;Dringlichkeit;Kategorie;Erwartet;K1;K2;K3;K4;K5;K6;Geeignet;Rang1;DistanzRang1;AnzahlVorschlaege;ZeitVerstehenMs;ZeitErfassenMs;ZeitVorschlaegeMs;ZeitGesamtMs;ImZielbereich
+1;de;3011;Bern;Regeln;0.9;hoch;schluesseldienst;schluesseldienst;1;1;1;1;1;1;1;Schlüsseldienst Fuchs GmbH;0;1;87;200;76;363;1
+2;fr;3011;Bern;Maschinelles Lernen;0.309;hoch;schluesseldienst;schluesseldienst;1;1;1;1;1;1;1;Schlüsseldienst Fuchs GmbH;0;1;21;47;10;79;1
+3;de;3014;Bern;Regeln;0.95;mittel;sanitaer-elektro;sanitaer-elektro;1;1;1;1;1;1;1;Wyss Sanitär und Heizung;0;3;7;44;8;59;1
+4;fr;3006;Bern;Regeln;0.8;hoch;sanitaer-elektro;sanitaer-elektro;1;1;1;1;1;1;1;Elektro Schneider AG;0;3;7;44;9;60;1
+5;de;3018;Bern;Regeln;0.8;hoch;pannenhilfe;pannenhilfe;1;1;1;1;1;1;1;Abschleppdienst Aebi;0;1;8;40;8;56;1
+6;fr;3027;Bern;Regeln;0.8;hoch;pannenhilfe;pannenhilfe;1;1;1;1;1;1;1;Abschleppdienst Aebi;914;1;7;45;30;83;1
+7;de;3012;Bern;Regeln;0.8;mittel;it-soforthilfe;it-soforthilfe;1;1;1;1;1;1;1;Nina Hofer;0;2;7;45;9;61;1
+8;fr;3012;Bern;Regeln;0.9;mittel;it-soforthilfe;it-soforthilfe;1;1;1;1;1;1;1;Nina Hofer;0;2;7;43;8;58;1
+9;de;3007;Bern;Regeln;0.9;mittel;reinigung;reinigung;1;1;1;1;1;1;1;Rossi Reinigungen;0;1;7;42;9;57;1
+10;de;3098;Köniz;Maschinelles Lernen;0.236;tief;transporthilfe;transporthilfe;1;1;1;1;1;1;1;Daniel Moser;0;2;10;41;8;59;1
+11;fr;3005;Bern;Regeln;0.9;tief;transporthilfe;transporthilfe;1;1;1;1;1;1;1;Claudia Zurbrügg;0;2;7;39;8;53;1
+12;fr;3013;Bern;Maschinelles Lernen;0.274;mittel;lieferdienst;lieferdienst;1;1;1;1;1;1;1;Jonas Berger;0;1;8;37;9;54;1
+13;de;3098;Köniz;Regeln;0.9;mittel;begleitung;begleitung;1;1;1;1;1;1;1;Ruth Gerber;0;2;7;69;20;96;1
+14;de;3006;Bern;Kategorieauswahl;1;mittel;kleine-reparatur;kleine-reparatur;1;1;1;1;1;1;1;Marco Bieri;0;3;20;102;18;140;1
+15;de;3072;Ostermundigen;Regeln;0.8;hoch;schluesseldienst;schluesseldienst;1;1;1;1;1;1;1;Schlüsseldienst Fuchs GmbH;3276;1;18;126;24;168;1
+16;fr;3073;Gümligen;Regeln;0.8;mittel;it-soforthilfe;it-soforthilfe;1;1;1;1;1;1;1;Kunz IT-Support;2684;2;19;109;24;152;1
+17;de;3076;Worb;Regeln;0.9;mittel;it-soforthilfe;it-soforthilfe;1;1;1;1;1;1;1;Kunz IT-Support;6596;1;17;102;13;132;1
+18;de;3110;Münsingen;Regeln;0.8;hoch;sanitaer-elektro;sanitaer-elektro;1;1;1;1;1;1;1;Haustechnik Aare GmbH;0;3;25;122;22;169;1
+19;fr;3084;Wabern;Maschinelles Lernen;0.136;mittel;sanitaer-elektro;sanitaer-elektro;1;1;1;1;1;1;1;Elektro Schneider AG;1920;3;26;107;17;149;1
+20;de;3052;Zollikofen;Regeln;0.9;mittel;nachbarschaftshilfe;nachbarschaftshilfe;1;1;1;1;1;1;1;Andrea Lüthi;0;2;18;94;24;136;1
