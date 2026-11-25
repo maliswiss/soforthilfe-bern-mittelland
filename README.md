@@ -18,6 +18,7 @@ Hilfesuchende beschreiben ihre Lage in eigenen Worten. Die Plattform erkennt den
 - [Technische Basis](#technische-basis)
 - [Schnellstart](#schnellstart)
 - [Entwicklung](#entwicklung)
+- [Tests und Messergebnisse](#tests-und-messergebnisse)
 - [Abgrenzung](#abgrenzung)
 - [Drittkomponenten und Lizenz](#drittkomponenten-und-lizenz)
 - [Autor](#-autor)
@@ -175,6 +176,23 @@ Zugangsdaten gehören nie ins Repository; Vorlage für die lokale Konfiguration 
 Alle Regeln stehen in [docs/commit-konvention.md](docs/commit-konvention.md).
 
 **Nummerierung:** «Anforderung A…» (zum Beispiel «Anforderung A18») bezeichnet einen Punkt aus dem Anforderungskatalog. A01 bis A10 sind die Kategorien der [OWASP Top 10](https://owasp.org/Top10/) in der Ausgabe 2025. Die beiden Nummerierungen haben nichts miteinander zu tun.
+
+## Tests und Messergebnisse
+
+Die CI führt bei jedem Push alle automatisierten Tests aus: 273 Einheitentests, 132 Schnittstellentests mit der Attrappe des Sprachmodells und 38 Oberflächentests, dazu die Tests der Messung, der Attrappe und der Hygieneprüfung.
+
+Messung des Matchings in Release 2 am 25.11.2026 auf dem Arbeitsgerät, mit echtem Sprachmodell und vor der Messung festgelegten Testfällen ([Messung des Matchings](docs/messung-matching.md), [Messprotokolle](docs/messprotokolle/README.md)):
+
+| Messgrösse | Ziel | Ergebnis |
+|---|---|---|
+| Geeigneter, begründeter Vorschlag | mindestens 16 von 20 | 20 von 20 |
+| Antwortzeit je Fall | höchstens 7 s | Median 81 ms, höchstens 363 ms |
+| Notfälle | alle gestoppt und protokolliert | 4 von 4 |
+| Schwierige Texte: Mundart, Tippfehler, Umschreibungen, andere Sprachen | – | 14 von 14 richtig eingeordnet |
+| Notfälle in ungewohnter Form | alle gestoppt | 3 von 3 |
+| Sprachmodell als letzte Stufe | höchstens 7 s | 4.1 s |
+
+Zusätzlich zu den 20 Fällen wurden 17 schwierige Texte gemessen: Mundart, Tippfehler, Umschreibungen, ein langer Text und andere Sprachen (die Oberfläche ist deutsch und französisch, die Beschreibung in eigenen Worten darf aber auch Englisch oder Italienisch sein; die Notfallprüfung erkennt beide Sprachen). Die vier Fehler der ersten Messung, ein Tippfehler und drei Notfälle in Mundart, Englisch und Alltagssprache, wurden behoben; die wiederholte Messung bestätigt das.
 
 ## Abgrenzung
 
