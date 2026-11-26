@@ -41,6 +41,29 @@ Jeder Kandidat erhält je Kriterium Teilpunkte zwischen 0 und 1. Die Punktzahl i
 
 Beispiel: 2.5 km bei 10 km Suchradius, keine Bewertungen, jetzt verfügbar, 4 Einsätze ergibt 0.75 · 0.35 + 1 · 0.25 + 0.6 · 0.20 + 1 · 0.10 + 0.4 · 0.10 = 0.7725.
 
+## Wahl der Gewichte
+
+Die Plattform vermittelt zeitkritische Alltagshilfe. Die Gewichte folgen deshalb der Frage, wer am schnellsten und verlässlich helfen kann.
+
+| Kriterium | Gewicht | Begründung |
+|---|---|---|
+| Distanz | 0.35 | die Nähe bestimmt, wie schnell jemand vor Ort ist; darum das höchste Gewicht |
+| Fähigkeit | 0.25 | ohne passende Fähigkeit keine Hilfe; weil die Kandidatensuche nur Helfende mit dieser Fähigkeit liefert, erhalten alle Kandidaten den Anteil voll; er unterscheidet sie nicht, zeigt aber in der Begründung, dass die Fähigkeit geprüft ist |
+| Bewertung | 0.20 | Qualität früherer Einsätze; ohne Bewertungen ein mittlerer Wert, damit neue Helfende nicht chancenlos sind |
+| Verfügbarkeit | 0.10 | die helfende Person setzt sie selbst, sie ist nicht immer aktuell; darum nur ergänzend, und wer nicht verfügbar ist, bleibt mit weniger Punkten sichtbar |
+| Erfahrung | 0.10 | ergänzend; ab 10 Einsätzen voll, damit erfahrene Helfende nicht immer vorne stehen |
+| Partner-Abo | kein Gewicht | ein bezahltes Abo darf die fachliche Eignung nicht verändern; es wirkt nur bei gleichwertiger Punktzahl und ist gekennzeichnet |
+
+Was die Gewichte bedeuten, zeigt der Vergleich mit der Distanz bei 10 km Suchradius (mittlere Dringlichkeit):
+
+| Unterschied | Punkte | entspricht einer Distanz von |
+|---|---|---|
+| Bewertung 5 von 5 statt noch keine Bewertungen | 0.08 | 2.3 km |
+| 10 Einsätze statt keine | 0.10 | 2.9 km |
+| jetzt verfügbar statt nicht verfügbar | 0.06 | 1.7 km |
+
+Eine Person mit Bewertung 5 von 5 steht bei sonst gleichen Angaben auch 2 km weiter weg noch vor einer Person ohne Bewertungen; bei 3 km Unterschied gewinnt die Nähe. Bei hoher Dringlichkeit (15 km) wiegen dieselben Unterschiede 3.4, 4.3 und 2.6 km auf, bei tiefer (5 km) 1.1, 1.4 und 0.9 km.
+
 Die Gewichte sind einstellbar, im Abschnitt `Matching:Gewichte` von `appsettings.json` oder über die Umgebung, zum Beispiel `Matching__Gewichte__Distanz=0.5`. Die Schnittstelle bringt sie auf die Summe 1; negative Gewichte oder lauter Nullen verhindern den Start.
 
 | Regel | Umsetzung |
@@ -112,18 +135,20 @@ Die gestaffelte Preisgabe entscheidet die Schnittstelle, nicht die Oberfläche: 
 
 ## Messung
 
-Testfälle, erwartete Ergebnisse und Messdaten der Messung stehen in [messung-matching.md](messung-matching.md).
+Testfälle, erwartete Ergebnisse und Messdaten der Messung stehen in [messung-matching.md](messung-matching.md). Nach den Korrekturen ergab die Messung in 20 von 20 Fällen einen geeigneten, begründeten Vorschlag (Ziel 16), bei einer Antwortzeit von höchstens 363 ms je Fall.
+
+In den Messdaten haben die Helfenden noch keine Bewertungen und keine Einsätze; die Reihenfolge entscheidet dort die Distanz. Den Einfluss von Bewertung, Verfügbarkeit, Erfahrung und Partner-Abo prüfen die Einheitentests `PunktzahlTests`, die Verfügbarkeit zusätzlich der Schnittstellentest in `tests/api/vorschlaege.test.mjs`.
 
 ## Tests
 
 | Test | Prüft |
 |---|---|
-| Komponententests `KandidatenSucheTests` | Suchradius je Dringlichkeit; Grenzen von Such- und Einsatzradius; Reihenfolge |
-| Komponententests `PunktzahlTests` | Teilpunkte je Kriterium; gewichtete Punktzahl mit Beispiel; Gewichte auf Summe 1, ungültige Gewichte; Reihenfolge; Partner nur bei gleichwertiger Punktzahl |
+| Einheitentests `KandidatenSucheTests` | Suchradius je Dringlichkeit; Grenzen von Such- und Einsatzradius; Reihenfolge |
+| Einheitentests `PunktzahlTests` | Teilpunkte je Kriterium; gewichtete Punktzahl mit Beispiel; Gewichte auf Summe 1, ungültige Gewichte; Reihenfolge; Partner nur bei gleichwertiger Punktzahl |
 | Schnittstellentests `tests/api/vorschau.test.mjs` | ungültige Eingaben mit Feld; Dringlichkeit und Ort aus Kategorie und Postleitzahl; ohne Anmeldung ohne Namen, angemeldet mit Namen, Telefonnummer nie; Preise bei kostenpflichtigen Kategorien; Region aus der Postleitzahl |
 | Oberflächentests `tests/oberflaeche/vorschlaege.spec.mjs` | Vorschlagsliste mit Begründung, Entfernung, Preis, Hinweis zur Telefonnummer und zugeklappten Teilpunkten je Kriterium mit Punktzahl; Sprachwechsel auf der Liste ohne neue Reihenfolge; Hinweis, wenn niemand Passendes in Reichweite ist |
 | Oberflächentests `tests/oberflaeche/vorschau.spec.mjs` | Vorschau ohne Anmeldung mit verdecktem Namen und Preis; nach der Anmeldung mit Namen und weiter zum Erfassen |
-| Komponententests `BegruendungTests` | Text mit und ohne Bewertungen, Einzahl, Partner; Distanz in Metern und Kilometern; Kriterien mit Beitrag und Summe |
+| Einheitentests `BegruendungTests` | Text mit und ohne Bewertungen, Einzahl, Partner; Distanz in Metern und Kilometern; Kriterien mit Beitrag und Summe |
 | Schnittstellentests `tests/api/begruendung.test.mjs` | Text je Vorschlag; alle Kriterien mit Teilpunkten, Gewicht und Beitrag; Summe gleich Punktzahl |
 | Schnittstellentests `tests/api/vorschlaege.test.mjs` | Zugriff je Rolle; drei beste nach Punktzahl; Punktzahl bei hoher Dringlichkeit; Status «Vorschläge vorhanden»; Protokoll mit Anzahl; Preisangaben bei kostenpflichtigen Kategorien; ohne Kandidaten offen; nicht verfügbare Helfende mit 0.4 Teilpunkten und 0.06 Punkten weniger; gespeicherte Vorschläge bleiben nach Profiländerungen gleich |
 | Schnittstellentests `tests/api/kandidaten.test.mjs` | Zugriff je Rolle; verifiziert, Fähigkeit, Such- und Einsatzradius je Dringlichkeit; Preise bei kostenpflichtigen Kategorien; ohne Kategorie; fremde Region; kleinerer Einsatzradius wirkt sofort, neuer Ort erst nach erneuter Prüfung |

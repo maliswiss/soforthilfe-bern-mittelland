@@ -38,7 +38,7 @@ Hilfesuchende beschreiben ihre Lage in eigenen Worten. Die Plattform erkennt den
 | Helferprofile mit Verifizierung und Preisangaben | R2 | in Arbeit ([docs/helferprofil.md](docs/helferprofil.md), [docs/preise.md](docs/preise.md), [docs/verifizierung.md](docs/verifizierung.md)) |
 | Verständniskette: Kategorie, Regeln, TF-IDF-Klassifikator, Sprachmodell, Dringlichkeit | R2 | umgesetzt ([docs/verstaendniskette.md](docs/verstaendniskette.md)) |
 | Mehrsprachigkeit Deutsch und Französisch, Sprachimport ohne Deployment | R2 | umgesetzt ([docs/mehrsprachigkeit.md](docs/mehrsprachigkeit.md)) |
-| Smart-Matching mit nachvollziehbarer Begründung | R2 | in Arbeit ([docs/matching.md](docs/matching.md)) |
+| Smart-Matching mit nachvollziehbarer Begründung | R2 | umgesetzt ([docs/matching.md](docs/matching.md), [docs/messung-matching.md](docs/messung-matching.md)) |
 | Auswahl, Zusage, Eskalation und Echtzeit-Hinweise | R3 | geplant |
 | Chat je Anfrage | R3 | geplant |
 | Abschluss, Vermittlungsgebühr, Bewertung und Auswertung | R3 | geplant |

@@ -10,7 +10,7 @@ flowchart TD
     N -->|"Ja"| S["Notfall-Stopp<br/>keine Einordnung"]
     N -->|"Nein"| K{"Kategorie<br/>gewählt?"}
     K -->|"Ja"| W0["Weg 0: Kategorieauswahl"]
-    K -->|"Nein"| R{"Eindeutiges<br/>Schlüsselwort?"}
+    K -->|"Nein"| R{"Eindeutiges oder<br/>ähnlich geschriebenes<br/>Schlüsselwort?"}
     R -->|"Ja"| W1["Weg 1: Regeln"]
     R -->|"Nein"| M{"TF-IDF sicher?<br/>Ähnlichkeit ≥ 0.12<br/>Abstand ≥ 0.03"}
     M -->|"Ja"| W2["Weg 2: maschinelles Lernen"]
@@ -29,6 +29,19 @@ flowchart TD
 Alle Wege laufen über dieselbe Kette, beim Verständnis-Schritt wie beim Erfassen. Eine neue Anfrage speichert den Weg (`Erfassungsweg`) und die Sicherheit (`EinordnungKonfidenz`); das Protokoll erhält den Eintrag `Anfrage.Eingeordnet` mit dem Weg als Detail (`Kategorieauswahl`, `Regeln`, `MaschinellesLernen`, `Sprachmodell` oder `Offen`), ohne Freitext und ohne Personendaten.
 
 Ohne sicheres Ergebnis bleibt die Kategorie leer, die Begründung bittet darum, eine Kategorie aus der Liste zu wählen, und `alternativen` nennt die bis zu drei ähnlichsten Kategorien.
+
+## Aufbau der Kette
+
+Jede Stufe läuft nur, wenn die vorherige offen bleibt. So entscheiden die schnellen und nachvollziehbaren Stufen die meisten Anfragen, und die langsamste Stufe kommt nur selten zum Zug.
+
+| Stufe | Stärke | Grenze | Zeit je Text (Messung 3) |
+|---|---|---|---|
+| Kategorieauswahl | eindeutig, ohne Rechenaufwand | die Person muss die passende Kategorie kennen | – |
+| Regeln | sofort, die Begründung nennt das Wort; Deutsch, Französisch, Italienisch und Englisch, Mundart mit Wörtern aus der Liste; ein Tippfehler in längeren Wörtern | nur Wörter aus der Liste | 10 bis 26 ms |
+| Maschinelles Lernen | erkennt Umschreibungen ohne Schlüsselwort, Ähnlichkeit und Abstand sind nachvollziehbar, ohne externe Bibliothek | nur mit deutschen und französischen Beispielen trainiert; ein einzelnes allgemeines Wort kann zu sicher entscheiden | 11 ms |
+| Sprachmodell | versteht freie Formulierungen auch in anderen Sprachen | auf dem Prozessor langsam, nennt keine Sicherheit, die Antwort kann ausbleiben; darum Zeitlimit und danach Auswahl | 4118 ms |
+
+In der [Messung](messung-matching.md) nach den Korrekturen entschieden bei den 20 Fällen die Regeln 15, das maschinelle Lernen 4 und die Kategorieauswahl 1; bei den 14 schwierigen Texten mit Kategorie die Regeln 12, das maschinelle Lernen 1 und das Sprachmodell 1. Die Zeiten der Tabelle stammen aus diesen schwierigen Texten und umfassen nur den Verständnis-Schritt.
 
 ## Regeln
 
