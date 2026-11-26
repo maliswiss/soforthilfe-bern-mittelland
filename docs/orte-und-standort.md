@@ -51,6 +51,18 @@ Orte und Postleitzahlen stammen aus dem amtlichen Ortschaftenverzeichnis der Sch
 | 3053 | Münchenbuchsee (`bern-mittelland`) und Lätti, Gemeinde Rapperswil (BE) (`biel-seeland`) |
 | 8001 | Zürich, keine Region |
 
+## Verwendung
+
+Die Plattform rechnet nur mit dem Punkt der Postleitzahl aus dem Verzeichnis, nie mit einer genauen Adresse.
+
+| Stelle | Verwendung |
+|---|---|
+| Registrierung | Region des Kontos aus der Postleitzahl |
+| Anfrage | Postleitzahl in der Region des Kontos; ihr Punkt ist der Ausgangspunkt der Distanz im [Matching](matching.md) |
+| Helferprofil | Punkt der Postleitzahl für Distanz und Einsatzradius |
+| Vorschau ohne Anmeldung | Region und Ausgangspunkt aus der Postleitzahl |
+| Standortfreigabe | nur die Übersetzung in Postleitzahl und Ort |
+
 ## Region aus der Postleitzahl
 
 Eine Regionswahl gibt es in der Oberfläche nicht. Bei der Registrierung bestimmt die Postleitzahl die Region des Kontos; gespeichert wird die Postleitzahl dafür nicht. Steht sie nicht im Verzeichnis oder in keiner Region, wird die Registrierung mit einem Hinweis nicht gesendet. Die Anmeldung braucht keine Region, sie gilt in der Region des Kontos.

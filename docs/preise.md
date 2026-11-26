@@ -70,6 +70,8 @@ Die Preise sind vor der Zusage sichtbar, aber nur bei bezahlpflichtigen Kategori
 | Anfrage nach dem Absenden | derselbe Hinweis unter den Angaben zur Anfrage | kein Preishinweis |
 | Helferprofil | Vorschau zu vier Beispielzeiten in der Darstellung, die Anfragende bei den Vorschlägen sehen | keine Preisangaben nötig |
 
+In der Vorschlagsliste und in der Vorschau ohne Anmeldung berechnet die Schnittstelle den Richtpreis beim Abruf aus dem aktuellen Profil und für den Zeitpunkt des Abrufs ([Matching](matching.md)); ein Nacht- oder Wochenendzuschlag erscheint also, wenn gerade Nacht oder Wochenende ist.
+
 Beim Freitext bestimmt die [Verständniskette](verstaendniskette.md) die Kategorie und damit, ob der Preishinweis erscheint; die Person kann die Kategorie vor dem Absenden ändern. Die Preise einzelner Helfender zeigt die Komponente [`PreisAngaben.vue`](../frontend/src/components/PreisAngaben.vue): Richtpreis mit angewandtem Zuschlag und MWST, Anfahrt, Stundenansatz, beide Zuschläge und den MWST-Satz.
 
 ## Tests

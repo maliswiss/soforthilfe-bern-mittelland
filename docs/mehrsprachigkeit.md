@@ -25,6 +25,19 @@ Die Bereiche `kategorien` und `faehigkeiten` enthalten die Namen der zehn Katego
 
 Meldungen und Begründungen, die die Schnittstelle als Text liefert (zum Beispiel Fehlermeldungen oder die Begründung der Einordnung), sind auf Deutsch.
 
+## Beschreibung in anderen Sprachen
+
+Die Oberfläche gibt es auf Deutsch und Französisch, die Beschreibung in eigenen Worten ist aber an keine Sprache gebunden. Wer Englisch, Italienisch oder Mundart schreibt, wird trotzdem verstanden; die Stufen der [Verständniskette](verstaendniskette.md) decken dabei unterschiedliche Sprachen ab.
+
+| Stufe | Sprachen |
+|---|---|
+| [Notfallprüfung](notfallpruefung.md) | Deutsch, Französisch, Englisch, Italienisch und häufige Wendungen in Mundart («schnuufet nümm») |
+| Regeln | Deutsch, Französisch, Italienisch und Englisch; Mundart, soweit sie Wörter der Liste enthält (zum Beispiel «verstopft», «Apotheke») |
+| Maschinelles Lernen | Deutsch und Französisch, die Sprachen der Trainingsbeispiele |
+| Sprachmodell | auch weitere Sprachen, soweit das Modell sie versteht |
+
+Die erkannte Kategorie erscheint in der Sprache der Oberfläche, die Begründung auf Deutsch. In der [Messung](messung-matching.md) wurden alle fünf Texte in Mundart und alle vier in Englisch oder Italienisch richtig eingeordnet oder als Notfall gestoppt.
+
 ## Sprachimport ohne Deployment
 
 Der Plattformbetrieb importiert weitere Sprachen oder korrigierte Texte im laufenden Betrieb über die Schnittstelle. Die Texte liegen in der Tabelle `Sprachen` und gelten beim nächsten Abruf, ohne Neustart und ohne neues Image.
@@ -70,4 +83,4 @@ Beim Start lädt die Oberfläche die Liste der aktiven Sprachen und die Texte de
 | Schnittstellentests `tests/api/anfragen.test.mjs` | Anfragen enthalten den Code der Kategorie |
 | Schnittstellentests `tests/api/sprachen.test.mjs` | Zugriff je Rolle; Import gilt sofort; erneuter Import ersetzt die Texte; ausschalten, löschen und Protokoll; ungültige Dateien mit Feld und Stelle; Grenzen für Anzahl, Länge, Ebenen und Schlüssel; über 1 MB Status 413; ein ungültiger erneuter Import lässt die bisherigen Texte unverändert |
 | Oberflächentests `tests/oberflaeche/sprachen.spec.mjs` | Prüfung im Browser mit betroffener Stelle; Import mit fehlenden und unbekannten Texten; neue Sprache sofort im Umschalter und für Besuchende; deutsche Texte als Ersatz; ausschalten und löschen; Zugang nur für den Plattformbetrieb |
-| Komponententests `SprachdateiTests` | Code, Name, Ebenen, Schlüssel, Längen, unzulässige Zeichen und Platzhalter |
+| Einheitentests `SprachdateiTests` | Code, Name, Ebenen, Schlüssel, Längen, unzulässige Zeichen und Platzhalter |

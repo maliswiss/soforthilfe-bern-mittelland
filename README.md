@@ -34,8 +34,8 @@ Hilfesuchende beschreiben ihre Lage in eigenen Worten. Die Plattform erkennt den
 | Oberfläche: Startseite mit Kategorie oder Freitext, Registrierung, Anmeldung, Anfrage erfassen, eigene Anfragen | R1 | umgesetzt |
 | Containerplattform mit Docker Compose und Traefik | R1 | umgesetzt |
 | Notfall-Stopp mit Hinweis «144 anrufen» und Protokolleintrag ohne Personendaten | R2 | umgesetzt |
-| Orte über das Ortschaftenverzeichnis von swisstopo, Region aus der Postleitzahl, Standortfreigabe | R2 | umgesetzt |
-| Helferprofile mit Verifizierung und Preisangaben | R2 | in Arbeit ([docs/helferprofil.md](docs/helferprofil.md), [docs/preise.md](docs/preise.md), [docs/verifizierung.md](docs/verifizierung.md)) |
+| Orte über das Ortschaftenverzeichnis von swisstopo, Region aus der Postleitzahl, Standortfreigabe | R2 | umgesetzt ([docs/orte-und-standort.md](docs/orte-und-standort.md)) |
+| Helferprofile mit Verifizierung und Preisangaben | R2 | umgesetzt ([docs/helferprofil.md](docs/helferprofil.md), [docs/preise.md](docs/preise.md), [docs/verifizierung.md](docs/verifizierung.md)) |
 | Verständniskette: Kategorie, Regeln, TF-IDF-Klassifikator, Sprachmodell, Dringlichkeit | R2 | umgesetzt ([docs/verstaendniskette.md](docs/verstaendniskette.md)) |
 | Mehrsprachigkeit Deutsch und Französisch, Sprachimport ohne Deployment | R2 | umgesetzt ([docs/mehrsprachigkeit.md](docs/mehrsprachigkeit.md)) |
 | Smart-Matching mit nachvollziehbarer Begründung | R2 | umgesetzt ([docs/matching.md](docs/matching.md), [docs/messung-matching.md](docs/messung-matching.md)) |
