@@ -146,7 +146,7 @@ npm run dev
 
 Die Oberfläche läuft unter `http://localhost:5173`. Ablauf und Bildschirme: [docs/screenflow.md](docs/screenflow.md).
 
-Mit `Testdaten__Laden=true` in der `.env` lädt die Schnittstelle beim Start Testdaten mit ausschliesslich fiktiven Personen, sofern die Datenbank noch keine Konten enthält. Mit `TESTDATEN_PASSWORT` können sich die Testkonten anmelden.
+Mit `Testdaten__Laden=true` in der `.env` lädt die Schnittstelle beim Start Testdaten mit ausschliesslich fiktiven Personen, sofern die Datenbank noch keine Konten enthält. Mit `TESTDATEN_PASSWORT` können sich die Testkonten anmelden; Konten, Rollen und Profile stehen in [docs/testdaten.md](docs/testdaten.md).
 
 **Neue Region einrichten** (ohne Deployment): Der Plattformbetrieb sendet `POST /api/mandanten` mit Schlüssel und Name, zum Beispiel `{ "schluessel": "thun", "name": "Soforthilfe Thun", "gemeinden": [939, 942] }`. Die Region ist sofort nutzbar; über ihre Gemeinden (BFS-Nummern) bestimmt die Postleitzahl, wer zu ihr gehört. Details: [docs/mandanten.md](docs/mandanten.md).
 

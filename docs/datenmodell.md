@@ -208,4 +208,4 @@ Weitere Regionen entstehen im laufenden Betrieb als Daten (`POST /api/mandanten`
 
 ## Testdaten
 
-Mit `Testdaten__Laden=true` lädt die Schnittstelle beim Start fiktive Daten in eine Datenbank ohne Konten: acht Konten auf `beispiel.invalid` in beiden Regionen und im Plattformbetrieb, drei Helferprofile, zwei davon mit Preisangaben, und zwei Anfragen. Die CI prüft die Anzahl der Zeilen je Tabelle.
+Mit `Testdaten__Laden=true` lädt die Schnittstelle beim Start fiktive Daten in eine Datenbank ohne Konten: acht Konten auf `beispiel.invalid` in beiden Regionen und im Plattformbetrieb, drei Helferprofile, zwei davon mit Preisangaben, zwei Nachweise und zwei Anfragen. Die CI prüft die Anzahl der Zeilen je Tabelle. Alle Konten, Profile und Anfragen: [testdaten.md](testdaten.md).

@@ -139,14 +139,19 @@ Vue 3 mit Vite, Tailwind CSS und PWA, Zustand mit Pinia, Texte über vue-i18n. A
 
 ## Tests
 
-| Ebene | Werkzeug | Verzeichnis |
-|---|---|---|
-| Schnittstelle | node:test | `tests/api` |
-| Oberfläche | Playwright | `tests/e2e` |
-| Last und Ausfall | Messskript | `tests/last` |
-| Sicherheit | OWASP-Prüfungen, ZAP | `tests/sicherheit` |
+| Ebene | Werkzeug | Verzeichnis | Stand |
+|---|---|---|---|
+| Einheiten | xUnit | `backend/tests/Soforthilfe.Tests` | Release 1 und 2 |
+| Schnittstelle | node:test | `tests/api` | Release 1 und 2 |
+| Rauchtest | Bash und curl | `tests/rauchtest` | Release 1 und 2 |
+| Oberfläche | Playwright | `tests/oberflaeche` | Release 1 und 2 |
+| Messung des Matchings | Messskript mit node:test | `tests/messprotokoll` | Release 2 |
+| Attrappe des Sprachmodells | node:test | `tests/attrappe` | Release 2 |
+| Hygieneprüfung | node:test | `tests/hygiene` | Release 1 |
+| Last und Ausfall | Messskript | – | Release 3 |
+| Sicherheit | OWASP-Prüfungen, ZAP | – | Release 3 |
 
-Messungen und Testprotokolle liegen in `docs/messprotokolle/`.
+Die CI führt alle vorhandenen Tests bei jedem Push aus. Testprotokolle liegen in `docs/` (zum Beispiel [testprotokoll-r1.md](testprotokoll-r1.md)), Messprotokolle in [`docs/messprotokolle/`](messprotokolle/README.md).
 
 ## Konventionen
 

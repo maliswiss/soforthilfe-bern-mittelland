@@ -1,6 +1,6 @@
-# Schnittstelle Release 1
+# Schnittstelle
 
-Die Schnittstelle ist eine REST-API unter `/api`. Sie spricht JSON; Feldnamen beginnen mit einem Kleinbuchstaben (`eMail`, `kategorieId`). In der Containerplattform ist sie über den Lastverteiler unter `https://localhost/api` erreichbar, in der Entwicklung unter `http://localhost:5000/api`.
+Stand Release 2. Die Schnittstelle ist eine REST-API unter `/api`. Sie spricht JSON; Feldnamen beginnen mit einem Kleinbuchstaben (`eMail`, `kategorieId`). In der Containerplattform ist sie über den Lastverteiler unter `https://localhost/api` erreichbar, in der Entwicklung unter `http://localhost:5000/api`.
 
 ## Endpunkte
 
@@ -90,10 +90,12 @@ Content-Type: application/json
 | `kategorieId`, `freitext` | mindestens eines von beiden; Freitext höchstens 2000 Zeichen |
 | `plz` | vierstellig, beginnt nicht mit 0, steht im Ortschaftenverzeichnis und berührt eine Gemeinde der Region des Kontos |
 | `ort` | Pflicht, höchstens 120 Zeichen |
-| `adresse`, `zeitfenster` | freiwillig |
+| `adresse`, `zeitfenster` | freiwillig, höchstens 250 und 120 Zeichen |
 | `prioritaet` | `0` tief, `1` mittel, `2` hoch; ohne Angabe aus Text und Kategorie abgeleitet ([verstaendniskette.md](verstaendniskette.md)) |
 
-Antwort `201` mit der Anfrage: `id`, `kategorieId`, `kategorieBezeichnung`, `freitext`, `plz`, `ort`, `adresse`, `zeitfenster`, `prioritaet`, `status`, `erstelltAm`, `bezahlpflichtig` und `erfassungsweg` (`0` Kategorieauswahl, `1` Regeln, `2` maschinelles Lernen, `3` Sprachmodell, `null` ohne Kategorie).
+Antwort `201` mit der Anfrage: `id`, `kategorieId`, `kategorieBezeichnung`, `freitext`, `plz`, `ort`, `adresse`, `zeitfenster`, `prioritaet`, `status`, `erstelltAm`, `bezahlpflichtig`, `erfassungsweg` (`0` Kategorieauswahl, `1` Regeln, `2` maschinelles Lernen, `3` Sprachmodell, `null` ohne Kategorie) und `kategorieCode`, über den die Oberfläche den Namen der Kategorie in der gewählten Sprache zeigt.
+
+Mit einer Kategorie erzeugt die Schnittstelle beim Erfassen gleich die Vorschläge des Smart-Matchings; mit mindestens einem Vorschlag hat die Anfrage den Status `2` («Vorschläge vorhanden»). Die Vorschläge liefert `GET /api/anfragen/{id}/vorschlaege` ([matching.md](matching.md)).
 
 ## Orte und Postleitzahlen
 
