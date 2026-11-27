@@ -1,12 +1,13 @@
 // Schnittstellentests: unverbindliche Vorschau ohne Anmeldung mit gestaffelter Preisgabe. Ohne Anmeldung keine
 // Namen, angemeldet mit Namen; Telefonnummer, Adresse und Kennung der Helfenden nie. Die Anfragen liegen in
-// 3150 Schwarzenburg, weit weg von den Profilen anderer Tests.
+// 1797 Münchenwiler, mehr als 15 km von den Profilen anderer Tests entfernt: Die Testdateien laufen gleichzeitig,
+// und ein Profil eines anderen Tests darf die Liste zwischen zwei Abfragen nicht verändern.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { aufruf, neuesKonto, testkonto, helferprofil, OHNE_TESTPASSWORT } from './hilfen.mjs';
 
-const ort = { plz: '3150', ort: 'Schwarzenburg' };
+const ort = { plz: '1797', ort: 'Münchenwiler' };
 const vorschau = (daten, token) => aufruf('POST', '/api/anfragen/vorschau', { daten, token });
 
 async function kategorie(code) {
@@ -47,11 +48,11 @@ test('Ungültige Eingaben werden mit Hinweis auf das Feld abgewiesen', async () 
 
 test('Ohne Dringlichkeit gilt die übliche der Kategorie; der Ort folgt aus der Postleitzahl', async () => {
   const schluesseldienst = await kategorie('schluesseldienst');
-  const antwort = await vorschau({ kategorieId: schluesseldienst.id, plz: '3150' });
+  const antwort = await vorschau({ kategorieId: schluesseldienst.id, plz: '1797' });
   assert.equal(antwort.status, 200);
   assert.equal(antwort.inhalt.prioritaet, 2);
   assert.equal(antwort.inhalt.suchradiusKm, 15);
-  assert.equal(antwort.inhalt.ort, 'Schwarzenburg');
+  assert.equal(antwort.inhalt.ort, 'Münchenwiler');
   assert.equal(antwort.inhalt.code, 'schluesseldienst');
   assert.equal(antwort.inhalt.bezahlpflichtig, true);
   assert.equal(antwort.inhalt.angemeldet, false);

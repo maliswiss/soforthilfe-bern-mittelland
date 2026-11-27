@@ -30,6 +30,12 @@ test('dotnet test mit Microsoft.Testing.Platform', () => {
   assert.deepEqual(auswerten(ausgabe), { tests: 273, bestanden: 273, fehlgeschlagen: 0, uebersprungen: 0 });
 });
 
+test('dotnet test mit Farbcodes wie in der CI', () => {
+  const ausgabe = ['\x1b[32mTest run summary: Passed!', '\x1b[m  total: 273', '  failed: 0', '\x1b[32m  succeeded: 273',
+    '\x1b[m  skipped: 0', '  duration: 2s 512ms'].join('\n');
+  assert.deepEqual(auswerten(ausgabe), { tests: 273, bestanden: 273, fehlgeschlagen: 0, uebersprungen: 0 });
+});
+
 test('Playwright mit dem Reporter list', () => {
   const ausgabe = ['  ✓  38 [mobil] › mobil.spec.mjs:5:1 › Startseite (1.2s)', '', '  1 flaky', '  37 passed (1.4m)'].join('\n');
   assert.deepEqual(auswerten(ausgabe), { tests: 38, bestanden: 38, fehlgeschlagen: 0, uebersprungen: 0 });

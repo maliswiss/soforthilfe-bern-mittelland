@@ -61,8 +61,12 @@ function rauchtest(text) {
   return { tests: bestanden + fehlgeschlagen, bestanden, fehlgeschlagen, uebersprungen: 0 };
 }
 
+// Farbcodes der Konsole, zum Beispiel «\x1b[32m» vor «succeeded: 273» in der Ausgabe von dotnet.
+const FARBCODE = /\x1b\[[0-9;]*m/g;
+
 /** Erkennt das Format der Ausgabe und zählt die Tests; ohne erkennbares Format null. */
-export function auswerten(text) {
+export function auswerten(rohtext) {
+  const text = rohtext.replace(FARBCODE, '');
   return nodeTest(text) ?? dotnetTest(text) ?? playwright(text) ?? rauchtest(text);
 }
 
