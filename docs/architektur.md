@@ -148,10 +148,11 @@ Vue 3 mit Vite, Tailwind CSS und PWA, Zustand mit Pinia, Texte über vue-i18n. A
 | Messung des Matchings | Messskript mit node:test | `tests/messprotokoll` | Release 2 |
 | Attrappe des Sprachmodells | node:test | `tests/attrappe` | Release 2 |
 | Hygieneprüfung | node:test | `tests/hygiene` | Release 1 |
+| Testübersicht der CI | node:test | `tests/ci` | Release 2 |
 | Last und Ausfall | Messskript | – | Release 3 |
 | Sicherheit | OWASP-Prüfungen, ZAP | – | Release 3 |
 
-Die CI führt alle vorhandenen Tests bei jedem Push aus. Testprotokolle liegen in `docs/` (zum Beispiel [testprotokoll-r1.md](testprotokoll-r1.md)), Messprotokolle in [`docs/messprotokolle/`](messprotokolle/README.md).
+Die CI führt alle vorhandenen Tests bei jedem Push aus und zeigt am Ende jedes Jobs eine Testübersicht mit Anzahl, bestandenen, fehlgeschlagenen und übersprungenen Tests ([`testuebersicht.mjs`](../scripts/ci/testuebersicht.mjs)). Testprotokolle liegen in `docs/` (zum Beispiel [testprotokoll-r1.md](testprotokoll-r1.md)), Messprotokolle in [`docs/messprotokolle/`](messprotokolle/README.md).
 
 ## Konventionen
 

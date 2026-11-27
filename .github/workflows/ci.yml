@@ -1,6 +1,8 @@
 # CI: Geheimnisprüfung, Hygieneprüfung, Build und Tests
 # Läuft bei jedem Push auf main und bei jedem Pull Request.
 # Die Schritte für Backend und Frontend greifen, sobald der jeweilige Code vorhanden ist.
+# Die Testschritte schreiben ihre Ausgabe zusätzlich nach testlauf/; daraus entsteht am Ende jedes Jobs
+# die Testübersicht in der Zusammenfassung des Laufs (scripts/ci/testuebersicht.mjs).
 
 name: CI
 
@@ -58,17 +60,38 @@ jobs:
       # Die Testfälle der Messung müssen zu Stammdaten und Ortschaftenverzeichnis passen, bevor gemessen wird.
       - name: Testfälle der Messung prüfen
         working-directory: .
-        run: node --test "tests/messprotokoll/*.test.mjs"
+        run: |
+          set -o pipefail
+          mkdir -p testlauf
+          node --test "tests/messprotokoll/*.test.mjs" 2>&1 | tee testlauf/messung.log
 
       - name: Attrappe des Sprachmodells prüfen
         working-directory: .
-        run: node --test "tests/attrappe/*.test.mjs"
+        run: |
+          set -o pipefail
+          node --test "tests/attrappe/*.test.mjs" 2>&1 | tee testlauf/attrappe.log
 
       - name: Alle versionierten Dateien prüfen
         run: node scripts/hygiene/pruefe-dateien.mjs --alle
 
       - name: Tests der Hygieneprüfung
-        run: node --test "tests/hygiene/*.test.mjs"
+        run: |
+          set -o pipefail
+          node --test "tests/hygiene/*.test.mjs" 2>&1 | tee testlauf/hygiene.log
+
+      - name: Tests der Testübersicht
+        run: |
+          set -o pipefail
+          node --test "tests/ci/*.test.mjs" 2>&1 | tee testlauf/ci.log
+
+      - name: Testübersicht
+        if: always()
+        run: >-
+          node scripts/ci/testuebersicht.mjs
+          "Testfälle der Messung=testlauf/messung.log"
+          "Attrappe des Sprachmodells=testlauf/attrappe.log"
+          "Hygieneprüfung=testlauf/hygiene.log"
+          "Testübersicht=testlauf/ci.log"
 
   frontend:
     name: Frontend bauen
@@ -197,7 +220,10 @@ jobs:
 
       - name: Tests
         if: hashFiles('backend/tests/**/*.csproj') != ''
-        run: dotnet test --solution Soforthilfe.slnx --configuration Release --no-build
+        run: |
+          set -o pipefail
+          mkdir -p "$GITHUB_WORKSPACE/testlauf"
+          dotnet test --solution Soforthilfe.slnx --configuration Release --no-build 2>&1 | tee "$GITHUB_WORKSPACE/testlauf/einheiten.log"
 
       - name: Werkzeuge wiederherstellen (dotnet ef)
         run: dotnet tool restore
@@ -286,14 +312,19 @@ jobs:
         working-directory: .
         env:
           API_URL: http://localhost:5000
-        run: bash tests/rauchtest/schnittstelle.sh
+        run: |
+          set -o pipefail
+          mkdir -p testlauf
+          bash tests/rauchtest/schnittstelle.sh 2>&1 | tee testlauf/rauchtest.log
 
       - name: Schnittstellentests
         working-directory: .
         env:
           API_URL: http://localhost:5000
           SPRACHMODELL_ATTRAPPE: http://localhost:11434
-        run: node --test "tests/api/*.test.mjs"
+        run: |
+          set -o pipefail
+          node --test "tests/api/*.test.mjs" 2>&1 | tee testlauf/api.log
 
       - name: Oberfläche bauen und als Vorschau starten
         working-directory: frontend
@@ -322,7 +353,19 @@ jobs:
         working-directory: tests/oberflaeche
         env:
           OBERFLAECHE_URL: http://localhost:4173
-        run: npx playwright test
+        run: |
+          set -o pipefail
+          npx playwright test 2>&1 | tee "$GITHUB_WORKSPACE/testlauf/oberflaeche.log"
+
+      - name: Testübersicht
+        if: always()
+        working-directory: .
+        run: >-
+          node scripts/ci/testuebersicht.mjs
+          "Einheitentests=testlauf/einheiten.log"
+          "Rauchtest der Schnittstelle=testlauf/rauchtest.log"
+          "Schnittstellentests=testlauf/api.log"
+          "Oberflächentests=testlauf/oberflaeche.log"
 
       - name: Protokoll der Schnittstelle
         if: always()
